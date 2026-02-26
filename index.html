@@ -422,9 +422,11 @@ function syncOGP(){
     try{ogp.addPoints(delta);ogpSentTotal=target;}catch(e){console.warn('[TapRush] addPoints error',e);}
   }
 }
-function endOGP(){
+async function endOGP(){
   if(!ogp||!ogpReady)return;
-  try{ogp.endGame();}catch(e){console.warn('[TapRush] endGame error',e);}
+  // Push any remaining points delta into SDK buffer before committing
+  syncOGP();
+  try{await ogp.endGame();}catch(e){console.warn('[TapRush] endGame error',e);}
 }
 
 // CANVAS
