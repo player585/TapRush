@@ -86,7 +86,8 @@ body{display:flex;flex-direction:column}
 @keyframes toastOut{to{transform:translateX(-110%);opacity:0}}
 .achievement-popup{position:fixed;top:50%;left:16.5%;transform:translate(-50%,-50%) scale(0);background:rgba(8,8,16,0.97);border:2px solid var(--yellow);border-radius:12px;padding:20px 28px;z-index:200;text-align:center;box-shadow:0 0 50px rgba(240,255,0,0.2);animation:achieveIn .5s cubic-bezier(0.34,1.56,0.64,1) forwards;max-width:260px}
 @keyframes achieveIn{to{transform:translate(-50%,-50%) scale(1)}}
-.achievement-popup .a-icon{font-size:32px;margin-bottom:6px}.achievement-popup .a-label{font-family:var(--font-head);font-size:8px;color:rgba(240,255,0,0.5);letter-spacing:2px}.achievement-popup .a-title{font-family:var(--font-head);font-size:13px;color:var(--yellow);margin-bottom:3px}.achievement-popup .a-desc{font-size:10px;color:var(--gray)}
+.achievement-popup .a-icon{font-size:42px;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(240,255,0,0.8));animation:popupIconPulse 1s ease-in-out infinite}
+@keyframes popupIconPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 12px rgba(240,255,0,0.8))}50%{transform:scale(1.15);filter:drop-shadow(0 0 20px rgba(240,255,0,1)) drop-shadow(0 0 30px rgba(255,136,0,0.6))}}.achievement-popup .a-label{font-family:var(--font-head);font-size:8px;color:rgba(240,255,0,0.5);letter-spacing:2px}.achievement-popup .a-title{font-family:var(--font-head);font-size:13px;color:var(--yellow);margin-bottom:3px}.achievement-popup .a-desc{font-size:10px;color:var(--gray)}
 #breakingBanner{position:fixed;top:76px;left:50%;transform:translateX(-50%);background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.25);border-radius:6px;padding:8px 20px;font-size:11px;color:var(--red);font-weight:600;z-index:150;display:none;animation:breakIn .4s ease-out;font-family:var(--font-head);letter-spacing:0.8px}
 @keyframes breakIn{from{opacity:0;transform:translateX(-50%) translateY(-15px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 #achieveModal{position:fixed;inset:0;background:rgba(4,4,8,0.94);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -101,7 +102,9 @@ body{display:flex;flex-direction:column}
 .ach-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;transition:all .15s}
 .ach-item.unlocked{background:rgba(240,255,0,0.05);border:1px solid rgba(240,255,0,0.12)}
 .ach-item.locked{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);opacity:0.45}
-.ach-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.ach-icon{font-size:24px;flex-shrink:0;width:36px;text-align:center;filter:drop-shadow(0 0 4px rgba(240,255,0,0.3))}
+.ach-item.unlocked .ach-icon{animation:iconGlow 2s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(240,255,0,0.6)) drop-shadow(0 0 16px rgba(240,255,0,0.3))}
+@keyframes iconGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(240,255,0,0.6)) drop-shadow(0 0 16px rgba(240,255,0,0.3))}50%{filter:drop-shadow(0 0 14px rgba(240,255,0,0.9)) drop-shadow(0 0 24px rgba(240,255,0,0.5))}}
 .ach-info{flex:1}
 .ach-name{font-family:var(--font-head);font-size:10px;letter-spacing:1px;margin-bottom:1px}
 .ach-item.unlocked .ach-name{color:var(--yellow)}
@@ -127,20 +130,105 @@ body{display:flex;flex-direction:column}
 @keyframes bigWinIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}60%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
 #footerBalanceItem{display:none}
-@media(max-width:768px){
-  #sidebar{display:none}
-  #mobileStake{display:flex !important}
-  #footerBalanceItem{display:flex}
-  .logo{font-size:13px}
-  #header{height:36px;padding:0 10px}
-  #footer{height:36px;padding:0 8px;font-size:10px}
-  .footer-stats{gap:6px}.stat-value{font-size:10px}
-  .action-btn{padding:4px 8px;font-size:9.5px}
-  #ticker{height:22px}.ticker-track{font-size:9.5px}
-}
-#mobileStake{display:none;height:44px;border-top:1px solid var(--border);align-items:center;justify-content:center;gap:5px;padding:0 8px;background:rgba(8,8,14,0.98);flex-shrink:0}
-#mobileStake .stake-btn{padding:4px 8px;font-size:10px}
-#mobileStake .mob-stake-display{font-size:16px;font-weight:800;color:var(--green);font-family:var(--font-head);min-width:55px;text-align:center}
+
+/* ===== MOBILE MODE (class-gated, NOT media-query — desktop is NEVER touched) ===== */
+body.mobile-mode #sidebar{display:none}
+body.mobile-mode #mobileStake{display:flex !important}
+body.mobile-mode #footerBalanceItem{display:flex}
+body.mobile-mode .logo{font-size:12px;letter-spacing:2px}
+body.mobile-mode #header{height:38px;padding:0 8px}
+body.mobile-mode #footer{height:40px;padding:0 6px;font-size:10px}
+body.mobile-mode .footer-stats{gap:4px}
+body.mobile-mode .stat-value{font-size:10px}
+body.mobile-mode .stat-label{font-size:10px}
+body.mobile-mode .action-btn{padding:5px 10px;font-size:10px}
+body.mobile-mode #ticker{height:22px}
+body.mobile-mode .ticker-track{font-size:9px}
+body.mobile-mode .header-right{gap:5px}
+body.mobile-mode .pair-label{font-size:10px;letter-spacing:0.5px}
+body.mobile-mode #headerPrice{font-size:11px}
+body.mobile-mode #sdkSpacer{height:44px}
+body.mobile-mode .header-tabs button{padding:3px 8px;font-size:9px}
+
+/* Mobile toggle switch */
+.mode-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.mode-toggle-label{font-size:8px;color:rgba(255,255,255,0.35);font-family:var(--font-mono);letter-spacing:0.5px;text-transform:uppercase;font-weight:600}
+.mode-toggle-label.active-label{color:var(--cyan)}
+.mode-toggle-track{width:32px;height:16px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);position:relative;transition:all .3s}
+.mode-toggle-track.mobile-active{background:rgba(0,240,255,0.15);border-color:rgba(0,240,255,0.4)}
+.mode-toggle-thumb{width:12px;height:12px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
+.mode-toggle-track.mobile-active .mode-toggle-thumb{left:17px;background:var(--cyan);box-shadow:0 0 6px rgba(0,240,255,0.5)}
+
+/* Mobile bottom sheet for positions / achievements / points */
+body.mobile-mode #mobileBottomSheet{display:block}
+#mobileBottomSheet{display:none;position:fixed;bottom:0;left:0;right:0;z-index:350;pointer-events:none}
+#mobileBottomSheet.open{pointer-events:auto}
+#mobileBottomSheet .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);opacity:0;transition:opacity .3s;pointer-events:none}
+#mobileBottomSheet.open .sheet-overlay{opacity:1;pointer-events:auto}
+#mobileBottomSheet .sheet-content{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,18,0.99);border-top:1px solid rgba(0,240,255,0.15);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(0.32,0.72,0,1);max-height:65vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0)}
+#mobileBottomSheet.open .sheet-content{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);margin:10px auto 6px}
+.sheet-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 12px}
+.sheet-tab{flex:1;text-align:center;padding:10px 4px;font-family:var(--font-head);font-size:9px;letter-spacing:1.2px;color:rgba(255,255,255,0.3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase}
+.sheet-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.sheet-tab.pts-tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
+.sheet-panel{display:none;padding:12px;max-height:50vh;overflow-y:auto}
+.sheet-panel.active{display:block}
+
+/* Mobile floating action buttons */
+body.mobile-mode #mobileFloatingBtns{display:flex}
+#mobileFloatingBtns{display:none;position:fixed;bottom:92px;right:8px;flex-direction:column;gap:6px;z-index:300}
+.mob-fab{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:all .2s}
+.mob-fab.fab-info{background:rgba(240,255,0,0.15);border-color:rgba(240,255,0,0.5);color:var(--yellow);font-size:20px;animation:fabPulse 1.8s ease-in-out infinite}
+.mob-fab.fab-info:active{background:rgba(240,255,0,0.35);transform:scale(0.92)}
+@keyframes fabPulse{0%,100%{box-shadow:0 0 8px rgba(240,255,0,0.3),0 2px 12px rgba(0,0,0,0.5);border-color:rgba(240,255,0,0.5)}50%{box-shadow:0 0 18px rgba(240,255,0,0.6),0 0 30px rgba(240,255,0,0.2),0 2px 12px rgba(0,0,0,0.5);border-color:rgba(240,255,0,0.8)}}
+
+/* Mobile mobileStake bar (enhanced — two rows: slider + buttons) */
+#mobileStake{display:none;flex-direction:column;border-top:1px solid var(--border);padding:4px 8px 6px;background:rgba(8,8,14,0.98);flex-shrink:0;gap:2px}
+#mobileStake .mob-slider-row{display:flex;align-items:center;gap:6px;width:100%}
+#mobileStake .mob-slider-row .mob-stake-display{font-size:15px;font-weight:800;color:var(--green);font-family:var(--font-head);min-width:50px;text-align:center}
+#mobileStake .mob-slider-row .stake-slider{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none;accent-color:var(--cyan);margin:0}
+#mobileStake .mob-slider-row .stake-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px rgba(0,240,255,0.5)}
+#mobileStake .mob-btn-row{display:flex;align-items:center;justify-content:center;gap:3px}
+#mobileStake .stake-btn{padding:4px 7px;font-size:10px;min-width:34px;border-radius:5px}
+#mobileStake .mob-stake-display-legacy{display:none}
+body.mobile-mode #mobileStake .stake-minmax{display:inline-block}
+
+/* Dancing arrow pointing up at FAB */
+body.mobile-mode #fabArrow{display:flex}
+#fabArrow{display:none;position:fixed;bottom:50px;right:12px;z-index:301;flex-direction:column;align-items:center;pointer-events:none}
+#fabArrow .arrow-text{font-family:var(--font-head);font-size:7px;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-top:2px;filter:drop-shadow(0 0 6px rgba(240,255,0,0.6));animation:arrowTextPulse 1.8s ease-in-out infinite}
+#fabArrow .arrow-icon{font-size:28px;filter:drop-shadow(0 0 10px rgba(240,255,0,0.8)) drop-shadow(0 0 20px rgba(240,255,0,0.4));animation:arrowBounce 1s ease-in-out infinite}
+@keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes arrowTextPulse{0%,100%{opacity:0.6}50%{opacity:1}}
+
+/* Mobile: larger toast positioning */
+body.mobile-mode .toast{bottom:100px;left:8px;right:8px;max-width:none;font-size:12px;padding:10px 14px}
+/* Mobile: achievement popup — upper area of chart, left of live price (history zone) */
+body.mobile-mode .achievement-popup{left:25%;top:28%;max-width:200px;padding:14px 18px}
+body.mobile-mode .achievement-popup .a-icon{font-size:36px}
+body.mobile-mode .achievement-popup .a-title{font-size:11px}
+body.mobile-mode .achievement-popup .a-desc{font-size:9px}
+body.mobile-mode .achievement-popup .a-label{font-size:7px}
+/* Mobile: breaking banner */
+body.mobile-mode #breakingBanner{top:68px;font-size:10px;padding:6px 14px;left:50%;right:auto;max-width:90vw}
+/* Mobile: game over card */
+body.mobile-mode .go-card{padding:24px 20px;max-width:340px}
+body.mobile-mode .go-grade{font-size:56px}
+body.mobile-mode .go-title{font-size:14px}
+body.mobile-mode .go-stats{font-size:10.5px}
+body.mobile-mode .go-btn{padding:10px 16px;font-size:10px}
+/* Mobile: modal cards */
+body.mobile-mode .achieve-card{padding:16px 14px;max-width:92vw;max-height:75vh}
+body.mobile-mode .achieve-card-title{font-size:13px}
+body.mobile-mode .ach-item{padding:6px 8px}
+body.mobile-mode .ach-icon{font-size:18px;width:26px}
+body.mobile-mode .ach-name{font-size:9px}
+body.mobile-mode .ach-desc{font-size:8.5px}
+
+/* Mobile: hide desktop sidebar-only elements that got moved to bottom sheet */
+body.mobile-mode #achieveSection{display:none}
+body.mobile-mode #pointsSection{display:none}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
 </style>
 </head>
@@ -148,9 +236,14 @@ body{display:flex;flex-direction:column}
 <div id="sdkSpacer" style="height:50px;flex-shrink:0;background:var(--bg)"></div>
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
 <div id="header">
-<div style="display:flex;align-items:center;gap:12px">
+<div style="display:flex;align-items:center;gap:10px">
   <div class="logo">TAP RUSH</div>
   <div class="header-tabs"><button>Tap</button></div>
+  <div class="mode-toggle" id="modeToggle" title="Switch between Desktop and Mobile mode">
+    <span class="mode-toggle-label active-label" id="lblDesktop">D</span>
+    <div class="mode-toggle-track" id="modeTrack"><div class="mode-toggle-thumb"></div></div>
+    <span class="mode-toggle-label" id="lblMobile">M</span>
+  </div>
 </div>
 <div class="header-right"><span class="pair-label">BTC/USD</span><span id="liveBadge" style="font-size:8px;color:#00ff88;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:3px;padding:1px 5px;margin-left:5px;font-weight:700;letter-spacing:0.5px;display:none">● LIVE</span><span id="headerPrice">$---</span></div>
 </div>
@@ -189,11 +282,63 @@ body{display:flex;flex-direction:column}
 </div>
 </div>
 <div id="mobileStake">
-  <button class="stake-btn active" data-val="1">$1</button><button class="stake-btn" data-val="5">$5</button>
-  <button class="stake-btn" data-val="10">$10</button>
-  <span class="mob-stake-display" id="mobStakeDisplay">$1</span>
-  <button class="stake-btn" data-val="25">$25</button><button class="stake-btn" data-val="50">$50</button>
-  <button class="stake-btn" data-val="100">$100</button>
+  <div class="mob-slider-row">
+    <span class="mob-stake-display" id="mobStakeDisplay">$1</span>
+    <input type="range" class="stake-slider" id="mobStakeSlider" min="1" max="100" step="1" value="1"/>
+  </div>
+  <div class="mob-btn-row">
+    <button class="stake-btn stake-minmax" data-action="min" id="mobBtnMin">MIN</button>
+    <button class="stake-btn active" data-val="1">$1</button><button class="stake-btn" data-val="5">$5</button>
+    <button class="stake-btn" data-val="10">$10</button>
+    <button class="stake-btn" data-val="25">$25</button><button class="stake-btn" data-val="50">$50</button>
+    <button class="stake-btn" data-val="100">$100</button>
+    <button class="stake-btn stake-minmax" data-action="max" id="mobBtnMax">MAX</button>
+  </div>
+</div>
+<!-- Mobile bottom sheet -->
+<div id="mobileBottomSheet">
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="sheet-content">
+    <div class="sheet-handle"></div>
+    <div class="sheet-tabs">
+      <div class="sheet-tab active" data-panel="positions">Positions</div>
+      <div class="sheet-tab" data-panel="achievements">Trophies</div>
+      <div class="sheet-tab pts-tab" data-panel="points">Points</div>
+    </div>
+    <div class="sheet-panel active" id="mobPositions" data-panel="positions">
+      <div id="mobPosContent"><div class="no-pos">Tap a grid cell to play!</div></div>
+    </div>
+    <div class="sheet-panel" id="mobAchievements" data-panel="achievements">
+      <div id="mobAchieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25);text-align:center;margin-bottom:8px">0 / 22 unlocked</div>
+      <div id="mobAchieveList"></div>
+    </div>
+    <div class="sheet-panel" id="mobPoints" data-panel="points">
+      <div style="text-align:center;margin-bottom:10px">
+        <div style="font-family:var(--font-head);font-size:26px;color:var(--yellow);text-shadow:0 0 16px rgba(240,255,0,0.4)" id="mobModalPtsLive">0</div>
+        <div style="font-size:8.5px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-top:2px">SESSION POINTS</div>
+      </div>
+      <div style="border:1px solid rgba(240,255,0,0.1);border-radius:8px;padding:10px;margin-bottom:10px;background:rgba(240,255,0,0.02)">
+        <div style="font-family:var(--font-head);font-size:8px;color:var(--yellow);letter-spacing:1.2px;margin-bottom:8px;text-align:center">HOW TO STACK POINTS</div>
+        <div style="font-size:10.5px;color:var(--white);line-height:1.6">
+          <div style="margin-bottom:5px"><span style="font-size:14px;filter:drop-shadow(0 0 5px rgba(0,255,136,0.8))">💰</span> <span style="color:var(--green);font-weight:600">PROFIT = POINTS</span> — every dollar you print is a point. no cap.</div>
+          <div style="margin-bottom:5px"><span style="font-size:14px;filter:drop-shadow(0 0 5px rgba(255,136,0,0.8))">🔥</span> <span style="color:var(--orange);font-weight:600">STREAK BONUS</span> — 3w=1.5x · 5w=2x · 10w=3x</div>
+          <div><span style="font-size:14px;filter:drop-shadow(0 0 5px rgba(240,255,0,0.8))">🏆</span> <span style="color:var(--yellow);font-weight:600">ACHIEVEMENTS</span> — unlock badges for bonus pts</div>
+        </div>
+      </div>
+      <div style="border:1px solid rgba(255,51,85,0.2);border-radius:8px;padding:10px;background:rgba(255,51,85,0.04);text-align:center">
+        <div style="font-family:var(--font-head);font-size:8px;color:var(--red);letter-spacing:1.2px;margin-bottom:4px">⚠️ LEADERBOARD NOTICE</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);line-height:1.4">You must <span style="color:var(--green);font-weight:700">CASHOUT</span> or <span style="color:var(--red);font-weight:700">GO BROKE</span> for points to count on the leaderboard.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Mobile floating action button + dancing arrow -->
+<div id="fabArrow">
+  <div class="arrow-icon">👆</div>
+  <div class="arrow-text">TAP</div>
+</div>
+<div id="mobileFloatingBtns">
+  <button class="mob-fab fab-info" id="mobFabInfo" title="Positions & Info">⚡</button>
 </div>
 <div id="footer">
 <div class="footer-stats">
@@ -227,9 +372,9 @@ body{display:flex;flex-direction:column}
   <div style="border:1px solid rgba(240,255,0,0.1);border-radius:10px;padding:14px;margin-bottom:14px;background:rgba(240,255,0,0.02)">
     <div style="font-family:var(--font-head);font-size:9px;color:var(--yellow);letter-spacing:1.5px;margin-bottom:10px;text-align:center">HOW TO STACK POINTS</div>
     <div style="font-size:11px;color:var(--white);line-height:1.7">
-      <div style="margin-bottom:6px">💰 <span style="color:var(--green);font-weight:600">PROFIT = POINTS</span> — every dollar you print is a point. no cap.</div>
-      <div style="margin-bottom:6px">🔥 <span style="color:var(--orange);font-weight:600">STREAK BONUS</span> — 3 wins = 1.5x &nbsp;·&nbsp; 5 wins = 2x &nbsp;·&nbsp; 10 wins = 3x</div>
-      <div>🏆 <span style="color:var(--yellow);font-weight:600">ACHIEVEMENTS</span> — unlock badges for bonus pts + balance milestones up to $100M</div>
+      <div style="margin-bottom:6px"><span style="font-size:16px;filter:drop-shadow(0 0 6px rgba(0,255,136,0.8))">💰</span> <span style="color:var(--green);font-weight:600">PROFIT = POINTS</span> — every dollar you print is a point. no cap.</div>
+      <div style="margin-bottom:6px"><span style="font-size:16px;filter:drop-shadow(0 0 6px rgba(255,136,0,0.8))">🔥</span> <span style="color:var(--orange);font-weight:600">STREAK BONUS</span> — 3 wins = 1.5x &nbsp;·&nbsp; 5 wins = 2x &nbsp;·&nbsp; 10 wins = 3x</div>
+      <div><span style="font-size:16px;filter:drop-shadow(0 0 6px rgba(240,255,0,0.8))">🏆</span> <span style="color:var(--yellow);font-weight:600">ACHIEVEMENTS</span> — unlock badges for bonus pts + balance milestones up to $100M</div>
     </div>
   </div>
   <div style="border:1px solid rgba(255,51,85,0.2);border-radius:10px;padding:12px;background:rgba(255,51,85,0.04);text-align:center">
@@ -597,17 +742,17 @@ function resolveBets(){
             checkAch('lucky_shot','Lucky Shot','🎯','Win a 33x bet',b.mult>=33);
             checkAch('streak_king','Streak King','👑','5 wins in a row',winStreak>=5);
             checkAch('diamond_hands','Diamond Hands','💎','10 wins in a row',winStreak>=10);
-            checkAch('scalper','Scalper','🔪','Win 20 bets',totalWins>=20);
-            checkAch('both_sides','Both Sides','↕️','Win above AND below',wonAbove&&wonBelow);
+            checkAch('scalper','Scalper','🗡️','Win 20 bets',totalWins>=20);
+            checkAch('both_sides','Both Sides','🔀','Win above AND below',wonAbove&&wonBelow);
             // Balance milestone achievements with screen flash
-            if(balance>=10000){checkAch('bal_10k','$10K Club','💵','Reach $10,000 balance',true);if(!achievements['bal_10k_flashed']){achievements['bal_10k_flashed']=1;screenFlash('rgba(0,255,136,0.2)');}}
-            if(balance>=50000){checkAch('bal_50k','$50K Whale','🐳','Reach $50,000 balance',true);if(!achievements['bal_50k_flashed']){achievements['bal_50k_flashed']=1;screenFlash('rgba(0,240,255,0.25)');}}
-            if(balance>=100000){checkAch('bal_100k','Six Figures','💯','Reach $100,000 balance',true);if(!achievements['bal_100k_flashed']){achievements['bal_100k_flashed']=1;screenFlash('rgba(240,255,0,0.25)');}}
-            if(balance>=250000){checkAch('bal_250k','Quarter Milly','📡','Reach $250,000 balance',true);if(!achievements['bal_250k_flashed']){achievements['bal_250k_flashed']=1;screenFlash('rgba(255,0,255,0.2)');}}
-            if(balance>=500000){checkAch('bal_500k','Half Stack','🌟','Reach $500,000 balance',true);if(!achievements['bal_500k_flashed']){achievements['bal_500k_flashed']=1;screenFlash('rgba(255,136,0,0.25)');}}
+            if(balance>=10000){checkAch('bal_10k','$10K Club','💰','Reach $10,000 balance',true);if(!achievements['bal_10k_flashed']){achievements['bal_10k_flashed']=1;screenFlash('rgba(0,255,136,0.2)');}}
+            if(balance>=50000){checkAch('bal_50k','$50K Whale','🐋','Reach $50,000 balance',true);if(!achievements['bal_50k_flashed']){achievements['bal_50k_flashed']=1;screenFlash('rgba(0,240,255,0.25)');}}
+            if(balance>=100000){checkAch('bal_100k','Six Figures','💎','Reach $100,000 balance',true);if(!achievements['bal_100k_flashed']){achievements['bal_100k_flashed']=1;screenFlash('rgba(240,255,0,0.25)');}}
+            if(balance>=250000){checkAch('bal_250k','Quarter Milly','🏆','Reach $250,000 balance',true);if(!achievements['bal_250k_flashed']){achievements['bal_250k_flashed']=1;screenFlash('rgba(255,0,255,0.2)');}}
+            if(balance>=500000){checkAch('bal_500k','Half Stack','⭐','Reach $500,000 balance',true);if(!achievements['bal_500k_flashed']){achievements['bal_500k_flashed']=1;screenFlash('rgba(255,136,0,0.25)');}}
             if(balance>=1000000){checkAch('bal_1m','Millionaire','🚀','Reach $1,000,000 balance',true);if(!achievements['bal_1m_flashed']){achievements['bal_1m_flashed']=1;screenFlash('rgba(255,215,0,0.3)');}}
-            if(balance>=10000000){checkAch('bal_10m','Mega Rich','💎💎','Reach $10,000,000 balance',true);if(!achievements['bal_10m_flashed']){achievements['bal_10m_flashed']=1;screenFlash('rgba(0,255,255,0.3)');}}
-            if(balance>=100000000){checkAch('bal_100m','Centimillionaire','🌍','Reach $100,000,000 balance',true);if(!achievements['bal_100m_flashed']){achievements['bal_100m_flashed']=1;screenFlash('rgba(255,255,255,0.3)');}}
+            if(balance>=10000000){checkAch('bal_10m','Mega Rich','👑','Reach $10,000,000 balance',true);if(!achievements['bal_10m_flashed']){achievements['bal_10m_flashed']=1;screenFlash('rgba(0,255,255,0.3)');}}
+            if(balance>=100000000){checkAch('bal_100m','Centimillionaire','🌟','Reach $100,000,000 balance',true);if(!achievements['bal_100m_flashed']){achievements['bal_100m_flashed']=1;screenFlash('rgba(255,255,255,0.3)');}}
           } else {
             b.status='lost';totalLosses++;winStreak=0;sndLose();
             screenFlash('rgba(255,51,85,0.08)');
@@ -647,11 +792,11 @@ function placeBet(row,col){
   recentBetTimes=recentBetTimes.filter(t=>Date.now()-t<10000);
   sndBet();updateUI();
   if(!firstBetTime)firstBetTime=Date.now();
-  checkAch('first_blood','First Blood','🩸','Place your first bet',totalBets>=1);
-  checkAch('degen','Degen','🎰','Bet on the farthest cell',row===0||row===NUM_ROWS-1);
+  checkAch('first_blood','First Blood','🔥','Place your first bet',totalBets>=1);
+  checkAch('degen','Degen','☠️','Bet on the farthest cell',row===0||row===NUM_ROWS-1);
   checkAch('speed_demon','Speed Demon','⚡','5 bets in 10 seconds',recentBetTimes.length>=5);
-  checkAch('grinder','Grinder','💪','Place 50 bets',totalBets>=50);
-  checkAch('high_roller','High Roller','🎲','Bet $100 on a single cell',stake>=100);
+  checkAch('grinder','Grinder','⛏️','Place 50 bets',totalBets>=50);
+  checkAch('high_roller','High Roller','🃏','Bet $100 on a single cell',stake>=100);
 }
 
 // CLICK HANDLING
@@ -750,6 +895,9 @@ function draw(){
 
   // Draw grid columns (scrolling)
   const colW=L.pxPerSec*COL_INTERVAL_SEC;
+  // Mobile: dynamically scale font to actual cell dimensions so skinny screens stay readable
+  // Base desktop cell ≈ 55px wide. On mobile, colW might be 25-45px. Scale proportionally.
+  const mF=isMobileMode?Math.min(1,Math.max(0.55,colW/60)):1;
   columns.forEach(col=>{
     const cx=colToX(col);
     const secsLeft=getColSecsLeft(col);
@@ -766,7 +914,8 @@ function draw(){
     if(secsLeft>-5){ // show label for recent columns too
       const isDead=isDeadCol(col);
       const timeLabel=secsLeft>0?'+'+Math.round(secsLeft)+'s':Math.round(secsLeft)+'s';
-      ctx.font='10px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+      const tSz=isMobileMode?Math.min(10*mF,9):10;
+      ctx.font=(tSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
       if(isDead)ctx.fillStyle='rgba(255,100,50,0.4)';
       else ctx.fillStyle=secsLeft>0?'rgba(0,240,255,0.6)':'rgba(255,255,255,0.2)';
       ctx.fillText(isDead?'⛔':timeLabel,cx,TIME_AXIS_H/2);
@@ -792,10 +941,12 @@ function draw(){
           ctx.strokeStyle='rgba(255,255,255,0.02)';ctx.lineWidth=1;
           ctx.strokeRect(colLeft,cellY,colW,cellH);
           // Show dimmed mult text
-          ctx.font='bold 11px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          const dSz=isMobileMode?Math.min(11*mF,cellH*0.30):11;
+          ctx.font='bold '+(dSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
           ctx.fillStyle='rgba(255,255,255,0.12)';
           ctx.fillText(mult+'x',cx,cellY+cellH*0.4);
-          ctx.font='8px "JetBrains Mono"';
+          const dSz2=isMobileMode?Math.min(8*mF,cellH*0.22):8;
+          ctx.font=(dSz2|0)+'px "JetBrains Mono"';
           ctx.fillStyle='rgba(255,100,50,0.25)';
           ctx.fillText('LOCKED',cx,cellY+cellH*0.7);
           continue;
@@ -832,10 +983,13 @@ function draw(){
 
         // Multiplier text
         const multLabel=mult<1.1?(mult.toFixed(2)+'x'):(mult<10?(Math.round(mult*10)/10+'x'):(Math.round(mult)+'x'));
-        ctx.font='bold 12px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+        // Mobile: also clamp to cell height so rows aren't overflowed
+        const mSz=isMobileMode?Math.min(12*mF,cellH*0.32):12;
+        const mSzBig=isMobileMode?Math.min(13*mF,cellH*0.34):13;
+        ctx.font='bold '+(mSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
         if(hasBet)ctx.fillStyle='#c8e630';
-        else if(mult>=30){ctx.fillStyle='#ffcc44';ctx.font='bold 13px "JetBrains Mono"';}
-        else if(mult>=15){ctx.fillStyle='#eeffaa';ctx.font='bold 12px "JetBrains Mono"';}
+        else if(mult>=30){ctx.fillStyle='#ffcc44';ctx.font='bold '+(mSzBig|0)+'px "JetBrains Mono"';}
+        else if(mult>=15){ctx.fillStyle='#eeffaa';ctx.font='bold '+(mSz|0)+'px "JetBrains Mono"';}
         else if(mult<1.1)ctx.fillStyle='rgba(0,240,255,0.6)'; // price row - cyan tint
         else if(mult<1.5)ctx.fillStyle='rgba(255,255,255,0.5)';
         else ctx.fillStyle='rgba(255,255,255,0.85)';
@@ -851,7 +1005,8 @@ function draw(){
         }
 
         // Payout text
-        ctx.font='9.5px "JetBrains Mono"';
+        const pSz=isMobileMode?Math.min(9.5*mF,cellH*0.24):9.5;
+        ctx.font=pSz.toFixed(1)+'px "JetBrains Mono"';
         if(hasBet)ctx.fillStyle='#c8e630';
         else ctx.fillStyle=mult>=4?'#00ff88':'rgba(0,255,136,0.5)';
         ctx.fillText('$'+payout.toFixed(2),cx,cellY+cellH*0.7);
@@ -869,15 +1024,17 @@ function draw(){
           ctx.fillRect(colLeft,cellY,colW,cellH);
           ctx.strokeStyle='rgba(0,255,136,0.5)';ctx.lineWidth=2;
           ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
-          ctx.font='bold 10px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          const wSz=isMobileMode?Math.min(10*mF,cellH*0.28):10;
+          ctx.font='bold '+(wSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
           ctx.fillStyle='#00ff88';
-          ctx.fillText('✓ +$'+(b.payout-b.stake).toFixed(2),cx,cellY+cellH*0.5);
+          ctx.fillText('\u2713 +$'+(b.payout-b.stake).toFixed(2),cx,cellY+cellH*0.5);
         } else if(b.status==='lost'){
           ctx.fillStyle='rgba(255,51,85,0.1)';
           ctx.fillRect(colLeft,cellY,colW,cellH);
           ctx.strokeStyle='rgba(255,51,85,0.3)';ctx.lineWidth=1;
           ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
-          ctx.font='9px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          const lSz=isMobileMode?Math.min(9*mF,cellH*0.25):9;
+          ctx.font=(lSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
           ctx.fillStyle='rgba(255,51,85,0.6)';
           ctx.fillText('✗',cx,cellY+cellH*0.5);
         }
@@ -1007,7 +1164,7 @@ function sndAchieve(){tone(880,0.12);setTimeout(()=>tone(1100,0.12),100);setTime
 // HELPERS
 function fmtCompact(n){return n>=100000?(n/1000).toFixed(1)+'k':n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function fmtPrice(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function awardPts(n){pts=Math.round((pts+n)*100)/100;addOGP(Math.round(n));const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);document.getElementById('pointsDisplay').textContent=disp;document.getElementById('sessionPtsDisplay').textContent='⭐ '+disp+' PTS';const ml=document.getElementById('modalPtsLive');if(ml)ml.textContent=disp;}
+function awardPts(n){pts=Math.round((pts+n)*100)/100;addOGP(Math.round(n));const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);document.getElementById('pointsDisplay').textContent=disp;document.getElementById('sessionPtsDisplay').textContent='⭐ '+disp+' PTS';const ml=document.getElementById('modalPtsLive');if(ml)ml.textContent=disp;const mml=document.getElementById('mobModalPtsLive');if(mml)mml.textContent=disp;}
 function updateUI(){
   document.getElementById('balanceDisplay').textContent=fmtPrice(balance);
   const sb=document.getElementById('sidebarBalance');
@@ -1018,7 +1175,7 @@ function updateUI(){
 function updateTimer(){
   const el=Math.floor((Date.now()-gameStart)/1000);
   document.getElementById('timerDisplay').textContent=String(Math.floor(el/60)).padStart(2,'0')+':'+String(el%60).padStart(2,'0');
-  if(!firstBetTime)checkAch('patient','Patient','⏳','Wait 2 min before first bet',el>=120);
+  if(!firstBetTime)checkAch('patient','Patient','🧊','Wait 2 min before first bet',el>=120);
   checkAch('survivor','Survivor','🛡️','Play for 5 minutes',el>=300);
 }
 function updatePositions(){
@@ -1051,28 +1208,28 @@ function triggerBreaking(){if(!gameActive)return;const b=document.getElementById
 
 // ACHIEVEMENTS
 const ALL_ACHIEVEMENTS=[
-  {id:'first_blood',name:'First Blood',icon:'🩸',desc:'Place your first bet',pts:10},
-  {id:'degen',name:'Degen',icon:'🎰',desc:'Bet on the farthest cell',pts:20},
+  {id:'first_blood',name:'First Blood',icon:'🔥',desc:'Place your first bet',pts:10},
+  {id:'degen',name:'Degen',icon:'☠️',desc:'Bet on the farthest cell',pts:20},
   {id:'speed_demon',name:'Speed Demon',icon:'⚡',desc:'5 bets in 10 seconds',pts:30},
-  {id:'both_sides',name:'Both Sides',icon:'↕️',desc:'Win above AND below',pts:30},
-  {id:'high_roller',name:'High Roller',icon:'🎲',desc:'Bet $100 on a single cell',pts:40},
-  {id:'patient',name:'Patient',icon:'⏳',desc:'Wait 2 min before first bet',pts:50},
+  {id:'both_sides',name:'Both Sides',icon:'🔀',desc:'Win above AND below',pts:30},
+  {id:'high_roller',name:'High Roller',icon:'🃏',desc:'Bet $100 on a single cell',pts:40},
+  {id:'patient',name:'Patient',icon:'🧊',desc:'Wait 2 min before first bet',pts:50},
   {id:'streak_king',name:'Streak King',icon:'👑',desc:'5 wins in a row',pts:50},
-  {id:'grinder',name:'Grinder',icon:'💪',desc:'Place 50 bets',pts:50},
-  {id:'scalper',name:'Scalper',icon:'🔪',desc:'Win 20 bets',pts:100},
+  {id:'grinder',name:'Grinder',icon:'⛏️',desc:'Place 50 bets',pts:50},
+  {id:'scalper',name:'Scalper',icon:'🗡️',desc:'Win 20 bets',pts:100},
   {id:'survivor',name:'Survivor',icon:'🛡️',desc:'Play for 5 minutes',pts:100},
   {id:'diamond_hands',name:'Diamond Hands',icon:'💎',desc:'10 wins in a row',pts:150},
-  {id:'comeback_kid',name:'Comeback Kid',icon:'🔄',desc:'Recover to $5K',pts:200},
+  {id:'comeback_kid',name:'Comeback Kid',icon:'🔮',desc:'Recover to $5K',pts:200},
   {id:'lucky_shot',name:'Lucky Shot',icon:'🎯',desc:'Win a 33x bet',pts:250},
-  {id:'rug_survivor',name:'Rug Survivor',icon:'🧨',desc:'Win after dropping below $50',pts:1000},
-  {id:'bal_10k',name:'$10K Club',icon:'💵',desc:'Reach $10,000 balance',pts:1000},
-  {id:'bal_50k',name:'$50K Whale',icon:'🐳',desc:'Reach $50,000 balance',pts:5000},
-  {id:'bal_100k',name:'Six Figures',icon:'💯',desc:'Reach $100,000 balance',pts:10000},
-  {id:'bal_250k',name:'Quarter Milly',icon:'📡',desc:'Reach $250,000 balance',pts:25000},
-  {id:'bal_500k',name:'Half Stack',icon:'🌟',desc:'Reach $500,000 balance',pts:50000},
+  {id:'rug_survivor',name:'Rug Survivor',icon:'💀',desc:'Win after dropping below $50',pts:1000},
+  {id:'bal_10k',name:'$10K Club',icon:'💰',desc:'Reach $10,000 balance',pts:1000},
+  {id:'bal_50k',name:'$50K Whale',icon:'🐋',desc:'Reach $50,000 balance',pts:5000},
+  {id:'bal_100k',name:'Six Figures',icon:'💎',desc:'Reach $100,000 balance',pts:10000},
+  {id:'bal_250k',name:'Quarter Milly',icon:'🏆',desc:'Reach $250,000 balance',pts:25000},
+  {id:'bal_500k',name:'Half Stack',icon:'⭐',desc:'Reach $500,000 balance',pts:50000},
   {id:'bal_1m',name:'Millionaire',icon:'🚀',desc:'Reach $1,000,000 balance',pts:100000},
-  {id:'bal_10m',name:'Mega Rich',icon:'💎💎',desc:'Reach $10,000,000 balance',pts:1000000},
-  {id:'bal_100m',name:'Centimillionaire',icon:'🌍',desc:'Reach $100,000,000 balance',pts:10000000}
+  {id:'bal_10m',name:'Mega Rich',icon:'👑',desc:'Reach $10,000,000 balance',pts:1000000},
+  {id:'bal_100m',name:'Centimillionaire',icon:'🌟',desc:'Reach $100,000,000 balance',pts:10000000}
 ];
 function renderAchieveModal(){
   const count=Object.keys(achievements).length;
@@ -1113,7 +1270,7 @@ function checkAch(id,name,icon,desc,cond){
 
 // STAKE
 function r2(n){return Math.round(n*100)/100;}
-function setStake(v,allowSub1){const val=parseFloat(v);stake=r2(allowSub1?Math.max(0.01,Math.min(val,100)):Math.max(1,Math.min(val,100)));document.getElementById('stakeDisplay').textContent='$'+stake.toFixed(stake>=1&&stake===Math.floor(stake)?0:2);document.getElementById('mobStakeDisplay').textContent='$'+(stake>=1?stake:stake.toFixed(2));document.getElementById('stakeSlider').value=Math.min(Math.max(stake,1),100);document.querySelectorAll('.stake-btn[data-val]').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.val)===stake));}
+function setStake(v,allowSub1){const val=parseFloat(v);stake=r2(allowSub1?Math.max(0.01,Math.min(val,100)):Math.max(1,Math.min(val,100)));document.getElementById('stakeDisplay').textContent='$'+stake.toFixed(stake>=1&&stake===Math.floor(stake)?0:2);document.getElementById('mobStakeDisplay').textContent='$'+(stake>=1?stake:stake.toFixed(2));document.getElementById('stakeSlider').value=Math.min(Math.max(stake,1),100);const mobSlider=document.getElementById('mobStakeSlider');if(mobSlider)mobSlider.value=Math.min(Math.max(stake,1),100);document.querySelectorAll('.stake-btn[data-val]').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.val)===stake));}
 document.querySelectorAll('.stake-btn').forEach(b=>{
   if(b.dataset.val) b.addEventListener('click',()=>setStake(b.dataset.val));
 });
@@ -1150,6 +1307,7 @@ function resetGame(){
   balance=STARTING_BALANCE;bets=[];betId=0;pts=0;winStreak=0;maxStreak=0;totalBets=0;totalWins=0;totalLosses=0;totalWinnings=0;
   gameStart=Date.now();lastActivityBonus=Date.now();firstBetTime=0;wonAbove=false;wonBelow=false;achievements={};recentBetTimes=[];wasBelow100=false;gameActive=true;priceTrail=[];
   document.getElementById('achieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('pointsDisplay').textContent='0';document.getElementById('sessionPtsDisplay').textContent='⭐ 0 PTS';
+  document.getElementById('mobAchieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('mobModalPtsLive').textContent='0';
   initColumns();updateUI();connectWebSocket();pollPrice();
 }
 document.getElementById('goPlayAgain').addEventListener('click',resetGame);
@@ -1205,8 +1363,8 @@ function loop(){
     // Check bust in main loop too (backup)
     if(gameActive&&balance<0.01&&!bets.some(b=>b.status==='active')){balance=0;bustOut();}
     if(balance<100)wasBelow100=true;
-    if(balance<50)checkAch('rug_survivor','Rug Survivor','🧨','Win after dropping below $50',totalWins>0);
-    if(wasBelow100&&balance>=5000)checkAch('comeback_kid','Comeback Kid','🔄','Recover to $5K',true);
+    if(balance<50)checkAch('rug_survivor','Rug Survivor','💀','Win after dropping below $50',totalWins>0);
+    if(wasBelow100&&balance>=5000)checkAch('comeback_kid','Comeback Kid','🔮','Recover to $5K',true);
   }
   if(frameCount%2===0)updateTimer();
   draw();
@@ -1218,9 +1376,121 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
+// ===== DESKTOP / MOBILE MODE TOGGLE =====
+let isMobileMode=false;
+function detectMobile(){
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    || (window.innerWidth<=768 && ('ontouchstart' in window));
+}
+function setMode(mobile){
+  isMobileMode=mobile;
+  if(mobile){
+    document.body.classList.add('mobile-mode');
+    document.getElementById('modeTrack').classList.add('mobile-active');
+    document.getElementById('lblDesktop').classList.remove('active-label');
+    document.getElementById('lblMobile').classList.add('active-label');
+  } else {
+    document.body.classList.remove('mobile-mode');
+    document.getElementById('modeTrack').classList.remove('mobile-active');
+    document.getElementById('lblDesktop').classList.add('active-label');
+    document.getElementById('lblMobile').classList.remove('active-label');
+    // Close bottom sheet if open
+    closeMobileSheet();
+  }
+  // Re-resize canvas after mode switch
+  setTimeout(resize,50);
+  setTimeout(resize,200);
+}
+document.getElementById('modeToggle').addEventListener('click',function(){
+  setMode(!isMobileMode);
+});
+
+// ===== MOBILE BOTTOM SHEET =====
+function openMobileSheet(panel){
+  const sheet=document.getElementById('mobileBottomSheet');
+  sheet.classList.add('open');
+  // Sync content
+  syncMobilePositions();
+  syncMobileAchievements();
+  syncMobilePoints();
+  // Switch to requested panel
+  if(panel){
+    document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===panel));
+    document.querySelectorAll('.sheet-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===panel));
+  }
+}
+function closeMobileSheet(){
+  document.getElementById('mobileBottomSheet').classList.remove('open');
+}
+document.getElementById('sheetOverlay').addEventListener('click',closeMobileSheet);
+document.querySelectorAll('.sheet-tab').forEach(tab=>{
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.sheet-panel').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelector('.sheet-panel[data-panel="'+this.dataset.panel+'"]').classList.add('active');
+  });
+});
+document.getElementById('mobFabInfo').addEventListener('click',function(){openMobileSheet('positions');});
+
+// Sync mobile positions panel
+function syncMobilePositions(){
+  const el=document.getElementById('mobPosContent');
+  const active=bets.filter(b=>b.status==='active');
+  const recent=bets.filter(b=>b.status!=='active').slice(-6).reverse();
+  if(!active.length&&!recent.length){el.innerHTML='<div class="no-pos">Tap a grid cell to play!</div>';return;}
+  let h='';
+  active.forEach(b=>{
+    const rem=Math.max(0,Math.ceil((b.resolveTime-Date.now())/1000));
+    h+=`<div class="pos-item"><div class="ph"><span>$${fmtCompact(b.priceRange.min)} - $${fmtCompact(b.priceRange.max)}</span><span style="font-size:9px;color:var(--gray)">${rem}s</span></div><div class="pd">$${b.payout.toFixed(2)} (${b.mult}x) <span class="badge active">ACTIVE</span></div></div>`;
+  });
+  recent.forEach(b=>{
+    const cls=b.status==='won'?'won':'lost';
+    h+=`<div class="pos-item"><div class="ph"><span>$${fmtCompact(b.priceRange.min)} - $${fmtCompact(b.priceRange.max)}</span><span class="badge ${cls}">${b.status.toUpperCase()}</span></div><div class="pd">$${b.payout.toFixed(2)} (${b.mult}x)</div></div>`;
+  });
+  el.innerHTML=h;
+}
+function syncMobileAchievements(){
+  const count=Object.keys(achievements).length;
+  document.getElementById('mobAchieveCount').textContent=count+' / '+ALL_ACHIEVEMENTS.length+' unlocked';
+  let h='';
+  ALL_ACHIEVEMENTS.forEach(a=>{
+    const unlocked=!!achievements[a.id];
+    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}">`;
+    h+=`<div class="ach-icon">${unlocked?a.icon:'🔒'}</div>`;
+    h+=`<div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc} — <span style="color:var(--yellow)">${a.pts.toLocaleString()} pts</span></div></div>`;
+    if(unlocked)h+=`<div class="ach-check">✓</div>`;
+    h+=`</div>`;
+  });
+  document.getElementById('mobAchieveList').innerHTML=h;
+}
+function syncMobilePoints(){
+  const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);
+  document.getElementById('mobModalPtsLive').textContent=disp;
+}
+
+// Mobile MIN/MAX buttons
+document.getElementById('mobBtnMin').addEventListener('click',function(){
+  if(balance>=1)setStake(1);else if(balance>=0.01){setStake(balance,true);}else showToast('⚠️ Insufficient balance!','#ff3355');
+});
+document.getElementById('mobBtnMax').addEventListener('click',function(){
+  const maxBet=r2(Math.min(100,balance));if(maxBet>=0.01)setStake(maxBet,maxBet<1);else showToast('⚠️ Insufficient balance!','#ff3355');
+});
+
+// Mobile stake slider input
+document.getElementById('mobStakeSlider').addEventListener('input',function(){setStake(this.value);});
+
+// Hide dancing arrow after first FAB tap
+document.getElementById('mobFabInfo').addEventListener('click',function(){
+  const arrow=document.getElementById('fabArrow');
+  if(arrow)arrow.style.display='none';
+},{once:true});
+
 // INIT
 async function init(){
   initTicker();resize();
+  // Auto-detect mobile
+  if(detectMobile())setMode(true);
   // Start WebSocket for live 1s price feed
   connectWebSocket();
   // Also do initial REST fetch as backup while WS connects
@@ -1232,6 +1502,12 @@ async function init(){
   setTimeout(()=>{if(gameActive)triggerBreaking();},12000);
   document.addEventListener('click',initAudio,{once:true});
   document.addEventListener('touchstart',initAudio,{once:true});
+  // Periodically sync mobile sheet if open
+  setInterval(()=>{
+    if(isMobileMode&&document.getElementById('mobileBottomSheet').classList.contains('open')){
+      syncMobilePositions();syncMobilePoints();
+    }
+  },1000);
 }
 init();
 })();
