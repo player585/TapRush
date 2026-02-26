@@ -401,18 +401,31 @@ body.mobile-mode #pointsSection{display:none}
 
 // SDK
 let ogp=null;
-try{ogp=new OpenGameSDK({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66',ui:{usePointsWidget:true,theme:'dark'}})}catch(e){}
+let ogpReady=false;
 let ogpSentTotal=0; // track cumulative integer points sent to SDK
+(async function initSDK(){
+  try{
+    ogp=new OpenGameSDK({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66',ui:{usePointsWidget:true,theme:'dark'}});
+    await ogp.init();
+    ogpReady=true;
+    console.log('[TapRush] SDK ready');
+    ogp.on('SavePointsSuccess',()=>console.log('[TapRush] Points saved to leaderboard'));
+    ogp.on('SavePointsFailed',(e)=>console.warn('[TapRush] Points save failed',e));
+    ogp.on('SavePointsCancelled',()=>console.warn('[TapRush] Points save cancelled'));
+  }catch(e){console.warn('[TapRush] SDK init failed',e);}
+})();
 function syncOGP(){
-  // Send the difference between what our local pts rounds to and what we've already sent
+  if(!ogp||!ogpReady)return;
   const target=Math.floor(pts);
   const delta=target-ogpSentTotal;
   if(delta>0){
-    try{if(ogp)ogp.addPoints(delta);}catch(e){}
-    ogpSentTotal=target;
+    try{ogp.addPoints(delta);ogpSentTotal=target;}catch(e){console.warn('[TapRush] addPoints error',e);}
   }
 }
-function endOGP(){try{if(ogp)ogp.endGame()}catch(e){}}
+function endOGP(){
+  if(!ogp||!ogpReady)return;
+  try{ogp.endGame();}catch(e){console.warn('[TapRush] endGame error',e);}
+}
 
 // CANVAS
 const canvas=document.getElementById('gameCanvas');
