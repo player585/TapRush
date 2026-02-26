@@ -401,8 +401,17 @@ body.mobile-mode #pointsSection{display:none}
 
 // SDK
 let ogp=null;
-try{ogp=new OpenGameSDK({ui:{usePointsWidget:true,theme:'dark'}})}catch(e){}
-function addOGP(n){try{if(ogp&&n>0)ogp.addPoints(Math.floor(n))}catch(e){}}
+try{ogp=new OpenGameSDK({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66',ui:{usePointsWidget:true,theme:'dark'}})}catch(e){}
+let ogpSentTotal=0; // track cumulative integer points sent to SDK
+function syncOGP(){
+  // Send the difference between what our local pts rounds to and what we've already sent
+  const target=Math.floor(pts);
+  const delta=target-ogpSentTotal;
+  if(delta>0){
+    try{if(ogp)ogp.addPoints(delta);}catch(e){}
+    ogpSentTotal=target;
+  }
+}
 function endOGP(){try{if(ogp)ogp.endGame()}catch(e){}}
 
 // CANVAS
@@ -1164,7 +1173,7 @@ function sndAchieve(){tone(880,0.12);setTimeout(()=>tone(1100,0.12),100);setTime
 // HELPERS
 function fmtCompact(n){return n>=100000?(n/1000).toFixed(1)+'k':n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function fmtPrice(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-function awardPts(n){pts=Math.round((pts+n)*100)/100;addOGP(Math.round(n));const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);document.getElementById('pointsDisplay').textContent=disp;document.getElementById('sessionPtsDisplay').textContent='⭐ '+disp+' PTS';const ml=document.getElementById('modalPtsLive');if(ml)ml.textContent=disp;const mml=document.getElementById('mobModalPtsLive');if(mml)mml.textContent=disp;}
+function awardPts(n){pts=Math.round((pts+n)*100)/100;syncOGP();const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);document.getElementById('pointsDisplay').textContent=disp;document.getElementById('sessionPtsDisplay').textContent='⭐ '+disp+' PTS';const ml=document.getElementById('modalPtsLive');if(ml)ml.textContent=disp;const mml=document.getElementById('mobModalPtsLive');if(mml)mml.textContent=disp;}
 function updateUI(){
   document.getElementById('balanceDisplay').textContent=fmtPrice(balance);
   const sb=document.getElementById('sidebarBalance');
@@ -1304,7 +1313,7 @@ function showGameOverScreen(isBust){
 }
 function resetGame(){
   document.getElementById('gameOver').classList.remove('show');
-  balance=STARTING_BALANCE;bets=[];betId=0;pts=0;winStreak=0;maxStreak=0;totalBets=0;totalWins=0;totalLosses=0;totalWinnings=0;
+  balance=STARTING_BALANCE;bets=[];betId=0;pts=0;ogpSentTotal=0;winStreak=0;maxStreak=0;totalBets=0;totalWins=0;totalLosses=0;totalWinnings=0;
   gameStart=Date.now();lastActivityBonus=Date.now();firstBetTime=0;wonAbove=false;wonBelow=false;achievements={};recentBetTimes=[];wasBelow100=false;gameActive=true;priceTrail=[];
   document.getElementById('achieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('pointsDisplay').textContent='0';document.getElementById('sessionPtsDisplay').textContent='⭐ 0 PTS';
   document.getElementById('mobAchieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('mobModalPtsLive').textContent='0';
@@ -1313,15 +1322,19 @@ function resetGame(){
 document.getElementById('goPlayAgain').addEventListener('click',resetGame);
 document.getElementById('goShare').addEventListener('click',shareScore);
 function shareScore(){
-  const gameUrl=''; // TODO: replace with correct share link
-  if(!gameUrl){showToast('🔗 Share link coming soon!','#00f0ff');return;}
-  const text=`🎰 TAP RUSH — BTC Grid Prediction\n💰 ${fmtPrice(balance)}\n⭐ ${pts.toLocaleString()} pts\n🔥 ${maxStreak} streak\n\nTap the grid. Predict the price. Stack points.\n\nPlay now: ${gameUrl}`;
-  if(navigator.share){
-    navigator.share({title:'TAP RUSH — BTC Grid Prediction',text,url:gameUrl}).catch(()=>{
-      if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 Link copied! Share it!','#00f0ff'));
-    });
-  } else if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>showToast('📋 Link copied! Share it!','#00f0ff'));
+  const gameUrl='https://play.fun/s/rl009ai';
+  // Try modern clipboard API first, fall back to execCommand
+  function fallbackCopy(text){
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='-9999px';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');showToast('📋 Link copied!','#00f0ff');}catch(e){showToast('⚠️ Could not copy','#ff3355');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(gameUrl).then(()=>showToast('📋 Link copied!','#00f0ff')).catch(()=>fallbackCopy(gameUrl));
+  } else {
+    fallbackCopy(gameUrl);
   }
 }
 document.getElementById('shareBtn').addEventListener('click',shareScore);
