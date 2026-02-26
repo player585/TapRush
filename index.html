@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>TAP RUSH - BTC Grid Prediction</title>
+<meta name="x-ogp-key" content="00ade5fd-f5fe-4b3f-b172-e6ddd6b19bfe" id="ogp-key-meta"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0d0d0f;--bg2:#0a0a12;
+--border:rgba(255,255,255,0.06);
+--cyan:#00f0ff;--green:#00ff88;--yellow:#f0ff00;--magenta:#ff00ff;
+--red:#ff3355;--orange:#ff8800;--white:#e8e8f0;--gray:#777790;
+--font-head:'Orbitron',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:var(--font-mono)}
+body{display:flex;flex-direction:column}
+
+/* TICKER */
+#ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
+#ticker::before{content:'';position:absolute;left:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,#08080d,transparent);z-index:2}
+#ticker::after{content:'';position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(-90deg,#08080d,transparent);z-index:2}
+.ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 220s linear infinite;gap:40px;font-size:10.5px;color:var(--gray)}
+.ticker-track .up{color:var(--green)}.ticker-track .down{color:var(--red)}.ticker-track .hl{color:var(--cyan);font-weight:600}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* HEADER */
+#header{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:linear-gradient(180deg,rgba(12,12,20,0.98),var(--bg))}
+.logo{font-family:var(--font-head);font-size:17px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#00f0ff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,240,255,0.4))}
+.header-tabs button{background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.3);color:var(--cyan);padding:4px 14px;border-radius:4px;font-family:var(--font-mono);font-size:10.5px;cursor:pointer;font-weight:600}
+.header-right{display:flex;align-items:center;gap:10px;font-size:12px}
+.pair-label{font-weight:600;color:var(--white);font-size:12px;font-family:var(--font-head);letter-spacing:1px}
+#headerPrice{color:var(--green);font-weight:700;font-size:13px;text-shadow:0 0 8px rgba(0,255,136,0.3)}
+
+/* MAIN */
+#main{display:flex;flex:1;overflow:hidden}
+#gameArea{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* CANVAS fills game area */
+#gameCanvas{flex:1;display:block;cursor:crosshair}
+
+/* SIDEBAR */
+#sidebar{width:220px;flex-shrink:0;border-left:1px solid var(--border);display:flex;flex-direction:column;background:rgba(8,8,14,0.98);overflow-y:auto}
+.sidebar-section{padding:12px;border-bottom:1px solid var(--border)}
+.sidebar-title{font-family:var(--font-head);font-size:9.5px;color:var(--cyan);letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase;opacity:0.8}
+.stake-display{text-align:center;margin-bottom:6px}
+.stake-amount{font-size:24px;font-weight:800;color:var(--green);font-family:var(--font-head);text-shadow:0 0 12px rgba(0,255,136,0.3)}
+.stake-slider{width:100%;margin:6px 0;accent-color:var(--cyan);height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none}
+.stake-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px rgba(0,240,255,0.5)}
+.stake-presets{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.stake-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);padding:5px 10px;border-radius:4px;font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:all .15s;min-width:42px;text-align:center}
+.stake-btn:hover,.stake-btn.active{background:rgba(0,240,255,0.1);border-color:rgba(0,240,255,0.4);color:var(--cyan)}
+.stake-minmax{background:rgba(240,255,0,0.06) !important;border-color:rgba(240,255,0,0.3) !important;color:var(--yellow) !important;font-weight:700;font-size:10px !important;letter-spacing:0.5px}
+.stake-minmax:hover{background:rgba(240,255,0,0.15) !important;border-color:rgba(240,255,0,0.6) !important}
+.stake-hint{font-size:9.5px;color:rgba(255,255,255,0.25);text-align:center;margin-top:6px}
+.pos-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:5px;padding:6px 8px;margin-bottom:3px;font-size:10px}
+.pos-item .ph{display:flex;justify-content:space-between;align-items:center}
+.pos-item .pd{color:var(--gray);font-size:9.5px;margin-top:1px}
+.badge{display:inline-block;padding:1px 5px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:0.4px}
+.badge.active{background:rgba(0,240,255,0.12);color:var(--cyan);border:1px solid rgba(0,240,255,0.3)}
+.badge.won{background:rgba(0,255,136,0.12);color:var(--green);border:1px solid rgba(0,255,136,0.3)}
+.badge.lost{background:rgba(255,51,85,0.12);color:var(--red);border:1px solid rgba(255,51,85,0.3)}
+.no-pos{color:rgba(255,255,255,0.2);font-size:10.5px;text-align:center;padding:20px 8px;line-height:1.6}
+
+/* FOOTER */
+#footer{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-top:1px solid var(--border);flex-shrink:0;background:linear-gradient(0deg,rgba(8,8,14,0.98),var(--bg));font-size:11.5px}
+.footer-stats{display:flex;gap:14px;align-items:center}
+.stat-item{display:flex;align-items:center;gap:4px}
+.stat-label{font-size:12px}.stat-value{font-weight:600;font-size:11.5px}
+.stat-value.balance{color:var(--green);text-shadow:0 0 6px rgba(0,255,136,0.2)}
+.stat-value.streak{color:var(--orange)}
+.footer-actions{display:flex;gap:6px}
+.action-btn{padding:5px 12px;border-radius:4px;font-family:var(--font-mono);font-size:10.5px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid;letter-spacing:0.3px}
+.btn-share{background:rgba(0,240,255,0.08);border-color:rgba(0,240,255,0.3);color:var(--cyan)}
+.btn-cashout{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:var(--green)}
+.btn-buy{background:rgba(255,136,0,0.1);border-color:rgba(255,136,0,0.3);color:var(--orange)}
+
+/* Overlays */
+.toast{position:fixed;bottom:55px;left:14px;background:rgba(8,8,16,0.96);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 14px;font-size:11px;z-index:100;animation:toastIn .35s ease-out;box-shadow:0 4px 24px rgba(0,0,0,0.6);max-width:320px}
+.toast.out{animation:toastOut .25s ease-in forwards}
+@keyframes toastIn{from{transform:translateX(-110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{to{transform:translateX(-110%);opacity:0}}
+.achievement-popup{position:fixed;top:50%;left:16.5%;transform:translate(-50%,-50%) scale(0);background:rgba(8,8,16,0.97);border:2px solid var(--yellow);border-radius:12px;padding:20px 28px;z-index:200;text-align:center;box-shadow:0 0 50px rgba(240,255,0,0.2);animation:achieveIn .5s cubic-bezier(0.34,1.56,0.64,1) forwards;max-width:260px}
+@keyframes achieveIn{to{transform:translate(-50%,-50%) scale(1)}}
+.achievement-popup .a-icon{font-size:32px;margin-bottom:6px}.achievement-popup .a-label{font-family:var(--font-head);font-size:8px;color:rgba(240,255,0,0.5);letter-spacing:2px}.achievement-popup .a-title{font-family:var(--font-head);font-size:13px;color:var(--yellow);margin-bottom:3px}.achievement-popup .a-desc{font-size:10px;color:var(--gray)}
+#breakingBanner{position:fixed;top:76px;left:50%;transform:translateX(-50%);background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.25);border-radius:6px;padding:8px 20px;font-size:11px;color:var(--red);font-weight:600;z-index:150;display:none;animation:breakIn .4s ease-out;font-family:var(--font-head);letter-spacing:0.8px}
+@keyframes breakIn{from{opacity:0;transform:translateX(-50%) translateY(-15px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#achieveModal{position:fixed;inset:0;background:rgba(4,4,8,0.94);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#achieveModal.show{display:flex}
+#pointsModal{position:fixed;inset:0;background:rgba(4,4,8,0.94);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#pointsModal.show{display:flex}
+.achieve-card{background:rgba(12,12,22,0.98);border:1px solid rgba(240,255,0,0.15);border-radius:16px;padding:24px 28px;max-width:380px;width:92%;max-height:80vh;overflow-y:auto;position:relative}
+.achieve-card-title{font-family:var(--font-head);font-size:14px;color:var(--yellow);letter-spacing:2px;text-align:center;margin-bottom:4px}
+.achieve-card-sub{font-size:10.5px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:16px}
+.achieve-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--white);width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font-mono)}
+.achieve-close:hover{background:rgba(255,51,85,0.15);border-color:rgba(255,51,85,0.4);color:var(--red)}
+.ach-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;transition:all .15s}
+.ach-item.unlocked{background:rgba(240,255,0,0.05);border:1px solid rgba(240,255,0,0.12)}
+.ach-item.locked{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);opacity:0.45}
+.ach-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.ach-info{flex:1}
+.ach-name{font-family:var(--font-head);font-size:10px;letter-spacing:1px;margin-bottom:1px}
+.ach-item.unlocked .ach-name{color:var(--yellow)}
+.ach-item.locked .ach-name{color:rgba(255,255,255,0.4)}
+.ach-desc{font-size:9.5px;color:rgba(255,255,255,0.3)}
+.ach-check{font-size:12px;color:var(--green);flex-shrink:0}
+#gameOver{position:fixed;inset:0;background:rgba(4,4,8,0.96);z-index:500;display:none;align-items:center;justify-content:center}
+#gameOver.show{display:flex}
+.go-card{background:rgba(12,12,22,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px 40px;text-align:center;max-width:380px;width:90%}
+.go-grade{font-family:var(--font-head);font-size:72px;font-weight:900;margin-bottom:4px;line-height:1}
+.go-grade.S{color:var(--yellow);text-shadow:0 0 30px rgba(240,255,0,0.5)}.go-grade.A{color:var(--cyan)}.go-grade.B{color:var(--green)}.go-grade.C{color:var(--orange)}.go-grade.D{color:var(--gray)}.go-grade.F{color:var(--red)}
+.go-title{font-family:var(--font-head);font-size:16px;margin-bottom:16px;color:rgba(255,255,255,0.7);letter-spacing:2px}
+.go-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:20px;text-align:left;font-size:11.5px}
+.go-stat-label{color:var(--gray)}.go-stat-val{font-weight:600;text-align:right}
+.go-btn{padding:10px 20px;border-radius:6px;font-family:var(--font-head);font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all .2s;letter-spacing:0.5px;margin:0 4px}
+.go-btn.primary{background:rgba(0,240,255,0.1);border-color:rgba(0,240,255,0.4);color:var(--cyan)}
+.go-btn.secondary{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--white)}
+.confetti-piece{position:fixed;width:8px;height:8px;z-index:300;pointer-events:none;animation:confettiFall 2.2s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(100vh) rotate(900deg) scale(0.3);opacity:0}}
+.screen-flash{position:fixed;inset:0;pointer-events:none;z-index:250;animation:flashAnim .35s ease-out forwards}
+@keyframes flashAnim{from{opacity:0.25}to{opacity:0}}
+.big-win-text{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-family:var(--font-head);font-size:48px;font-weight:900;color:var(--yellow);z-index:250;pointer-events:none;text-shadow:0 0 30px rgba(240,255,0,0.6);animation:bigWinIn .6s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes bigWinIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}60%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+#footerBalanceItem{display:none}
+@media(max-width:768px){
+  #sidebar{display:none}
+  #mobileStake{display:flex !important}
+  #footerBalanceItem{display:flex}
+  .logo{font-size:13px}
+  #header{height:36px;padding:0 10px}
+  #footer{height:36px;padding:0 8px;font-size:10px}
+  .footer-stats{gap:6px}.stat-value{font-size:10px}
+  .action-btn{padding:4px 8px;font-size:9.5px}
+  #ticker{height:22px}.ticker-track{font-size:9.5px}
+}
+#mobileStake{display:none;height:44px;border-top:1px solid var(--border);align-items:center;justify-content:center;gap:5px;padding:0 8px;background:rgba(8,8,14,0.98);flex-shrink:0}
+#mobileStake .stake-btn{padding:4px 8px;font-size:10px}
+#mobileStake .mob-stake-display{font-size:16px;font-weight:800;color:var(--green);font-family:var(--font-head);min-width:55px;text-align:center}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="sdkSpacer" style="height:50px;flex-shrink:0;background:var(--bg)"></div>
+<div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+<div id="header">
+<div style="display:flex;align-items:center;gap:12px">
+  <div class="logo">TAP RUSH</div>
+  <div class="header-tabs"><button>Tap</button></div>
+</div>
+<div class="header-right"><span class="pair-label">BTC/USD</span><span id="liveBadge" style="font-size:8px;color:#00ff88;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:3px;padding:1px 5px;margin-left:5px;font-weight:700;letter-spacing:0.5px;display:none">● LIVE</span><span id="headerPrice">$---</span></div>
+</div>
+<div id="main">
+<div id="gameArea"><canvas id="gameCanvas"></canvas></div>
+<div id="sidebar">
+  <div class="sidebar-section" style="text-align:center;padding:10px 12px 8px">
+    <div class="sidebar-title">Balance</div>
+    <div id="sidebarBalance" style="font-family:var(--font-head);font-size:22px;font-weight:900;color:var(--green);text-shadow:0 0 12px rgba(0,255,136,0.3)">$1,000.00</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-title">Wager</div>
+    <div class="stake-display"><div class="stake-amount" id="stakeDisplay">$1.00</div></div>
+    <input type="range" class="stake-slider" id="stakeSlider" min="1" max="100" step="1" value="1"/>
+    <div class="stake-presets">
+      <button class="stake-btn stake-minmax" id="btnMin" data-action="min">MIN</button>
+      <button class="stake-btn active" data-val="1">$1</button><button class="stake-btn" data-val="5">$5</button>
+      <button class="stake-btn" data-val="10">$10</button><button class="stake-btn" data-val="25">$25</button>
+      <button class="stake-btn" data-val="50">$50</button><button class="stake-btn" data-val="100">$100</button>
+      <button class="stake-btn stake-minmax" id="btnMax" data-action="max">MAX</button>
+    </div>
+    <div class="stake-hint">🔥 Higher stakes = Bigger wins!</div>
+  </div>
+  <div class="sidebar-section" style="flex:1;overflow-y:auto">
+    <div class="sidebar-title">Your Positions</div>
+    <div id="positions"><div class="no-pos">Tap a grid cell to play!</div></div>
+  </div>
+  <div class="sidebar-section" id="achieveSection" style="cursor:pointer" title="Click to view achievements">
+    <div class="sidebar-title" style="display:flex;align-items:center;justify-content:space-between">Achievements <span style="font-size:8px;color:rgba(255,255,255,0.2);font-family:var(--font-mono)">TAP ▸</span></div>
+    <div id="achieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25)">0 / 15 unlocked</div>
+  </div>
+  <div class="sidebar-section" id="pointsSection" style="cursor:pointer" title="Click to view points info">
+    <div class="sidebar-title" style="display:flex;align-items:center;justify-content:space-between;color:var(--yellow)">Points <span style="font-size:8px;color:rgba(255,255,255,0.2);font-family:var(--font-mono)">TAP ▸</span></div>
+    <div id="sessionPtsDisplay" style="font-size:12px;color:var(--yellow);font-weight:700;font-family:var(--font-head)">⭐ 0 PTS</div>
+  </div>
+</div>
+</div>
+<div id="mobileStake">
+  <button class="stake-btn active" data-val="1">$1</button><button class="stake-btn" data-val="5">$5</button>
+  <button class="stake-btn" data-val="10">$10</button>
+  <span class="mob-stake-display" id="mobStakeDisplay">$1</span>
+  <button class="stake-btn" data-val="25">$25</button><button class="stake-btn" data-val="50">$50</button>
+  <button class="stake-btn" data-val="100">$100</button>
+</div>
+<div id="footer">
+<div class="footer-stats">
+  <div class="stat-item"><span class="stat-label">🔥</span><span class="stat-value streak" id="streakDisplay">0</span></div>
+  <div class="stat-item"><span class="stat-label">⏱</span><span class="stat-value" id="timerDisplay">00:00</span></div>
+  <div class="stat-item"><span class="stat-label">⭐</span><span class="stat-value" id="pointsDisplay" style="color:var(--yellow)">0</span></div>
+  <div class="stat-item" id="footerBalanceItem"><span class="stat-label">💰</span><span class="stat-value balance" id="balanceDisplay">$1,000.00</span></div>
+</div>
+<div class="footer-actions">
+  <button class="action-btn btn-share" id="shareBtn">📤 SHARE</button>
+  <button class="action-btn btn-cashout" id="cashoutBtn">💰 CASHOUT</button>
+</div>
+</div>
+<div id="breakingBanner"></div>
+<div id="achieveModal">
+<div class="achieve-card">
+  <button class="achieve-close" id="achieveClose">&times;</button>
+  <div class="achieve-card-title">ACHIEVEMENTS</div>
+  <div class="achieve-card-sub" id="achieveModalCount">0 / 15 unlocked</div>
+  <div id="achieveList"></div>
+</div>
+</div>
+<div id="pointsModal">
+<div class="achieve-card" style="border-color:rgba(240,255,0,0.2)">
+  <button class="achieve-close" id="pointsClose">&times;</button>
+  <div class="achieve-card-title" style="color:var(--yellow)">POINTS</div>
+  <div style="text-align:center;margin-bottom:12px">
+    <div style="font-family:var(--font-head);font-size:28px;color:var(--yellow);text-shadow:0 0 20px rgba(240,255,0,0.4)" id="modalPtsLive">0</div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-top:2px">SESSION POINTS</div>
+  </div>
+  <div style="border:1px solid rgba(240,255,0,0.1);border-radius:10px;padding:14px;margin-bottom:14px;background:rgba(240,255,0,0.02)">
+    <div style="font-family:var(--font-head);font-size:9px;color:var(--yellow);letter-spacing:1.5px;margin-bottom:10px;text-align:center">HOW TO STACK POINTS</div>
+    <div style="font-size:11px;color:var(--white);line-height:1.7">
+      <div style="margin-bottom:6px">💰 <span style="color:var(--green);font-weight:600">PROFIT = POINTS</span> — $1 profit = 1 point. simple as.</div>
+      <div style="margin-bottom:6px">🔥 <span style="color:var(--orange);font-weight:600">STREAK BONUS</span> — 3 wins = 1.5x &nbsp;·&nbsp; 5 wins = 2x &nbsp;·&nbsp; 10 wins = 3x</div>
+      <div>🏆 <span style="color:var(--yellow);font-weight:600">ACHIEVEMENTS</span> — unlock badges for bonus pts + balance milestones up to $100M</div>
+    </div>
+  </div>
+  <div style="border:1px solid rgba(255,51,85,0.2);border-radius:10px;padding:12px;background:rgba(255,51,85,0.04);text-align:center">
+    <div style="font-family:var(--font-head);font-size:9px;color:var(--red);letter-spacing:1.5px;margin-bottom:6px">⚠️ LEADERBOARD NOTICE</div>
+    <div style="font-size:10.5px;color:rgba(255,255,255,0.6);line-height:1.5">You must <span style="color:var(--green);font-weight:700">CASHOUT</span> or <span style="color:var(--red);font-weight:700">GO BROKE</span> for your points to count on the leaderboard. Quitting without ending your session = points don't count.</div>
+  </div>
+</div>
+</div>
+<div id="gameOver">
+<div class="go-card">
+  <div class="go-grade" id="goGrade">B</div><div class="go-title" id="goTitle">ROUND OVER</div>
+  <div class="go-stats" id="goStats"></div>
+  <div style="display:flex;justify-content:center">
+    <button class="go-btn primary" id="goPlayAgain">⚡ PLAY AGAIN</button>
+    <button class="go-btn secondary" id="goShare">📢 SHARE</button>
+  </div>
+</div>
+</div>
+
+<script src="https://sdk.play.fun"></script>
+<script>
+(function(){
+'use strict';
+
+// SDK
+let ogp=null;
+try{ogp=new OpenGameSDK({ui:{usePointsWidget:true,theme:'dark'}})}catch(e){}
+function addOGP(n){try{if(ogp&&n>0)ogp.addPoints(Math.floor(n))}catch(e){}}
+function endOGP(){try{if(ogp)ogp.endGame()}catch(e){}}
+
+// CANVAS
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+let W=0,H=0,dpr=1;
+
+// CONSTANTS
+const NUM_ROWS=14;
+const ROW_H_USD=20; // each row = $20 price range
+const COL_INTERVAL_SEC=5; // new column every 5s
+const MAX_COLS_VISIBLE=10; // columns visible in grid area
+const NOW_FRAC=1/3; // NOW line at 1/3 from left
+const PRICE_AXIS_W=70;
+const TIME_AXIS_H=26;
+const MAX_MULT=33;
+const STARTING_BALANCE=1000;
+const PRICE_POLL_MS=1000; // fallback polling interval (WebSocket is primary now)
+
+// STATE
+let currentPrice=0,displayPrice=0,prevFetchPrice=0,lastFetchTime=0;
+let wsConnected=false;
+let balance=STARTING_BALANCE,stake=1,pts=0;
+let winStreak=0,maxStreak=0,totalBets=0,totalWins=0,totalLosses=0,totalWinnings=0;
+let gameStart=Date.now(),lastActivityBonus=Date.now(),firstBetTime=0;
+let wonAbove=false,wonBelow=false,gameActive=true;
+let gridCenter=0,gridRanges=[];
+let achievements={},recentBetTimes=[],wasBelow100=false;
+let betId=0,bets=[];
+
+// Price history: array of {time, price} - these scroll left with the treadmill
+let priceTrail=[];
+
+// Grid columns: each column is created at a birth time, scrolls left
+// column.birthTime = when it was "born" at the right edge
+// column.secOffset = how many seconds in the future it represents when born
+// A column's current "time until NOW" = column.birthTime + column.secOffset*1000 - Date.now()
+// When timeUntilNow <= 0, the column has passed the NOW line and enters history
+let columns=[];
+let lastColSpawn=0;
+
+// DEAD ZONE: first column after NOW is untappable
+const DEAD_COLS=1; // number of dead columns right after NOW line
+const MULT_REFRESH_MS=4000; // refresh multipliers every 4s
+let lastMultRefresh=0;
+
+// Dynamic multiplier based on distance from current price row
+// distFromPrice = how many rows away from the row the price is currently in
+// Also adds random outlier "juicy" bets
+function calcDynamicMult(distFromPrice){
+  const d=Math.abs(distFromPrice);
+  let m;
+  if(d===0) m=1.01+Math.random()*0.01; // price row: 1.01x-1.02x
+  else if(d===1) m=1.3+Math.random()*0.7;
+  else if(d===2) m=2+Math.random()*1.5;
+  else if(d===3) m=3.5+Math.random()*3.5;
+  else if(d===4) m=7+Math.random()*6;
+  else if(d===5) m=13+Math.random()*8;
+  else if(d===6) m=21+Math.random()*9;
+  else m=28+Math.random()*5;
+  // Juicy outliers - MORE frequent and CLOSER to price
+  // d=1: 12% chance, d=2: 15% chance, d=3+: 8% chance
+  const outlierChance=d===0?0:d<=2?0.15:0.08;
+  if(Math.random()<outlierChance){
+    const boost=d<=2?(3+Math.random()*5):(2+Math.random()*4);
+    m=Math.min(m*boost,MAX_MULT);
+  }
+  return Math.min(MAX_MULT,Math.round(m*100)/100);
+}
+
+function refreshColumnMults(col){
+  const priceRow=getCurrentPriceRow();
+  if(priceRow<0) return;
+  // Don't refresh mults for cells that have active bets (lock them in)
+  const lockedRows=new Set();
+  bets.forEach(b=>{if(b.colId===col.id&&b.status==='active')lockedRows.add(b.row);});
+  for(let r=0;r<NUM_ROWS;r++){
+    if(lockedRows.has(r)) continue;
+    col.mults[r]=calcDynamicMult(priceRow-r);
+  }
+}
+
+function spawnColumn(secOffset){
+  const priceRow=getCurrentPriceRow();
+  const mults=[];
+  for(let r=0;r<NUM_ROWS;r++){
+    mults.push(priceRow>=0?calcDynamicMult(priceRow-r):calcDynamicMult(Math.floor(NUM_ROWS/2)-r));
+  }
+  return {
+    id:Date.now()+Math.random(),
+    birthTime:Date.now(),
+    secOffset:secOffset,
+    mults:mults,
+    resolved:false,
+    bets:[] // bet ids on this column
+  };
+}
+
+// Check if a column is in the dead zone (first column(s) right after NOW)
+function isDeadCol(col){
+  const secsLeft=getColSecsLeft(col);
+  return secsLeft>0 && secsLeft<=DEAD_COLS*COL_INTERVAL_SEC;
+}
+
+function initColumns(){
+  columns=[];
+  const now=Date.now();
+  // Spawn columns for future: +5s, +10s, ... +50s
+  for(let i=1;i<=MAX_COLS_VISIBLE;i++){
+    const col=spawnColumn(i*COL_INTERVAL_SEC);
+    // Adjust birthTime so they appear at staggered positions
+    col.birthTime=now-(MAX_COLS_VISIBLE-i)*COL_INTERVAL_SEC*1000 + MAX_COLS_VISIBLE*COL_INTERVAL_SEC*1000;
+    // Actually let's think differently:
+    // At time=now, a column with secOffset=50 was born at now, resolves at now+50s
+    // A column with secOffset=5 was born at now, resolves at now+5s
+    // But we want them spread across the grid area from right to left
+    // Let's set birthTime so that resolve times are staggered
+    col.birthTime=now;
+    col.secOffset=i*COL_INTERVAL_SEC;
+    columns.push(col);
+  }
+  lastColSpawn=now;
+}
+
+// How it works:
+// Each column has a resolveTime = birthTime + secOffset*1000
+// Column's "seconds until resolve" = (resolveTime - now)/1000
+// On screen: NOW line is at x=nowX
+// Grid area is from nowX to rightEdge
+// A column at +50s is at the far right, +5s is near NOW
+// Columns scroll left as time passes. When secsUntilResolve=0, column is at NOW line.
+// After passing NOW, column enters history area (left of NOW) and keeps scrolling left
+// Every COL_INTERVAL_SEC seconds, spawn a new column at the right edge
+
+function getColResolveTime(col){return col.birthTime+col.secOffset*1000;}
+function getColSecsLeft(col){return (getColResolveTime(col)-Date.now())/1000;}
+
+// Get X position of a column on screen
+// Grid area: nowX to (W - PRICE_AXIS_W) (but drawn from left edge)
+// Actually: price axis on left, then chart area
+// Layout: [priceAxis 70px] [chart area: rest]
+// NOW line at 1/3 of chart area from left
+// So: chartLeft = PRICE_AXIS_W, chartW = W - PRICE_AXIS_W
+// nowX = chartLeft + chartW * NOW_FRAC
+// Grid columns: rightmost column is at maxFutureSec in the future
+// maxFutureSec = MAX_COLS_VISIBLE * COL_INTERVAL_SEC = 50
+// pixelsPerSec in grid area = gridW / maxFutureSec where gridW = chartW * (1-NOW_FRAC)
+// But we also need history to scroll off to the left
+
+const RIGHT_PAD=40; // padding so last column doesn't clip at sidebar edge
+function getLayout(){
+  const chartLeft=PRICE_AXIS_W;
+  const chartW=W-PRICE_AXIS_W-RIGHT_PAD;
+  const nowX=chartLeft+chartW*NOW_FRAC;
+  const gridW=chartW*(1-NOW_FRAC);
+  const histW=chartW*NOW_FRAC;
+  const maxFutureSec=MAX_COLS_VISIBLE*COL_INTERVAL_SEC;
+  const pxPerSec=gridW/maxFutureSec;
+  const bodyTop=TIME_AXIS_H;
+  const bodyH=H-TIME_AXIS_H;
+  const rowH=bodyH/NUM_ROWS;
+  return {chartLeft,chartW,nowX,gridW,histW,maxFutureSec,pxPerSec,bodyTop,bodyH,rowH};
+}
+
+function colToX(col){
+  const L=getLayout();
+  const secsLeft=getColSecsLeft(col);
+  // secsLeft > 0: column is in the future (right of NOW)
+  // secsLeft = 0: at NOW line
+  // secsLeft < 0: in history (left of NOW)
+  return L.nowX + secsLeft*L.pxPerSec;
+}
+
+function priceToY(price){
+  if(!gridRanges.length)return H/2;
+  const L=getLayout();
+  const topP=gridRanges[0].max;
+  const botP=gridRanges[NUM_ROWS-1].min;
+  const pRange=topP-botP;
+  if(pRange<=0)return H/2;
+  return L.bodyTop+((topP-price)/pRange)*L.bodyH;
+}
+
+function getCurrentPriceRow(){
+  for(let r=0;r<NUM_ROWS;r++){
+    if(gridRanges[r]&&displayPrice>=gridRanges[r].min&&displayPrice<gridRanges[r].max)return r;
+  }
+  return -1;
+}
+
+// GRID RANGES
+function recalcGridRanges(){
+  gridRanges=[];
+  const half=Math.floor(NUM_ROWS/2);
+  for(let r=0;r<NUM_ROWS;r++){
+    const ri=half-r;
+    gridRanges[r]={min:gridCenter+(ri-0.5)*ROW_H_USD,max:gridCenter+(ri+0.5)*ROW_H_USD};
+  }
+}
+
+function maybeRecenter(){
+  if(!displayPrice)return;
+  if(Math.abs(displayPrice-gridCenter)>ROW_H_USD*3.5){
+    gridCenter=Math.round(displayPrice/ROW_H_USD)*ROW_H_USD;
+    recalcGridRanges();
+  }
+}
+
+// PRICE FEED - Binance WebSocket (primary) + REST fallback
+let ws=null,wsRetries=0,lastWsPrice=0,lastWsTime=0;
+
+function connectWebSocket(){
+  if(ws&&(ws.readyState===WebSocket.OPEN||ws.readyState===WebSocket.CONNECTING))return;
+  try{
+    ws=new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
+    ws.onopen=function(){wsConnected=true;wsRetries=0;console.log('[WS] Connected to Binance');};
+    ws.onmessage=function(evt){
+      try{
+        const d=JSON.parse(evt.data);
+        const p=parseFloat(d.p);
+        if(p>0){
+          // Throttle to ~1 update per second
+          const now=Date.now();
+          if(now-lastWsTime<900)return;
+          lastWsTime=now;
+          prevFetchPrice=currentPrice||p;
+          currentPrice=p;
+          lastFetchTime=now;
+          lastWsPrice=p;
+          if(!displayPrice){
+            displayPrice=p;gridCenter=Math.round(p/ROW_H_USD)*ROW_H_USD;recalcGridRanges();
+            for(let i=-40;i<=0;i++){
+              const sp=p+(Math.random()-0.5)*18*(1+Math.abs(i)*0.02);
+              priceTrail.push({time:now+i*1000,price:sp});
+            }
+          }
+        }
+      }catch(e){}
+    };
+    ws.onclose=function(){
+      wsConnected=false;console.log('[WS] Disconnected');
+      // Auto-reconnect with backoff
+      wsRetries++;
+      const delay=Math.min(1000*Math.pow(2,wsRetries),30000);
+      if(gameActive)setTimeout(connectWebSocket,delay);
+    };
+    ws.onerror=function(){wsConnected=false;ws.close();};
+  }catch(e){
+    wsConnected=false;
+    // Fallback to REST polling
+    if(gameActive)setTimeout(connectWebSocket,5000);
+  }
+}
+
+// REST fallback (Coinbase + CoinGecko)
+async function fetchPrice(){
+  try{const r=await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');const d=await r.json();const p=parseFloat(d.data.amount);if(p>0)return p;}catch(e){}
+  try{const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');const d=await r.json();return d.bitcoin.usd;}catch(e){}
+  return 0;
+}
+async function pollPrice(){
+  // Only poll REST if WebSocket is down
+  if(!wsConnected){
+    const p=await fetchPrice();
+    if(p>0){
+      prevFetchPrice=currentPrice||p;currentPrice=p;lastFetchTime=Date.now();
+      if(!displayPrice){
+        displayPrice=p;gridCenter=Math.round(p/ROW_H_USD)*ROW_H_USD;recalcGridRanges();
+        for(let i=-40;i<=0;i++){
+          const sp=p+(Math.random()-0.5)*18*(1+Math.abs(i)*0.02);
+          priceTrail.push({time:Date.now()+i*1000,price:sp});
+        }
+      }
+    }
+  }
+  if(gameActive)setTimeout(pollPrice,wsConnected?5000:PRICE_POLL_MS);
+}
+function getDisplayPrice(){
+  if(!currentPrice)return 0;
+  const el=Date.now()-lastFetchTime;
+  const interval=wsConnected?1000:PRICE_POLL_MS;
+  const t=Math.min(el/interval,1);
+  const base=prevFetchPrice+(currentPrice-prevFetchPrice)*t;
+  const noise=(Math.random()-0.5)*(wsConnected?2:6); // less noise with live WS data
+  displayPrice=displayPrice*0.88+(base+noise)*0.12;
+  return displayPrice;
+}
+
+// COLUMN MANAGEMENT
+function manageColumns(){
+  const now=Date.now();
+  // Spawn new columns
+  if(now-lastColSpawn>=COL_INTERVAL_SEC*1000){
+    lastColSpawn=now;
+    const col=spawnColumn(MAX_COLS_VISIBLE*COL_INTERVAL_SEC);
+    columns.push(col);
+  }
+  // Refresh multipliers every 3s based on live price distance
+  if(now-lastMultRefresh>=MULT_REFRESH_MS){
+    lastMultRefresh=now;
+    columns.forEach(col=>{
+      if(!col.resolved&&getColSecsLeft(col)>0) refreshColumnMults(col);
+    });
+  }
+  // Remove columns that have scrolled way off screen left
+  const L=getLayout();
+  columns=columns.filter(c=>{
+    const x=colToX(c);
+    return x>L.chartLeft-200; // keep some buffer
+  });
+}
+
+// RESOLVE BETS
+function resolveBets(){
+  const now=Date.now();
+  columns.forEach(col=>{
+    if(col.resolved)return;
+    if(getColSecsLeft(col)<=0){
+      col.resolved=true;
+      // Resolve all bets on this column
+      bets.forEach(b=>{
+        if(b.colId===col.id&&b.status==='active'){
+          b.settledPrice=displayPrice;
+          if(displayPrice>=b.priceRange.min&&displayPrice<b.priceRange.max){
+            b.status='won';balance=r2(balance+b.payout);totalWins++;
+            totalWinnings=r2(totalWinnings+b.payout-b.stake);winStreak++;
+            if(winStreak>maxStreak)maxStreak=winStreak;
+            let sm=1;if(winStreak>=10)sm=3;else if(winStreak>=5)sm=2;else if(winStreak>=3)sm=1.5;
+            const profitPts=Math.round((b.payout-b.stake)*sm*100)/100;
+            if(profitPts>0)awardPts(profitPts);
+            screenFlash('rgba(0,255,136,0.12)');
+            if(b.mult>=15){sndBigWin();spawnConfetti(25);showBigWin(b.mult+'x WIN!');}
+            else{sndWin();if(b.mult>=5)spawnConfetti(8);}
+            const half=Math.floor(NUM_ROWS/2);
+            if(b.row<half)wonAbove=true;if(b.row>half)wonBelow=true;
+            showToast(`✅ WON ${b.mult}x! +$${(b.payout-b.stake).toFixed(2)}`,'#00ff88');
+            checkAch('lucky_shot','Lucky Shot','🎯','Win a 33x bet',b.mult>=33);
+            checkAch('streak_king','Streak King','👑','5 wins in a row',winStreak>=5);
+            checkAch('diamond_hands','Diamond Hands','💎','10 wins in a row',winStreak>=10);
+            checkAch('scalper','Scalper','🔪','Win 20 bets',totalWins>=20);
+            checkAch('both_sides','Both Sides','↕️','Win above AND below',wonAbove&&wonBelow);
+            // Balance milestone achievements with screen flash
+            if(balance>=10000){checkAch('bal_10k','$10K Club','💵','Reach $10,000 balance',true);if(!achievements['bal_10k_flashed']){achievements['bal_10k_flashed']=1;screenFlash('rgba(0,255,136,0.2)');}}
+            if(balance>=50000){checkAch('bal_50k','$50K Whale','🐳','Reach $50,000 balance',true);if(!achievements['bal_50k_flashed']){achievements['bal_50k_flashed']=1;screenFlash('rgba(0,240,255,0.25)');}}
+            if(balance>=100000){checkAch('bal_100k','Six Figures','💯','Reach $100,000 balance',true);if(!achievements['bal_100k_flashed']){achievements['bal_100k_flashed']=1;screenFlash('rgba(240,255,0,0.25)');}}
+            if(balance>=250000){checkAch('bal_250k','Quarter Milly','📡','Reach $250,000 balance',true);if(!achievements['bal_250k_flashed']){achievements['bal_250k_flashed']=1;screenFlash('rgba(255,0,255,0.2)');}}
+            if(balance>=500000){checkAch('bal_500k','Half Stack','🌟','Reach $500,000 balance',true);if(!achievements['bal_500k_flashed']){achievements['bal_500k_flashed']=1;screenFlash('rgba(255,136,0,0.25)');}}
+            if(balance>=1000000){checkAch('bal_1m','Millionaire','🚀','Reach $1,000,000 balance',true);if(!achievements['bal_1m_flashed']){achievements['bal_1m_flashed']=1;screenFlash('rgba(255,215,0,0.3)');}}
+            if(balance>=10000000){checkAch('bal_10m','Mega Rich','💎💎','Reach $10,000,000 balance',true);if(!achievements['bal_10m_flashed']){achievements['bal_10m_flashed']=1;screenFlash('rgba(0,255,255,0.3)');}}
+            if(balance>=100000000){checkAch('bal_100m','Centimillionaire','🌍','Reach $100,000,000 balance',true);if(!achievements['bal_100m_flashed']){achievements['bal_100m_flashed']=1;screenFlash('rgba(255,255,255,0.3)');}}
+          } else {
+            b.status='lost';totalLosses++;winStreak=0;sndLose();
+            screenFlash('rgba(255,51,85,0.08)');
+          }
+        }
+      });
+    }
+  });
+  // Clean old bets
+  const resolved=bets.filter(b=>b.status!=='active');
+  if(resolved.length>30){bets=bets.filter(b=>b.status==='active').concat(resolved.slice(-30));}
+  balance=r2(balance);
+  // Check bust: balance < $0.01 AND no active bets left
+  const hasActive=bets.some(b=>b.status==='active');
+  if(balance<0.01&&!hasActive){balance=0;bustOut();}
+  // Also block further play if balance is 0 even with active bets (can't place new ones)
+  updateUI();
+}
+
+// PLACE BET
+function placeBet(row,col){
+  initAudio();
+  if(!gameActive)return;
+  if(balance<stake||balance<0.01){showToast('⚠️ Insufficient balance!','#ff3355');return;}
+  if(bets.filter(b=>b.status==='active').length>=25){showToast('⚠️ Max 25 active bets!','#ff3355');return;}
+  const range=gridRanges[row];
+  const mult=col.mults[row];
+  balance=r2(balance-stake);totalBets++;
+  bets.push({
+    id:++betId,row,colId:col.id,
+    priceRange:{min:range.min,max:range.max},
+    resolveTime:getColResolveTime(col),
+    stake,mult,payout:r2(Math.min(stake*mult,stake*MAX_MULT)),
+    status:'active',placedAt:Date.now(),settledPrice:0
+  });
+  recentBetTimes.push(Date.now());
+  recentBetTimes=recentBetTimes.filter(t=>Date.now()-t<10000);
+  sndBet();updateUI();
+  if(!firstBetTime)firstBetTime=Date.now();
+  checkAch('first_blood','First Blood','🩸','Place your first bet',totalBets>=1);
+  checkAch('degen','Degen','🎰','Bet on the farthest cell',row===0||row===NUM_ROWS-1);
+  checkAch('speed_demon','Speed Demon','⚡','5 bets in 10 seconds',recentBetTimes.length>=5);
+  checkAch('grinder','Grinder','💪','Place 50 bets',totalBets>=50);
+  checkAch('high_roller','High Roller','🎲','Bet $100 on a single cell',stake>=100);
+}
+
+// CLICK HANDLING
+canvas.addEventListener('click',handleClick);
+canvas.addEventListener('touchstart',function(e){e.preventDefault();const t=e.touches[0];handleClick({clientX:t.clientX,clientY:t.clientY});},{passive:false});
+
+function handleClick(e){
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*dpr;
+  const my=(e.clientY-rect.top)*dpr;
+  // Scale to CSS pixels
+  const cx=mx/dpr, cy=my/dpr;
+  const L=getLayout();
+  // Check if click is in grid area (right of NOW line)
+  if(cx<L.nowX||cy<L.bodyTop)return;
+  // Find which row
+  const row=Math.floor((cy-L.bodyTop)/L.rowH);
+  if(row<0||row>=NUM_ROWS)return;
+  // Find which column
+  let clickedCol=null;
+  for(let i=0;i<columns.length;i++){
+    const col=columns[i];
+    if(col.resolved)continue;
+    const secsLeft=getColSecsLeft(col);
+    if(secsLeft<=0)continue;
+    // Block dead zone column(s)
+    if(isDeadCol(col))continue;
+    const colX=colToX(col);
+    const colW=L.pxPerSec*COL_INTERVAL_SEC;
+    if(cx>=colX-colW/2&&cx<colX+colW/2){
+      clickedCol=col;break;
+    }
+  }
+  // Check if click landed in a dead zone or price-row blocked area
+  if(!clickedCol){
+    // Check if they clicked a dead zone column specifically
+    let hitDead=false;
+    for(let i=0;i<columns.length;i++){
+      const col=columns[i];
+      if(col.resolved)continue;
+      const secsLeft=getColSecsLeft(col);
+      if(secsLeft<=0)continue;
+      if(!isDeadCol(col))continue;
+      const colX=colToX(col);
+      const colW=L.pxPerSec*COL_INTERVAL_SEC;
+      if(cx>=colX-colW/2&&cx<colX+colW/2){hitDead=true;break;}
+    }
+    if(hitDead)showToast('⛔ Dead zone — too close to settle!','#ff8800');
+    return;
+  }
+  placeBet(row,clickedCol);
+}
+
+// DRAWING
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(!gridRanges.length)return;
+  const L=getLayout();
+  const now=Date.now();
+  const topP=gridRanges[0].max,botP=gridRanges[NUM_ROWS-1].min,pRange=topP-botP;
+  if(pRange<=0)return;
+
+  // Background
+  ctx.fillStyle='#0a0a12';
+  ctx.fillRect(0,0,W,H);
+
+  // Clip region so nothing renders past usable area
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0,0,W,H);
+  ctx.clip();
+
+  // Price axis background
+  ctx.fillStyle='rgba(8,8,14,0.98)';
+  ctx.fillRect(0,0,PRICE_AXIS_W,H);
+
+  // Time axis background
+  ctx.fillStyle='rgba(8,8,14,0.98)';
+  ctx.fillRect(PRICE_AXIS_W,0,L.chartW,TIME_AXIS_H);
+
+  // Horizontal grid lines + price labels
+  ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=1;
+  ctx.font='10px "JetBrains Mono"';ctx.textAlign='right';ctx.textBaseline='middle';
+  const curRow=getCurrentPriceRow();
+  for(let r=0;r<=NUM_ROWS;r++){
+    const y=L.bodyTop+(r/NUM_ROWS)*L.bodyH;
+    ctx.strokeStyle='rgba(255,255,255,0.025)';
+    ctx.beginPath();ctx.moveTo(PRICE_AXIS_W,y);ctx.lineTo(W,y);ctx.stroke();
+    if(r<NUM_ROWS){
+      const mid=(gridRanges[r].min+gridRanges[r].max)/2;
+      const label='$'+fmtCompact(mid);
+      ctx.fillStyle=r===curRow?'#00f0ff':'rgba(255,255,255,0.35)';
+      ctx.fillText(label,PRICE_AXIS_W-6,L.bodyTop+(r+0.5)/NUM_ROWS*L.bodyH);
+    }
+  }
+
+  // Draw grid columns (scrolling)
+  const colW=L.pxPerSec*COL_INTERVAL_SEC;
+  columns.forEach(col=>{
+    const cx=colToX(col);
+    const secsLeft=getColSecsLeft(col);
+    const colLeft=cx-colW/2;
+    const colRight=cx+colW/2;
+    // Only draw if visible
+    if(colRight<PRICE_AXIS_W||colLeft>W)return;
+
+    // Column vertical line
+    ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(cx,L.bodyTop);ctx.lineTo(cx,H);ctx.stroke();
+
+    // Time label at top
+    if(secsLeft>-5){ // show label for recent columns too
+      const isDead=isDeadCol(col);
+      const timeLabel=secsLeft>0?'+'+Math.round(secsLeft)+'s':Math.round(secsLeft)+'s';
+      ctx.font='10px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+      if(isDead)ctx.fillStyle='rgba(255,100,50,0.4)';
+      else ctx.fillStyle=secsLeft>0?'rgba(0,240,255,0.6)':'rgba(255,255,255,0.2)';
+      ctx.fillText(isDead?'⛔':timeLabel,cx,TIME_AXIS_H/2);
+    }
+
+    // Grid cells (only draw for future columns)
+    if(secsLeft>0&&!col.resolved){
+      const dead=isDeadCol(col);
+      for(let r=0;r<NUM_ROWS;r++){
+        const cellY=L.bodyTop+(r/NUM_ROWS)*L.bodyH;
+        const cellH=L.bodyH/NUM_ROWS;
+        const mult=col.mults[r];
+        const payout=Math.min(stake*mult,stake*MAX_MULT);
+        const isPriceRow=r===curRow;
+
+        // Check if this cell has an active bet
+        const hasBet=bets.some(b=>b.colId===col.id&&b.row===r&&b.status==='active');
+
+        // Dead zone: dim overlay (but still show active bets)
+        if(dead&&!hasBet){
+          ctx.fillStyle='rgba(8,8,14,0.75)';
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+          ctx.strokeStyle='rgba(255,255,255,0.02)';ctx.lineWidth=1;
+          ctx.strokeRect(colLeft,cellY,colW,cellH);
+          // Show dimmed mult text
+          ctx.font='bold 11px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillStyle='rgba(255,255,255,0.12)';
+          ctx.fillText(mult+'x',cx,cellY+cellH*0.4);
+          ctx.font='8px "JetBrains Mono"';
+          ctx.fillStyle='rgba(255,100,50,0.25)';
+          ctx.fillText('LOCKED',cx,cellY+cellH*0.7);
+          continue;
+        }
+
+        // Cell background
+        let bgAlpha=0.55;
+        let bgR=12,bgG=12,bgB=20;
+        if(mult>=30){bgR=50;bgG=30;bgB=10;bgAlpha=0.35;}
+        else if(mult>=15){bgR=30;bgG=20;bgB=50;bgAlpha=0.5;}
+        else if(mult>=4){bgR=20;bgG=18;bgB=35;bgAlpha=0.5;}
+
+        if(hasBet){
+          ctx.fillStyle='rgba(200,230,48,0.18)';
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+          ctx.strokeStyle='rgba(200,230,48,0.6)';ctx.lineWidth=2;
+          ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
+        } else {
+          ctx.fillStyle=`rgba(${bgR},${bgG},${bgB},${bgAlpha})`;
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+        }
+
+        // Cell border
+        ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+        ctx.strokeRect(colLeft,cellY,colW,cellH);
+
+        // Price row: subtle cyan highlight to show it's the "safe" row
+        if(isPriceRow&&!hasBet){
+          ctx.fillStyle='rgba(0,240,255,0.06)';
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+          ctx.strokeStyle='rgba(0,240,255,0.15)';ctx.lineWidth=1;
+          ctx.strokeRect(colLeft,cellY,colW,cellH);
+        }
+
+        // Multiplier text
+        const multLabel=mult<1.1?(mult.toFixed(2)+'x'):(mult<10?(Math.round(mult*10)/10+'x'):(Math.round(mult)+'x'));
+        ctx.font='bold 12px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+        if(hasBet)ctx.fillStyle='#c8e630';
+        else if(mult>=30){ctx.fillStyle='#ffcc44';ctx.font='bold 13px "JetBrains Mono"';}
+        else if(mult>=15){ctx.fillStyle='#eeffaa';ctx.font='bold 12px "JetBrains Mono"';}
+        else if(mult<1.1)ctx.fillStyle='rgba(0,240,255,0.6)'; // price row - cyan tint
+        else if(mult<1.5)ctx.fillStyle='rgba(255,255,255,0.5)';
+        else ctx.fillStyle='rgba(255,255,255,0.85)';
+        // Juicy outlier glow for high mults
+        if(!hasBet&&mult>=12){
+          ctx.save();
+          ctx.shadowColor=mult>=25?'#ffcc44':mult>=15?'#ff00ff':'#00f0ff';
+          ctx.shadowBlur=mult>=25?10:6;
+          ctx.fillText(multLabel,cx,cellY+cellH*0.4);
+          ctx.restore();
+        } else {
+          ctx.fillText(multLabel,cx,cellY+cellH*0.4);
+        }
+
+        // Payout text
+        ctx.font='9.5px "JetBrains Mono"';
+        if(hasBet)ctx.fillStyle='#c8e630';
+        else ctx.fillStyle=mult>=4?'#00ff88':'rgba(0,255,136,0.5)';
+        ctx.fillText('$'+payout.toFixed(2),cx,cellY+cellH*0.7);
+      }
+    }
+
+    // Draw win/loss indicators on resolved columns
+    if(col.resolved){
+      bets.forEach(b=>{
+        if(b.colId!==col.id)return;
+        const cellY=L.bodyTop+(b.row/NUM_ROWS)*L.bodyH;
+        const cellH=L.bodyH/NUM_ROWS;
+        if(b.status==='won'){
+          ctx.fillStyle='rgba(0,200,80,0.2)';
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+          ctx.strokeStyle='rgba(0,255,136,0.5)';ctx.lineWidth=2;
+          ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
+          ctx.font='bold 10px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillStyle='#00ff88';
+          ctx.fillText('✓ +$'+(b.payout-b.stake).toFixed(2),cx,cellY+cellH*0.5);
+        } else if(b.status==='lost'){
+          ctx.fillStyle='rgba(255,51,85,0.1)';
+          ctx.fillRect(colLeft,cellY,colW,cellH);
+          ctx.strokeStyle='rgba(255,51,85,0.3)';ctx.lineWidth=1;
+          ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
+          ctx.font='9px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillStyle='rgba(255,51,85,0.6)';
+          ctx.fillText('✗',cx,cellY+cellH*0.5);
+        }
+      });
+    }
+  });
+
+  // NOW LINE
+  ctx.save();
+  ctx.strokeStyle='rgba(240,255,0,0.8)';ctx.lineWidth=2;
+  ctx.shadowColor='#f0ff00';ctx.shadowBlur=8;
+  ctx.beginPath();ctx.moveTo(L.nowX,L.bodyTop);ctx.lineTo(L.nowX,H);ctx.stroke();
+  ctx.restore();
+  // NOW label
+  ctx.font='bold 9px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#f0ff00';ctx.fillText('NOW',L.nowX,TIME_AXIS_H/2);
+
+  // Current price horizontal dashed line
+  if(displayPrice){
+    const cpY=priceToY(displayPrice);
+    ctx.strokeStyle='rgba(0,240,255,0.06)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PRICE_AXIS_W,cpY);ctx.lineTo(W,cpY);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // PRICE TRAIL (scrolls left with the treadmill)
+  // Add current point
+  if(displayPrice)priceTrail.push({time:now,price:displayPrice});
+  // Trim old points
+  priceTrail=priceTrail.filter(p=>p.time>now-60000);
+
+  if(priceTrail.length>=2){
+    // Map trail points: each point's X = nowX + (point.time - now)*pxPerSec
+    // Since point.time < now for history, X will be left of nowX
+    function trailX(t){return L.nowX+(t-now)/1000*L.pxPerSec;}
+
+    // Build path
+    const pts=priceTrail.filter(p=>trailX(p.time)>PRICE_AXIS_W-20);
+    if(pts.length>=2){
+      function buildPath(){
+        ctx.beginPath();
+        pts.forEach((p,i)=>{
+          const x=trailX(p.time),y=priceToY(p.price);
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        });
+      }
+      // Outer glow
+      ctx.save();ctx.shadowColor='#00ff88';ctx.shadowBlur=16;
+      ctx.strokeStyle='rgba(0,255,136,0.12)';ctx.lineWidth=5;ctx.lineJoin='round';ctx.lineCap='round';
+      buildPath();ctx.stroke();ctx.restore();
+      // Inner
+      ctx.strokeStyle='rgba(0,255,136,0.35)';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+      buildPath();ctx.stroke();
+      // Main line
+      ctx.strokeStyle='#00ff88';ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';
+      buildPath();ctx.stroke();
+      // Fill
+      const last=pts[pts.length-1];
+      const lx=trailX(last.time),ly=priceToY(last.price);
+      buildPath();ctx.lineTo(lx,H);ctx.lineTo(trailX(pts[0].time),H);ctx.closePath();
+      const grad=ctx.createLinearGradient(0,0,0,H);
+      grad.addColorStop(0,'rgba(0,255,136,0.04)');grad.addColorStop(1,'rgba(0,255,136,0)');
+      ctx.fillStyle=grad;ctx.fill();
+    }
+  }
+
+  // PRICE DOT (fixed at NOW line, moves vertically)
+  if(displayPrice){
+    const dotY=priceToY(displayPrice);
+    ctx.save();ctx.shadowColor='#00ff88';ctx.shadowBlur=14;
+    ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(L.nowX,dotY,5,0,Math.PI*2);ctx.fill();
+    const pulse=0.5+0.5*Math.sin(now/300);
+    ctx.strokeStyle=`rgba(0,255,136,${0.3+pulse*0.3})`;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(L.nowX,dotY,9+pulse*3,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+
+    // Price label (left of dot so it doesn't overlap grid)
+    ctx.font='bold 10px "JetBrains Mono"';ctx.textAlign='right';ctx.textBaseline='middle';
+    const priceText=fmtPrice(displayPrice);
+    const tw=ctx.measureText(priceText).width;
+    ctx.fillStyle='rgba(20,20,10,0.9)';
+    ctx.fillRect(L.nowX-tw-22,dotY-9,tw+10,18);
+    ctx.strokeStyle='rgba(240,255,0,0.4)';ctx.lineWidth=1;
+    ctx.strokeRect(L.nowX-tw-22,dotY-9,tw+10,18);
+    ctx.fillStyle='#f0ff00';ctx.fillText(priceText,L.nowX-14,dotY);
+  }
+
+  // Price axis border
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(PRICE_AXIS_W,0);ctx.lineTo(PRICE_AXIS_W,H);ctx.stroke();
+  // Time axis border
+  ctx.beginPath();ctx.moveTo(PRICE_AXIS_W,TIME_AXIS_H);ctx.lineTo(W,TIME_AXIS_H);ctx.stroke();
+
+  // History time labels
+  for(let s=-30;s<=-5;s+=5){
+    const x=L.nowX+(s*L.pxPerSec);
+    if(x>PRICE_AXIS_W){
+      ctx.font='10px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle='rgba(255,255,255,0.2)';
+      ctx.fillText(s+'s',x,TIME_AXIS_H/2);
+    }
+  }
+  ctx.restore(); // restore clip
+}
+
+// RESIZE
+function resize(){
+  const rect=canvas.parentElement.getBoundingClientRect();
+  dpr=window.devicePixelRatio||1;
+  W=rect.width;H=rect.height;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',()=>{clearTimeout(window._rt);window._rt=setTimeout(resize,100);});
+
+// AUDIO
+let audioCtx=null;
+function initAudio(){if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+function tone(f,d,t,v){if(!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.12;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
+function sndBet(){tone(880,0.08,'square',0.08);setTimeout(()=>tone(1320,0.06,'square',0.06),50);}
+function sndWin(){tone(523,0.12);setTimeout(()=>tone(659,0.12),80);setTimeout(()=>tone(784,0.18),160);}
+function sndBigWin(){for(let i=0;i<6;i++)setTimeout(()=>tone(440+i*130,0.18,'sawtooth',0.08),i*70);}
+function sndLose(){tone(280,0.18,'sawtooth',0.08);setTimeout(()=>tone(180,0.25,'sawtooth',0.06),60);}
+function sndAchieve(){tone(880,0.12);setTimeout(()=>tone(1100,0.12),100);setTimeout(()=>tone(1320,0.2),200);}
+
+// HELPERS
+function fmtCompact(n){return n>=100000?(n/1000).toFixed(1)+'k':n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function fmtPrice(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function awardPts(n){pts=Math.round((pts+n)*100)/100;addOGP(Math.round(n));const disp=pts%1===0?pts.toLocaleString():pts.toFixed(2);document.getElementById('pointsDisplay').textContent=disp;document.getElementById('sessionPtsDisplay').textContent='⭐ '+disp+' PTS';const ml=document.getElementById('modalPtsLive');if(ml)ml.textContent=disp;}
+function updateUI(){
+  document.getElementById('balanceDisplay').textContent=fmtPrice(balance);
+  const sb=document.getElementById('sidebarBalance');
+  if(sb)sb.textContent=fmtPrice(balance);
+  document.getElementById('streakDisplay').textContent=winStreak;
+  updatePositions();
+}
+function updateTimer(){
+  const el=Math.floor((Date.now()-gameStart)/1000);
+  document.getElementById('timerDisplay').textContent=String(Math.floor(el/60)).padStart(2,'0')+':'+String(el%60).padStart(2,'0');
+  if(!firstBetTime)checkAch('patient','Patient','⏳','Wait 2 min before first bet',el>=120);
+  checkAch('survivor','Survivor','🛡️','Play for 5 minutes',el>=300);
+}
+function updatePositions(){
+  const el=document.getElementById('positions');
+  const active=bets.filter(b=>b.status==='active');
+  const recent=bets.filter(b=>b.status!=='active').slice(-8).reverse();
+  if(!active.length&&!recent.length){el.innerHTML='<div class="no-pos">Tap a grid cell to play!</div>';return;}
+  let h='';
+  active.forEach(b=>{
+    const rem=Math.max(0,Math.ceil((b.resolveTime-Date.now())/1000));
+    h+=`<div class="pos-item"><div class="ph"><span>$${fmtCompact(b.priceRange.min)} - $${fmtCompact(b.priceRange.max)}</span><span style="font-size:9px;color:var(--gray)">${rem}s</span></div><div class="pd">$${b.payout.toFixed(2)} (${b.mult}x) <span class="badge active">ACTIVE</span></div></div>`;
+  });
+  recent.forEach(b=>{
+    const cls=b.status==='won'?'won':'lost';
+    h+=`<div class="pos-item"><div class="ph"><span>$${fmtCompact(b.priceRange.min)} - $${fmtCompact(b.priceRange.max)}</span><span class="badge ${cls}">${b.status.toUpperCase()}</span></div><div class="pd">$${b.payout.toFixed(2)} (${b.mult}x)</div></div>`;
+  });
+  el.innerHTML=h;
+}
+
+// EFFECTS
+function screenFlash(c){const d=document.createElement('div');d.className='screen-flash';d.style.background=c;document.body.appendChild(d);setTimeout(()=>d.remove(),350);}
+function showBigWin(t){const d=document.createElement('div');d.className='big-win-text';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),800);}
+function spawnConfetti(n){const colors=['#00f0ff','#00ff88','#f0ff00','#ff00ff','#ff8800','#ff3355'];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.top='-10px';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.borderRadius=Math.random()>0.5?'50%':'2px';p.style.width=(5+Math.random()*6)+'px';p.style.height=(5+Math.random()*6)+'px';p.style.animationDuration=(1.8+Math.random()*0.8)+'s';p.style.animationDelay=(Math.random()*0.4)+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),3000);}}
+let toastTimer=null;
+function showToast(msg,color){const old=document.querySelector('.toast');if(old)old.remove();clearTimeout(toastTimer);const t=document.createElement('div');t.className='toast';t.innerHTML=msg;t.style.borderLeft=`3px solid ${color||'#00f0ff'}`;document.body.appendChild(t);toastTimer=setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),250);},2500);}
+const names=['CryptoKing','DiamondApe','SatoshiFan','BTCMaxi','LunarLambo','DeFiDegen','WhaleHunter','MoonBoi','NeonTrader','0xPhantom'];
+function showSocial(){const n=names[Math.floor(Math.random()*names.length)];const m=[2,4,8,14,20,33][Math.floor(Math.random()*6)];const w=(Math.random()*80+5).toFixed(2);showToast(`🎰 ${n} won ${m}x! +$${w}`,'#00f0ff');}
+const breakMsgs=['🚨 WHALE ALERT: 5,000 BTC just moved off Binance!','⚡ MASSIVE volume spike — whales are active!','🔥 $500M buy wall appeared at $66K!','🐋 MEGA whale just market bought 2,000 BTC!','⚠️ VOLATILITY ALERT: spreads widening!','🚨 Liquidation cascade incoming — buckle up!','🚀 Bulls fighting for $70K — shorts getting rekt!','💰 ETF flow reversal detected — institutions buying again?'];
+function triggerBreaking(){if(!gameActive)return;const b=document.getElementById('breakingBanner');b.textContent=breakMsgs[Math.floor(Math.random()*breakMsgs.length)];b.style.display='block';setTimeout(()=>b.style.display='none',4500);}
+
+// ACHIEVEMENTS
+const ALL_ACHIEVEMENTS=[
+  {id:'first_blood',name:'First Blood',icon:'🩸',desc:'Place your first bet',pts:10},
+  {id:'degen',name:'Degen',icon:'🎰',desc:'Bet on the farthest cell',pts:20},
+  {id:'speed_demon',name:'Speed Demon',icon:'⚡',desc:'5 bets in 10 seconds',pts:30},
+  {id:'both_sides',name:'Both Sides',icon:'↕️',desc:'Win above AND below',pts:30},
+  {id:'high_roller',name:'High Roller',icon:'🎲',desc:'Bet $100 on a single cell',pts:40},
+  {id:'patient',name:'Patient',icon:'⏳',desc:'Wait 2 min before first bet',pts:50},
+  {id:'streak_king',name:'Streak King',icon:'👑',desc:'5 wins in a row',pts:50},
+  {id:'grinder',name:'Grinder',icon:'💪',desc:'Place 50 bets',pts:50},
+  {id:'scalper',name:'Scalper',icon:'🔪',desc:'Win 20 bets',pts:100},
+  {id:'survivor',name:'Survivor',icon:'🛡️',desc:'Play for 5 minutes',pts:100},
+  {id:'diamond_hands',name:'Diamond Hands',icon:'💎',desc:'10 wins in a row',pts:150},
+  {id:'comeback_kid',name:'Comeback Kid',icon:'🔄',desc:'Recover to $5K',pts:200},
+  {id:'lucky_shot',name:'Lucky Shot',icon:'🎯',desc:'Win a 33x bet',pts:250},
+  {id:'rug_survivor',name:'Rug Survivor',icon:'🧨',desc:'Win after dropping below $50',pts:1000},
+  {id:'bal_10k',name:'$10K Club',icon:'💵',desc:'Reach $10,000 balance',pts:1000},
+  {id:'bal_50k',name:'$50K Whale',icon:'🐳',desc:'Reach $50,000 balance',pts:5000},
+  {id:'bal_100k',name:'Six Figures',icon:'💯',desc:'Reach $100,000 balance',pts:10000},
+  {id:'bal_250k',name:'Quarter Milly',icon:'📡',desc:'Reach $250,000 balance',pts:25000},
+  {id:'bal_500k',name:'Half Stack',icon:'🌟',desc:'Reach $500,000 balance',pts:50000},
+  {id:'bal_1m',name:'Millionaire',icon:'🚀',desc:'Reach $1,000,000 balance',pts:100000},
+  {id:'bal_10m',name:'Mega Rich',icon:'💎💎',desc:'Reach $10,000,000 balance',pts:1000000},
+  {id:'bal_100m',name:'Centimillionaire',icon:'🌍',desc:'Reach $100,000,000 balance',pts:10000000}
+];
+function renderAchieveModal(){
+  const count=Object.keys(achievements).length;
+  document.getElementById('achieveModalCount').textContent=count+' / '+ALL_ACHIEVEMENTS.length+' unlocked';
+  let h='';
+  ALL_ACHIEVEMENTS.forEach(a=>{
+    const unlocked=!!achievements[a.id];
+    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}">`;
+    h+=`<div class="ach-icon">${unlocked?a.icon:'🔒'}</div>`;
+    h+=`<div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc} — <span style="color:var(--yellow)">${a.pts.toLocaleString()} pts</span></div></div>`;
+    if(unlocked)h+=`<div class="ach-check">✓</div>`;
+    h+=`</div>`;
+  });
+  document.getElementById('achieveList').innerHTML=h;
+}
+function openAchieveModal(){renderAchieveModal();document.getElementById('achieveModal').classList.add('show');}
+function closeAchieveModal(){document.getElementById('achieveModal').classList.remove('show');}
+document.getElementById('achieveSection').addEventListener('click',openAchieveModal);
+document.getElementById('achieveClose').addEventListener('click',closeAchieveModal);
+document.getElementById('achieveModal').addEventListener('click',function(e){if(e.target===this)closeAchieveModal();});
+
+// POINTS MODAL
+function openPointsModal(){document.getElementById('modalPtsLive').textContent=pts.toLocaleString();document.getElementById('pointsModal').classList.add('show');}
+function closePointsModal(){document.getElementById('pointsModal').classList.remove('show');}
+document.getElementById('pointsSection').addEventListener('click',openPointsModal);
+document.getElementById('pointsClose').addEventListener('click',closePointsModal);
+document.getElementById('pointsModal').addEventListener('click',function(e){if(e.target===this)closePointsModal();});
+
+function checkAch(id,name,icon,desc,cond){
+  if(achievements[id]||!cond)return;achievements[id]=true;sndAchieve();
+  const achDef=ALL_ACHIEVEMENTS.find(a=>a.id===id);
+  const achPts=achDef?achDef.pts:250;
+  document.getElementById('achieveCount').textContent=Object.keys(achievements).length+' / '+ALL_ACHIEVEMENTS.length+' unlocked';
+  const p=document.createElement('div');p.className='achievement-popup';
+  p.innerHTML=`<div class="a-icon">${icon}</div><div class="a-label">ACHIEVEMENT UNLOCKED</div><div class="a-title">${name}</div><div class="a-desc">${desc}</div><div style="color:#f0ff00;font-family:var(--font-head);font-size:12px;margin-top:6px">+${achPts.toLocaleString()} PTS</div>`;
+  document.body.appendChild(p);setTimeout(()=>p.remove(),2800);awardPts(achPts);
+}
+
+// STAKE
+function r2(n){return Math.round(n*100)/100;}
+function setStake(v,allowSub1){const val=parseFloat(v);stake=r2(allowSub1?Math.max(0.01,Math.min(val,100)):Math.max(1,Math.min(val,100)));document.getElementById('stakeDisplay').textContent='$'+stake.toFixed(stake>=1&&stake===Math.floor(stake)?0:2);document.getElementById('mobStakeDisplay').textContent='$'+(stake>=1?stake:stake.toFixed(2));document.getElementById('stakeSlider').value=Math.min(Math.max(stake,1),100);document.querySelectorAll('.stake-btn[data-val]').forEach(b=>b.classList.toggle('active',parseFloat(b.dataset.val)===stake));}
+document.querySelectorAll('.stake-btn').forEach(b=>{
+  if(b.dataset.val) b.addEventListener('click',()=>setStake(b.dataset.val));
+});
+document.getElementById('btnMin').addEventListener('click',()=>{if(balance>=1)setStake(1);else if(balance>=0.01){setStake(balance,true);}else showToast('⚠️ Insufficient balance!','#ff3355');});
+document.getElementById('btnMax').addEventListener('click',()=>{const maxBet=r2(Math.min(100,balance));if(maxBet>=0.01)setStake(maxBet,maxBet<1);else showToast('⚠️ Insufficient balance!','#ff3355');});
+document.getElementById('stakeSlider').addEventListener('input',function(){setStake(this.value)});
+
+// BUST / GAME OVER
+function bustOut(){
+  showGameOverScreen(true);
+}
+function gameOver(){
+  // Points = profit (1:1) — already awarded per-bet, no cashout bonus needed
+  showGameOverScreen(false);
+}
+function showGameOverScreen(isBust){
+  gameActive=false;endOGP();
+  const el=Math.floor((Date.now()-gameStart)/1000);const wr=totalBets>0?(totalWins/totalBets*100).toFixed(1):0;
+  let grade='F';if(pts>=5000)grade='S';else if(pts>=2000)grade='A';else if(pts>=1000)grade='B';else if(pts>=500)grade='C';else if(pts>=200)grade='D';
+  document.getElementById('goGrade').textContent=grade;document.getElementById('goGrade').className='go-grade '+grade;
+  const pc=totalWinnings>=0?'#00ff88':'#ff3355';
+  document.getElementById('goTitle').textContent=isBust?'BUSTED!':'ROUND OVER';
+  document.getElementById('goStats').innerHTML=`<div class="go-stat-label">Balance</div><div class="go-stat-val" style="color:${balance>0?'#00ff88':'#ff3355'}">${fmtPrice(balance)}</div><div class="go-stat-label">Points</div><div class="go-stat-val" style="color:#f0ff00">${pts.toLocaleString()}</div><div class="go-stat-label">Bets</div><div class="go-stat-val">${totalBets}</div><div class="go-stat-label">Win Rate</div><div class="go-stat-val">${wr}%</div><div class="go-stat-label">Best Streak</div><div class="go-stat-val" style="color:#ff8800">${maxStreak}</div><div class="go-stat-label">P&L</div><div class="go-stat-val" style="color:${pc}">${totalWinnings>=0?'+':''}$${totalWinnings.toFixed(2)}</div><div class="go-stat-label">Time</div><div class="go-stat-val">${Math.floor(el/60)}m ${el%60}s</div><div class="go-stat-label">Achievements</div><div class="go-stat-val">${Object.keys(achievements).length}/${ALL_ACHIEVEMENTS.length}</div>`;
+  const playBtn=document.getElementById('goPlayAgain');
+  playBtn.textContent='⚡ PLAY AGAIN';
+  playBtn.style.opacity='1';playBtn.style.cursor='pointer';
+  playBtn.disabled=false;
+  const existing=document.getElementById('cooldownMsg');
+  if(existing)existing.remove();
+  document.getElementById('gameOver').classList.add('show');
+}
+function resetGame(){
+  document.getElementById('gameOver').classList.remove('show');
+  balance=STARTING_BALANCE;bets=[];betId=0;pts=0;winStreak=0;maxStreak=0;totalBets=0;totalWins=0;totalLosses=0;totalWinnings=0;
+  gameStart=Date.now();lastActivityBonus=Date.now();firstBetTime=0;wonAbove=false;wonBelow=false;achievements={};recentBetTimes=[];wasBelow100=false;gameActive=true;priceTrail=[];
+  document.getElementById('achieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('pointsDisplay').textContent='0';document.getElementById('sessionPtsDisplay').textContent='⭐ 0 PTS';
+  initColumns();updateUI();connectWebSocket();pollPrice();
+}
+document.getElementById('goPlayAgain').addEventListener('click',resetGame);
+document.getElementById('goShare').addEventListener('click',shareScore);
+function shareScore(){
+  const gameUrl=''; // TODO: replace with correct share link
+  if(!gameUrl){showToast('🔗 Share link coming soon!','#00f0ff');return;}
+  const text=`🎰 TAP RUSH — BTC Grid Prediction\n💰 ${fmtPrice(balance)}\n⭐ ${pts.toLocaleString()} pts\n🔥 ${maxStreak} streak\n\nTap the grid. Predict the price. Stack points.\n\nPlay now: ${gameUrl}`;
+  if(navigator.share){
+    navigator.share({title:'TAP RUSH — BTC Grid Prediction',text,url:gameUrl}).catch(()=>{
+      if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('📋 Link copied! Share it!','#00f0ff'));
+    });
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>showToast('📋 Link copied! Share it!','#00f0ff'));
+  }
+}
+document.getElementById('shareBtn').addEventListener('click',shareScore);
+document.getElementById('cashoutBtn').addEventListener('click',()=>{if(bets.some(b=>b.status==='active')){showToast('⚠️ Wait for bets!','#ff8800');return;}gameOver();});
+
+// TICKER - real BTC news, degen style
+const tickerMsgs=[
+  '🚨 <span class="down">BTC -50% from $125K ATH</span> — bears feasting rn',
+  '💎 <span class="hl">$2.56B liquidated</span> in one weekend — Black Sunday II',
+  '🚀 <span class="up">BTC pumps to $66K</span> after Trump State of Union speech',
+  '💰 <span class="up">$52B flowed into crypto</span> during Trump SOTU — degen energy',
+  '🐋 Whale moves 10K BTC off exchange — something cooking',
+  '⚡ ETF outflows flip negative — institutions selling <span class="down">for first time</span>',
+  '🔥 <span class="down">$3.2B realized loss</span> Feb 5 — biggest single day EVER',
+  '🏦 Trump slaps <span class="down">15% global tariffs</span> — crypto dumped 5% instantly',
+  '📉 <span class="down">BTC broke 365-day MA</span> — first time since March 2022',
+  '📊 Arthur Hayes: <span class="up">money printer go brrr = BTC moon</span>',
+  '🐋 <span class="hl">20K BTC left exchanges</span> in one week — supply shock incoming?',
+  '📈 <span class="up">Gold +20% YTD</span> while BTC bleeds — safe haven rotation',
+  '⚠️ Citrini AI report says <span class="down">38% S&P crash</span> coming — markets spooked',
+  '🔒 <span class="hl">Hashrate ATH 850 EH/s</span> — miners not slowing down',
+  '📉 <span class="down">ETH -63% from ATH</span> at $1,826 — alts getting destroyed',
+  '🚀 Kraken analyst: <span class="hl">$54K-$69K support zone</span> — make or break',
+  '💸 Strategy keeps buying BTC despite <span class="down">50% drawdown</span> — diamond hands',
+  '⚡ <span class="up">SOL +4%</span> <span class="up">XRP +2%</span> as degen energy returns',
+  '🎰 <span class="hl">Crypto.com gets bank charter</span> — banks are the new degens',
+  '📰 Jane Street lawsuit shakes markets — <span class="up">BTC eyes $70K</span> recovery',
+  '🏆 <span class="hl">CASHOUT or GO BROKE</span> for your points to count on the leaderboard!',
+  '⚠️ <span class="hl">LEADERBOARD TIP:</span> Points only lock in when you CASHOUT or go BUST!',
+  '💡 Pro tip: <span class="hl">CASHOUT to bank your points</span> — if you quit without cashing out, points don\'t count!'
+];
+function initTicker(){const t=document.getElementById('tickerTrack');const m=[...tickerMsgs,...tickerMsgs,...tickerMsgs];t.innerHTML=m.map(x=>`<div style="display:inline">${x}</div>`).join('<span style="margin:0 24px;color:rgba(255,255,255,0.06)">●</span>');}
+// MAIN LOOP
+let frameCount=0;
+function loop(){
+  frameCount++;
+  getDisplayPrice();
+  if(frameCount%3===0){manageColumns();resolveBets();maybeRecenter();
+    // Check bust in main loop too (backup)
+    if(gameActive&&balance<0.01&&!bets.some(b=>b.status==='active')){balance=0;bustOut();}
+    if(balance<100)wasBelow100=true;
+    if(balance<50)checkAch('rug_survivor','Rug Survivor','🧨','Win after dropping below $50',totalWins>0);
+    if(wasBelow100&&balance>=5000)checkAch('comeback_kid','Comeback Kid','🔄','Recover to $5K',true);
+  }
+  if(frameCount%2===0)updateTimer();
+  draw();
+  document.getElementById('headerPrice').textContent=displayPrice?fmtPrice(displayPrice):'$---';
+  // Show LIVE indicator when WS connected
+  const hpEl=document.getElementById('headerPrice');
+  hpEl.style.textShadow=wsConnected?'0 0 8px rgba(0,255,136,0.5)':'none';
+  document.getElementById('liveBadge').style.display=wsConnected?'inline':'none';
+  requestAnimationFrame(loop);
+}
+
+// INIT
+async function init(){
+  initTicker();resize();
+  // Start WebSocket for live 1s price feed
+  connectWebSocket();
+  // Also do initial REST fetch as backup while WS connects
+  await pollPrice();
+  initColumns();
+  requestAnimationFrame(loop);
+  setInterval(()=>{if(gameActive&&Math.random()<0.35)showSocial();},9000);
+  setInterval(()=>{if(gameActive&&Math.random()<0.3)triggerBreaking();},28000);
+  setTimeout(()=>{if(gameActive)triggerBreaking();},12000);
+  document.addEventListener('click',initAudio,{once:true});
+  document.addEventListener('touchstart',initAudio,{once:true});
+}
+init();
+})();
+</script>
+</body>
+</html>
