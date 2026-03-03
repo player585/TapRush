@@ -60,6 +60,8 @@ body{display:flex;flex-direction:column}
 .tier-btn.tier-50k:hover{background:rgba(0,240,255,0.18) !important;border-color:rgba(0,240,255,0.6) !important}
 .tier-btn.tier-100k{background:rgba(255,0,255,0.08) !important;border-color:rgba(255,0,255,0.35) !important;color:var(--magenta) !important;font-weight:700}
 .tier-btn.tier-100k:hover{background:rgba(255,0,255,0.18) !important;border-color:rgba(255,0,255,0.6) !important}
+.tier-btn.tier-1m{background:rgba(255,215,0,0.08) !important;border-color:rgba(255,215,0,0.35) !important;color:#ffd700 !important;font-weight:700}
+.tier-btn.tier-1m:hover{background:rgba(255,215,0,0.18) !important;border-color:rgba(255,215,0,0.6) !important}
 .stake-hint{font-size:9.5px;color:rgba(255,255,255,0.25);text-align:center;margin-top:6px}
 .pos-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:5px;padding:6px 8px;margin-bottom:3px;font-size:10px}
 .pos-item .ph{display:flex;justify-content:space-between;align-items:center}
@@ -292,6 +294,8 @@ body.mobile-mode #pointsSection{display:none}
       <button class="stake-btn tier-btn tier-50k" data-val="500" style="display:none">$500</button>
       <button class="stake-btn tier-btn tier-100k" data-val="5000" style="display:none">$5K</button>
       <button class="stake-btn tier-btn tier-100k" data-val="10000" style="display:none">$10K</button>
+      <button class="stake-btn tier-btn tier-1m" data-val="50000" style="display:none">$50K</button>
+      <button class="stake-btn tier-btn tier-1m" data-val="100000" style="display:none">$100K</button>
       <button class="stake-btn stake-minmax" id="btnMax" data-action="max">MAX</button>
     </div>
     <div class="stake-hint">🔥 Higher stakes = Bigger wins!</div>
@@ -324,6 +328,8 @@ body.mobile-mode #pointsSection{display:none}
     <button class="stake-btn tier-btn tier-50k" data-val="500" style="display:none">$500</button>
     <button class="stake-btn tier-btn tier-100k" data-val="5000" style="display:none">$5K</button>
     <button class="stake-btn tier-btn tier-100k" data-val="10000" style="display:none">$10K</button>
+    <button class="stake-btn tier-btn tier-1m" data-val="50000" style="display:none">$50K</button>
+    <button class="stake-btn tier-btn tier-1m" data-val="100000" style="display:none">$100K</button>
     <button class="stake-btn stake-minmax" data-action="max" id="mobBtnMax">MAX</button>
   </div>
 </div>
@@ -1092,11 +1098,21 @@ function draw(){
 
     // Draw win/loss indicators on resolved columns
     if(col.resolved){
+      // Group bets by row to sum totals per cell
+      const cellMap={};
       bets.forEach(b=>{
-        if(b.colId!==col.id)return;
-        const cellY=L.bodyTop+(b.row/getNumRows())*L.bodyH;
+        if(b.colId!==col.id||b.status==='active')return;
+        if(!cellMap[b.row])cellMap[b.row]={won:[],lost:[]};
+        if(b.status==='won')cellMap[b.row].won.push(b);
+        else if(b.status==='lost')cellMap[b.row].lost.push(b);
+      });
+      Object.keys(cellMap).forEach(row=>{
+        const r=parseInt(row);
+        const cellY=L.bodyTop+(r/getNumRows())*L.bodyH;
         const cellH=L.bodyH/getNumRows();
-        if(b.status==='won'){
+        const group=cellMap[r];
+        if(group.won.length>0){
+          const totalProfit=group.won.reduce((s,b)=>s+b.payout-b.stake,0);
           ctx.fillStyle='rgba(0,200,80,0.2)';
           ctx.fillRect(colLeft,cellY,colW,cellH);
           ctx.strokeStyle='rgba(0,255,136,0.5)';ctx.lineWidth=2;
@@ -1104,16 +1120,18 @@ function draw(){
           const wSz=isMobileMode?Math.min(12*mF,cellH*0.32):10;
           ctx.font='bold '+(wSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
           ctx.fillStyle='#00ff88';
-          ctx.fillText('\u2713 +$'+(b.payout-b.stake).toFixed(2),cx,cellY+cellH*0.5);
-        } else if(b.status==='lost'){
+          ctx.fillText('\u2713 +$'+totalProfit.toFixed(2),cx,cellY+cellH*0.5);
+        }
+        if(group.lost.length>0){
+          const totalLost=group.lost.reduce((s,b)=>s+b.stake,0);
           ctx.fillStyle='rgba(255,51,85,0.1)';
           ctx.fillRect(colLeft,cellY,colW,cellH);
           ctx.strokeStyle='rgba(255,51,85,0.3)';ctx.lineWidth=1;
           ctx.strokeRect(colLeft+1,cellY+1,colW-2,cellH-2);
-          const lSz=isMobileMode?Math.min(11*mF,cellH*0.28):9;
-          ctx.font=(lSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
-          ctx.fillStyle='rgba(255,51,85,0.6)';
-          ctx.fillText('✗',cx,cellY+cellH*0.5);
+          const lSz=isMobileMode?Math.min(12*mF,cellH*0.32):10;
+          ctx.font='bold '+(lSz|0)+'px "JetBrains Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillStyle='#ff3355';
+          ctx.fillText('-$'+totalLost.toFixed(2),cx,cellY+cellH*0.5);
         }
       });
     }
@@ -1378,18 +1396,20 @@ function checkAch(id,name,icon,desc,cond){
 // STAKE
 function r2(n){return Math.round(n*100)/100;}
 function getMaxBet(){
+  if(balance>=1000000) return 100000;
   if(balance>=100000) return 10000;
   if(balance>=50000) return 500;
   return 100;
 }
 let lastTier=0;
 function updateWagerTier(){
-  const tier=balance>=100000?2:balance>=50000?1:0;
+  const tier=balance>=1000000?3:balance>=100000?2:balance>=50000?1:0;
   if(tier===lastTier) return;
   lastTier=tier;
   // Show/hide tier buttons
   document.querySelectorAll('.tier-btn.tier-50k').forEach(b=>b.style.display=tier>=1?'':'none');
   document.querySelectorAll('.tier-btn.tier-100k').forEach(b=>b.style.display=tier>=2?'':'none');
+  document.querySelectorAll('.tier-btn.tier-1m').forEach(b=>b.style.display=tier>=3?'':'none');
   // Update slider max
   const maxB=getMaxBet();
   document.getElementById('stakeSlider').max=maxB;
@@ -1398,6 +1418,7 @@ function updateWagerTier(){
   // Toast unlock notification
   if(tier===1) showToast('🔓 $500 bet unlocked!','#00f0ff');
   if(tier===2) showToast('🔓 $5K & $10K bets unlocked!','#ff00ff');
+  if(tier===3) showToast('🔓 $50K & $100K bets unlocked!','#ffd700');
 }
 function setStake(v,allowSub1){
   const maxB=getMaxBet();
