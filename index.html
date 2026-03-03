@@ -83,6 +83,8 @@ body{display:flex;flex-direction:column}
 .btn-cashout{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:var(--green)}
 .btn-buy{background:rgba(255,136,0,0.1);border-color:rgba(255,136,0,0.3);color:var(--orange)}
 .btn-save{background:rgba(240,255,0,0.1);border-color:rgba(240,255,0,0.3);color:var(--yellow)}
+.btn-vote{background:rgba(255,0,255,0.1);border-color:rgba(255,0,255,0.3);color:var(--magenta)}
+.btn-vote:hover{background:rgba(255,0,255,0.2);border-color:rgba(255,0,255,0.5);box-shadow:0 0 12px rgba(255,0,255,0.3)}
 
 /* Overlays */
 .toast{position:fixed;bottom:55px;left:14px;background:rgba(8,8,16,0.96);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 14px;font-size:11px;z-index:100;animation:toastIn .35s ease-out;box-shadow:0 4px 24px rgba(0,0,0,0.6);max-width:320px}
@@ -163,7 +165,8 @@ body.mobile-mode .footer-stats{gap:6px}
 body.mobile-mode .stat-value{font-size:10px}
 body.mobile-mode .stat-label{font-size:10px}
 body.mobile-mode .stat-value.balance{font-size:13px;font-weight:800;text-shadow:0 0 10px rgba(0,255,136,0.4)}
-body.mobile-mode .action-btn{padding:6px 10px;font-size:10px}
+body.mobile-mode .action-btn{padding:6px 8px;font-size:9.5px}
+body.mobile-mode .footer-actions{gap:4px}
 body.mobile-mode #ticker{height:22px}
 body.mobile-mode .ticker-track{font-size:9px}
 body.mobile-mode .header-right{gap:5px}
@@ -378,6 +381,7 @@ body.mobile-mode #pointsSection{display:none}
 </div>
 <div class="footer-actions">
   <button class="action-btn btn-share" id="shareBtn">📤 SHARE</button>
+  <button class="action-btn btn-vote" id="voteBtn" onclick="window.open('https://vote.taprush.fun','_blank')">🗳️ VOTE</button>
   <button class="action-btn btn-save" id="saveBtn">⭐ SAVE & END</button>
   <button class="action-btn btn-cashout" id="cashoutBtn">💰 CASHOUT</button>
 </div>
