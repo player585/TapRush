@@ -24,12 +24,14 @@ body{display:flex;flex-direction:column}
 #ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
 #ticker::before{content:'';position:absolute;left:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,#08080d,transparent);z-index:2}
 #ticker::after{content:'';position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(-90deg,#08080d,transparent);z-index:2}
-.ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 220s linear infinite;gap:40px;font-size:10.5px;color:var(--gray)}
+.ticker-track{display:flex;white-space:nowrap;animation:tickerScroll 320s linear infinite;gap:40px;font-size:10.5px;color:var(--gray)}
 .ticker-track .up{color:var(--green)}.ticker-track .down{color:var(--red)}.ticker-track .hl{color:var(--cyan);font-weight:600}
 @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* HEADER */
-#header{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:linear-gradient(180deg,rgba(12,12,20,0.98),var(--bg))}
+#header{height:auto;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:linear-gradient(180deg,rgba(12,12,20,0.98),var(--bg))}
+.header-top-row{display:flex;align-items:center;gap:10px;min-height:42px;flex-shrink:0}
+#gameModes{display:flex;align-items:center;gap:6px}
 .logo{font-family:var(--font-head);font-size:17px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#00f0ff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,240,255,0.4))}
 .header-tabs button{background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.3);color:var(--cyan);padding:4px 14px;border-radius:4px;font-family:var(--font-mono);font-size:10.5px;cursor:pointer;font-weight:600}
 .header-right{display:flex;align-items:center;gap:10px;font-size:12px}
@@ -48,7 +50,7 @@ body{display:flex;flex-direction:column}
 .sidebar-section{padding:12px;border-bottom:1px solid var(--border)}
 .sidebar-title{font-family:var(--font-head);font-size:9.5px;color:var(--cyan);letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase;opacity:0.8}
 .stake-display{text-align:center;margin-bottom:6px}
-.stake-amount{font-size:24px;font-weight:800;color:var(--green);font-family:var(--font-head);text-shadow:0 0 12px rgba(0,255,136,0.3)}
+.stake-amount{font-size:24px;font-weight:800;color:var(--cyan);font-family:var(--font-head);text-shadow:0 0 12px rgba(0,240,255,0.4);background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.25);border-radius:6px;padding:4px 14px;display:inline-block;letter-spacing:0.5px}
 .stake-slider{width:100%;margin:6px 0;accent-color:var(--cyan);height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none}
 .stake-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px rgba(0,240,255,0.5)}
 .stake-presets{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
@@ -161,13 +163,24 @@ body.mobile-mode #sidebar{display:none}
 body.mobile-mode #mobileStake{display:flex !important}
 body.mobile-mode #footerBalanceItem{display:flex}
 body.mobile-mode .logo{font-size:12px;letter-spacing:2px}
-body.mobile-mode #header{height:38px;padding:0 8px}
+body.mobile-mode #header{padding:0 8px}
+body.mobile-mode .header-top-row{min-height:36px;flex-wrap:wrap;flex:1}
+body.mobile-mode .header-right{display:none}
+body.mobile-mode #gameModes{order:10;width:100%;justify-content:center;gap:8px;padding:4px 0 5px;border-top:1px solid rgba(255,255,255,0.06)}
+.mobile-price-inline{display:none}
+body.mobile-mode .mobile-price-inline{display:flex;align-items:center;gap:5px;font-size:12px;margin-left:auto}
+body.mobile-mode .mobile-price-inline .pair-label{font-size:10px}
+body.mobile-mode .mobile-price-inline #headerPriceMobileVal{color:var(--green);font-weight:700;font-size:11px;text-shadow:0 0 8px rgba(0,255,136,0.3)}
 body.mobile-mode #footer{height:auto;padding:6px 8px;font-size:10px;flex-wrap:wrap;flex-direction:column;gap:0}
 body.mobile-mode .footer-stats{gap:8px;width:100%;justify-content:center;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)}
 body.mobile-mode .stat-value{font-size:10px}
 body.mobile-mode .stat-label{font-size:10px}
 body.mobile-mode .stat-value.balance{font-size:15px;font-weight:800;text-shadow:0 0 14px rgba(0,255,136,0.5);color:#00ff88;letter-spacing:0.5px}
 body.mobile-mode #footerBalanceItem{background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);border-radius:4px;padding:2px 8px;margin-left:2px}
+/* Inline lightning bolt button next to balance (mobile only) */
+.mob-fab-inline{display:none}
+body.mobile-mode .mob-fab-inline{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--white);font-size:16px;cursor:pointer;margin-left:6px;flex-shrink:0;transition:all .2s}
+body.mobile-mode .mob-fab-inline:active{background:rgba(0,240,255,0.15);border-color:rgba(0,240,255,0.4);transform:scale(0.92)}
 body.mobile-mode .footer-actions{gap:6px;width:100%;justify-content:center;padding-top:6px}
 body.mobile-mode .action-btn{padding:7px 12px;font-size:10px;flex:1;text-align:center}
 body.mobile-mode #ticker{height:22px}
@@ -187,6 +200,45 @@ body.mobile-mode .header-tabs button{padding:3px 8px;font-size:9px}
 .mode-toggle-thumb{width:12px;height:12px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
 .mode-toggle-track.mobile-active .mode-toggle-thumb{left:17px;background:var(--cyan);box-shadow:0 0 6px rgba(0,240,255,0.5)}
 
+/* Normal Mode Toggle */
+.norm-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.15);border-radius:6px;padding:3px 8px;transition:all .3s}
+.norm-toggle:hover{background:rgba(0,240,255,0.12);border-color:rgba(0,240,255,0.3)}
+.norm-toggle.norm-active{background:rgba(0,240,255,0.15);border-color:rgba(0,240,255,0.5);box-shadow:0 0 12px rgba(0,240,255,0.2)}
+.norm-toggle-label{font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-head);letter-spacing:0.8px;font-weight:700;transition:all .3s}
+.norm-toggle.norm-active .norm-toggle-label{color:#00f0ff;text-shadow:0 0 8px rgba(0,240,255,0.5)}
+.norm-toggle-track{width:36px;height:18px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);position:relative;transition:all .3s}
+.norm-toggle.norm-active .norm-toggle-track{background:rgba(0,240,255,0.2);border-color:rgba(0,240,255,0.5)}
+.norm-toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
+.norm-toggle.norm-active .norm-toggle-thumb{left:19px;background:#00f0ff;box-shadow:0 0 8px rgba(0,240,255,0.6)}
+body.mobile-mode .norm-toggle{padding:2px 6px}
+body.mobile-mode .norm-toggle-label{font-size:7.5px}
+
+/* Extreme Volatility Toggle */
+.vol-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;background:rgba(255,51,85,0.06);border:1px solid rgba(255,51,85,0.15);border-radius:6px;padding:3px 8px;transition:all .3s}
+.vol-toggle:hover{background:rgba(255,51,85,0.12);border-color:rgba(255,51,85,0.3)}
+.vol-toggle.vol-active{background:rgba(255,51,85,0.15);border-color:rgba(255,51,85,0.5);box-shadow:0 0 12px rgba(255,51,85,0.2)}
+.vol-toggle-label{font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-head);letter-spacing:0.8px;font-weight:700;transition:all .3s}
+.vol-toggle.vol-active .vol-toggle-label{color:#ff3355;text-shadow:0 0 8px rgba(255,51,85,0.5)}
+.vol-toggle-track{width:36px;height:18px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);position:relative;transition:all .3s}
+.vol-toggle.vol-active .vol-toggle-track{background:rgba(255,51,85,0.2);border-color:rgba(255,51,85,0.5)}
+.vol-toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
+.vol-toggle.vol-active .vol-toggle-thumb{left:19px;background:#ff3355;box-shadow:0 0 8px rgba(255,51,85,0.6)}
+body.mobile-mode .vol-toggle{padding:2px 6px}
+body.mobile-mode .vol-toggle-label{font-size:7.5px}
+
+/* Max Pain Toggle */
+.pain-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;background:rgba(255,136,0,0.06);border:1px solid rgba(255,136,0,0.15);border-radius:6px;padding:3px 8px;transition:all .3s}
+.pain-toggle:hover{background:rgba(255,136,0,0.12);border-color:rgba(255,136,0,0.3)}
+.pain-toggle.pain-active{background:rgba(255,136,0,0.15);border-color:rgba(255,136,0,0.5);box-shadow:0 0 12px rgba(255,136,0,0.2)}
+.pain-toggle-label{font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-head);letter-spacing:0.8px;font-weight:700;transition:all .3s}
+.pain-toggle.pain-active .pain-toggle-label{color:#ff8800;text-shadow:0 0 8px rgba(255,136,0,0.5)}
+.pain-toggle-track{width:36px;height:18px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);position:relative;transition:all .3s}
+.pain-toggle.pain-active .pain-toggle-track{background:rgba(255,136,0,0.2);border-color:rgba(255,136,0,0.5)}
+.pain-toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
+.pain-toggle.pain-active .pain-toggle-thumb{left:19px;background:#ff8800;box-shadow:0 0 8px rgba(255,136,0,0.6)}
+body.mobile-mode .pain-toggle{padding:2px 6px}
+body.mobile-mode .pain-toggle-label{font-size:7.5px}
+
 /* Mobile bottom sheet for positions / achievements / points */
 body.mobile-mode #mobileBottomSheet{display:block}
 #mobileBottomSheet{display:none;position:fixed;bottom:0;left:0;right:0;z-index:350;pointer-events:none}
@@ -203,9 +255,10 @@ body.mobile-mode #mobileBottomSheet{display:block}
 .sheet-panel{display:none;padding:12px;max-height:50vh;overflow-y:auto}
 .sheet-panel.active{display:block}
 
-/* Mobile floating action buttons */
-body.mobile-mode #mobileFloatingBtns{display:flex}
-#mobileFloatingBtns{display:none;position:fixed;bottom:92px;right:8px;flex-direction:column;gap:6px;z-index:300}
+/* Mobile floating action buttons — hidden in mobile, using inline button instead */
+body.mobile-mode #mobileFloatingBtns{display:none}
+body.mobile-mode #fabArrow{display:none}
+#mobileFloatingBtns{display:none;position:fixed;bottom:110px;right:8px;flex-direction:column;gap:6px;z-index:300}
 .mob-fab{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:all .2s}
 .mob-fab.fab-info{background:rgba(240,255,0,0.15);border-color:rgba(240,255,0,0.5);color:var(--yellow);font-size:20px;animation:fabPulse 1.8s ease-in-out infinite}
 .mob-fab.fab-info:active{background:rgba(240,255,0,0.35);transform:scale(0.92)}
@@ -223,8 +276,9 @@ body.mobile-mode #mobileFloatingBtns{display:flex}
 body.mobile-mode #mobileStake .stake-minmax{display:inline-block}
 
 /* Dancing arrow pointing up at FAB */
-body.mobile-mode #fabArrow{display:flex}
-#fabArrow{display:none;position:fixed;bottom:50px;right:12px;z-index:301;flex-direction:column;align-items:center;pointer-events:none}
+/* Dancing arrow — hidden in mobile (inline button replaces it) */
+body.mobile-mode #fabArrow{display:none}
+#fabArrow{display:none;position:fixed;bottom:68px;right:12px;z-index:301;flex-direction:column;align-items:center;pointer-events:none}
 #fabArrow .arrow-text{font-family:var(--font-head);font-size:7px;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;margin-top:2px;filter:drop-shadow(0 0 6px rgba(240,255,0,0.6));animation:arrowTextPulse 1.8s ease-in-out infinite}
 #fabArrow .arrow-icon{font-size:28px;filter:drop-shadow(0 0 10px rgba(240,255,0,0.8)) drop-shadow(0 0 20px rgba(240,255,0,0.4));animation:arrowBounce 1s ease-in-out infinite}
 @keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
@@ -264,13 +318,28 @@ body.mobile-mode #pointsSection{display:none}
 <div id="sdkSpacer" style="height:50px;flex-shrink:0;background:var(--bg)"></div>
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
 <div id="header">
-<div style="display:flex;align-items:center;gap:10px">
+<div class="header-top-row">
   <div class="logo">TAP RUSH</div>
   <div class="header-tabs"><a href="https://jup.ag/tokens/ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY" target="_blank" rel="noopener" style="text-decoration:none"><button>$RUSH</button></a></div>
   <div class="mode-toggle" id="modeToggle" title="Switch between Desktop and Mobile mode">
     <span class="mode-toggle-label active-label" id="lblDesktop">D</span>
     <div class="mode-toggle-track" id="modeTrack"><div class="mode-toggle-thumb"></div></div>
     <span class="mode-toggle-label" id="lblMobile">M</span>
+  </div>
+  <span id="headerPriceMobile" class="mobile-price-inline"><span class="pair-label">BTC/USD</span><span id="liveBadgeMobile" style="font-size:8px;color:#00ff88;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:3px;padding:1px 5px;margin-left:5px;font-weight:700;letter-spacing:0.5px;display:none">● LIVE</span><span id="headerPriceMobileVal">$---</span></span>
+  <div id="gameModes">
+    <div class="norm-toggle norm-active" id="normToggle" title="Normal Mode — $20 rows, casual">
+      <span class="norm-toggle-label">NORMAL</span>
+      <div class="norm-toggle-track"><div class="norm-toggle-thumb"></div></div>
+    </div>
+    <div class="vol-toggle" id="volToggle" title="Extreme Volatility Mode — tighter $10 rows">
+      <span class="vol-toggle-label">EXTREME</span>
+      <div class="vol-toggle-track"><div class="vol-toggle-thumb"></div></div>
+    </div>
+    <div class="pain-toggle" id="painToggle" title="Max Pain Mode — $5 rows, ultra-tight grid">
+      <span class="pain-toggle-label">MAX PAIN</span>
+      <div class="pain-toggle-track"><div class="pain-toggle-thumb"></div></div>
+    </div>
   </div>
 </div>
 <div class="header-right"><span class="pair-label">BTC/USD</span><span id="liveBadge" style="font-size:8px;color:#00ff88;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:3px;padding:1px 5px;margin-left:5px;font-weight:700;letter-spacing:0.5px;display:none">● LIVE</span><span id="headerPrice">$---</span></div>
@@ -280,7 +349,7 @@ body.mobile-mode #pointsSection{display:none}
 <div id="sidebar">
   <div class="sidebar-section" style="text-align:center;padding:10px 12px 8px">
     <div class="sidebar-title">Balance</div>
-    <div id="sidebarBalance" style="font-family:var(--font-head);font-size:22px;font-weight:900;color:var(--green);text-shadow:0 0 12px rgba(0,255,136,0.3)">$1,000.00</div>
+    <div id="sidebarBalance" style="font-family:var(--font-head);font-size:22px;font-weight:900;color:#00ff88;text-shadow:0 0 14px rgba(0,255,136,0.5);background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);border-radius:6px;padding:4px 14px;display:inline-block;letter-spacing:0.5px">$1,000.00</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-title">Wager</div>
@@ -384,7 +453,7 @@ body.mobile-mode #pointsSection{display:none}
   <div class="stat-item"><span class="stat-label">⏱</span><span class="stat-value" id="timerDisplay">00:00</span></div>
   <div class="stat-item"><span class="stat-label">⭐</span><span class="stat-value" id="pointsDisplay" style="color:var(--yellow)">0</span></div>
   <div class="stat-item" id="sessionCountItem"><span class="stat-label">🎮</span><span class="stat-value" id="sessionCountDisplay" style="color:var(--cyan)">0/5</span></div>
-  <div class="stat-item" id="footerBalanceItem"><span class="stat-label">💰</span><span class="stat-value balance" id="balanceDisplay">$1,000.00</span></div>
+  <div class="stat-item" id="footerBalanceItem"><span class="stat-label">💰</span><span class="stat-value balance" id="balanceDisplay">$1,000.00</span></div><button class="mob-fab-inline" id="mobFabInline" title="Positions & Info">📋</button>
 </div>
 <div class="footer-actions">
   <button class="action-btn btn-share" id="shareBtn">📤 SHARE</button>
@@ -479,7 +548,11 @@ let W=0,H=0,dpr=1;
 const NUM_ROWS=14;
 const NUM_ROWS_MOBILE=10; // fewer rows on mobile = bigger cells
 function getNumRows(){return NUM_ROWS;}
-const ROW_H_USD=20; // each row = $20 price range
+let isExtremeMode=false;
+let isMaxPainMode=false;
+let ROW_H_USD=20; // each row = $20 price range (normal), $10 (extreme)
+let recenterThreshold=125; // $125 normal, $65 extreme
+let recenterTimer=0; // timestamp when price first exceeded threshold
 const COL_INTERVAL_SEC=5; // new column every 5s
 const MAX_COLS_VISIBLE=10; // columns visible in grid area
 const NOW_FRAC=1/3; // NOW line at 1/3 from left
@@ -653,7 +726,9 @@ function priceToY(price){
   const botP=gridRanges[getNumRows()-1].min;
   const pRange=topP-botP;
   if(pRange<=0)return H/2;
-  return L.bodyTop+((topP-price)/pRange)*L.bodyH;
+  const y=L.bodyTop+((topP-price)/pRange)*L.bodyH;
+  // Clamp to chart boundaries so price line stays visible
+  return Math.max(L.bodyTop, Math.min(L.bodyTop+L.bodyH, y));
 }
 
 function getCurrentPriceRow(){
@@ -674,11 +749,55 @@ function recalcGridRanges(){
   }
 }
 
+// Remap bet rows after grid recenter so bets stay at correct visual position
+function remapBetRows(){
+  if(!gridRanges.length)return;
+  const nr=getNumRows();
+  bets.forEach(b=>{
+    const midPrice=(b.priceRange.min+b.priceRange.max)/2;
+    // Find which row this bet's price range now falls in
+    let newRow=-1;
+    for(let r=0;r<nr;r++){
+      if(midPrice>=gridRanges[r].min&&midPrice<gridRanges[r].max){
+        newRow=r;break;
+      }
+    }
+    // If bet is above the grid, clamp to top row
+    if(newRow===-1&&midPrice>=gridRanges[0].max) newRow=0;
+    // If bet is below the grid, clamp to bottom row
+    if(newRow===-1&&midPrice<gridRanges[nr-1].min) newRow=nr-1;
+    if(newRow>=0) b.row=newRow;
+  });
+}
+
 function maybeRecenter(){
-  if(!displayPrice)return;
-  if(Math.abs(displayPrice-gridCenter)>ROW_H_USD*3.5){
-    gridCenter=Math.round(displayPrice/ROW_H_USD)*ROW_H_USD;
-    recalcGridRanges();
+  if(!displayPrice||!gridRanges.length)return;
+  const topP=gridRanges[0].max;
+  const botP=gridRanges[getNumRows()-1].min;
+  const offGrid=displayPrice>=topP||displayPrice<=botP;
+  const dist=Math.abs(displayPrice-gridCenter);
+
+  if(offGrid||dist>recenterThreshold){
+    // If price is completely off the visible grid, recenter immediately
+    if(offGrid){
+      gridCenter=Math.round(displayPrice/ROW_H_USD)*ROW_H_USD;
+      recalcGridRanges();
+      remapBetRows();
+      columns.forEach(col=>refreshColumnMults(col));
+      recenterTimer=0;
+      return;
+    }
+    // Otherwise start 30s timer for threshold drift
+    if(!recenterTimer) recenterTimer=Date.now();
+    if(Date.now()-recenterTimer>=30000){
+      gridCenter=Math.round(displayPrice/ROW_H_USD)*ROW_H_USD;
+      recalcGridRanges();
+      remapBetRows();
+      columns.forEach(col=>refreshColumnMults(col));
+      recenterTimer=0;
+    }
+  } else {
+    recenterTimer=0;
   }
 }
 
@@ -778,11 +897,16 @@ function manageColumns(){
       if(!col.resolved&&getColSecsLeft(col)>0) refreshColumnMults(col);
     });
   }
-  // Remove columns that have scrolled way off screen left
+  // Remove columns that have scrolled off screen left
+  // NEVER remove a column that still has active bets — price may return
   const L=getLayout();
   columns=columns.filter(c=>{
     const x=colToX(c);
-    return x>L.chartLeft-200; // keep some buffer
+    if(x>L.chartLeft-200) return true; // still on screen, keep
+    // Off-screen: only remove if resolved AND no active bets remain on it
+    const hasActiveBets=bets.some(b=>b.colId===c.id&&b.status==='active');
+    if(hasActiveBets) return true; // keep column alive until bets settle
+    return false; // safe to remove
   });
 }
 
@@ -848,7 +972,7 @@ function placeBet(row,col){
   initAudio();
   if(!gameActive)return;
   if(balance<stake||balance<0.01){showToast('⚠️ Insufficient balance!','#ff3355');return;}
-  if(bets.filter(b=>b.status==='active').length>=25){showToast('⚠️ Max 25 active bets!','#ff3355');return;}
+  if(bets.filter(b=>b.status==='active').length>=30){showToast('⚠️ Max 30 active bets!','#ff3355');return;}
   const range=gridRanges[row];
   const mult=col.mults[row]||1;
   balance=r2(balance-stake);totalBets++;
@@ -1486,10 +1610,53 @@ function resetGame(){
   initColumns();updateUI();connectWebSocket();pollPrice();
 }
 document.getElementById('goPlayAgain').addEventListener('click',resetGame);
-document.getElementById('goShare').addEventListener('click',shareScore);
+document.getElementById('goShare').addEventListener('click',shareGradeCard);
+function shareGradeCard(){
+  const gameUrl='https://taprush.fun';
+  // Build scorecard text from current stats on grade card
+  const gradeEl=document.getElementById('goGrade');
+  const grade=gradeEl?gradeEl.textContent.trim():'?';
+  const titleEl=document.getElementById('goTitle');
+  const isBust=titleEl&&titleEl.textContent.includes('BUST');
+  // Pull stat values from the go-stats grid
+  const statVals=document.querySelectorAll('#goStats .go-stat-val');
+  const sv=i=>statVals[i]?statVals[i].textContent.trim():'-';
+  // 0:Session 1:Balance 2:Points 3:Bets 4:WinRate 5:BestStreak 6:P&L 7:Time 8:Achievements
+  const gradeEmoji={'S':'👑','A':'🔥','B':'💪','C':'😤','D':'😬','F':'💀'}[grade]||'🎮';
+  const lines=[
+    `${gradeEmoji} TAP RUSH — Grade: ${grade} ${isBust?'(BUSTED)':''}`,
+    ``,
+    `💰 Points: ${sv(2)}`,
+    `📊 Bets: ${sv(3)} · Win Rate: ${sv(4)}`,
+    `🔥 Best Streak: ${sv(5)}`,
+    `💵 P&L: ${sv(6)} · Balance: ${sv(1)}`,
+    `⏱️ Time: ${sv(7)}`,
+    `🏅 Achievements: ${sv(8)}`,
+    ``,
+    `Can you beat my score? 👇`,
+    gameUrl
+  ];
+  const text=lines.join('\n');
+  // Try native share (mobile), fall back to clipboard
+  if(navigator.share){
+    navigator.share({title:'TAP RUSH Score',text:text}).catch(()=>{});
+  } else {
+    function fallbackCopy(t){
+      const ta=document.createElement('textarea');
+      ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='-9999px';
+      document.body.appendChild(ta);ta.focus();ta.select();
+      try{document.execCommand('copy');showToast('📋 Score copied — paste anywhere!','#00f0ff');}catch(e){showToast('⚠️ Could not copy','#ff3355');}
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(()=>showToast('📋 Score copied — paste anywhere!','#00f0ff')).catch(()=>fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+}
 function shareScore(){
-  const gameUrl='https://play.fun/s/rl009ai';
-  // Try modern clipboard API first, fall back to execCommand
+  const gameUrl='https://taprush.fun';
   function fallbackCopy(text){
     const ta=document.createElement('textarea');
     ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='-9999px';
@@ -1509,26 +1676,41 @@ document.getElementById('saveBtn').addEventListener('click',()=>{if(bets.some(b=
 
 // TICKER - real BTC news, degen style
 const tickerMsgs=[
-  '🚨 <span class="down">BTC -50% from $125K ATH</span> — bears feasting rn',
-  '💎 <span class="hl">$2.56B liquidated</span> in one weekend — Black Sunday II',
-  '🚀 <span class="up">BTC pumps to $66K</span> after Trump State of Union speech',
-  '💰 <span class="up">$52B flowed into crypto</span> during Trump SOTU — degen energy',
-  '🐋 Whale moves 10K BTC off exchange — something cooking',
-  '⚡ ETF outflows flip negative — institutions selling <span class="down">for first time</span>',
-  '🔥 <span class="down">$3.2B realized loss</span> Feb 5 — biggest single day EVER',
-  '🏦 Trump slaps <span class="down">15% global tariffs</span> — crypto dumped 5% instantly',
-  '📉 <span class="down">BTC broke 365-day MA</span> — first time since March 2022',
-  '📊 Arthur Hayes: <span class="up">money printer go brrr = BTC moon</span>',
-  '🐋 <span class="hl">20K BTC left exchanges</span> in one week — supply shock incoming?',
-  '📈 <span class="up">Gold +20% YTD</span> while BTC bleeds — safe haven rotation',
-  '⚠️ Citrini AI report says <span class="down">38% S&P crash</span> coming — markets spooked',
-  '🔒 <span class="hl">Hashrate ATH 850 EH/s</span> — miners not slowing down',
-  '📉 <span class="down">ETH -63% from ATH</span> at $1,826 — alts getting destroyed',
-  '🚀 Kraken analyst: <span class="hl">$54K-$69K support zone</span> — make or break',
-  '💸 Strategy keeps buying BTC despite <span class="down">50% drawdown</span> — diamond hands',
-  '⚡ <span class="up">SOL +4%</span> <span class="up">XRP +2%</span> as degen energy returns',
-  '🎰 <span class="hl">Crypto.com gets bank charter</span> — banks are the new degens',
-  '📰 Jane Street lawsuit shakes markets — <span class="up">BTC eyes $70K</span> recovery',
+  // --- CASHOUT NOTICES (beginning) ---
+  '🏆 <span class="hl">CASHOUT or GO BROKE</span> for your points to count on the leaderboard!',
+  '⚠️ <span class="hl">LEADERBOARD TIP:</span> Points only lock in when you CASHOUT or go BUST!',
+  '💡 Pro tip: <span class="hl">CASHOUT to bank your points</span> — if you quit without cashing out, points don\'t count!',
+  // --- NEWS batch 1 ---
+  '🚨 <span class="down">BTC nuked 25% in one week</span> — Feb 5 Black Monday hit different fr',
+  '💀 <span class="down">$3.2B realized loss</span> on Feb 5 — biggest single-day rekt in BTC history',
+  '🔥 Kevin Warsh nominated Fed Chair — <span class="down">BTC dumped 30%</span> to $60K on the news',
+  '📉 <span class="down">BTC -15% in Feb</span> — 5th straight red month, worst streak since forever',
+  '🐻 <span class="down">ETH down 20% in Feb</span> — Vitalik dumping his own bags lmaooo',
+  '💎 Saylor won\'t sell even if <span class="down">BTC drops 90%</span> — actual psycho diamond hands',
+  '🏦 Trump slaps <span class="down">15% worldwide tariff</span> — Supreme Court said no but he dgaf',
+  '⚖️ Supreme Court struck down Liberation Day tariffs — <span class="up">pumped then dumped</span> classic',
+  '📜 Epstein files dropped — turns out he was into crypto early??? <span class="down">market spooked</span>',
+  '🏛️ SEC under Atkins <span class="up">dropped dozens of crypto cases</span> — regulation by enforcement is dead',
+  '🤝 White House crypto summit pt 2 — <span class="up">bipartisan bill momentum</span> actually building',
+  '💣 <span class="down">Fear & Greed Index hit record low</span> — everyone max pain rn no cap',
+  // --- CASHOUT NOTICES (middle) ---
+  '🏆 <span class="hl">CASHOUT or GO BROKE</span> for your points to count on the leaderboard!',
+  '⚠️ <span class="hl">LEADERBOARD TIP:</span> Points only lock in when you CASHOUT or go BUST!',
+  '💡 Pro tip: <span class="hl">CASHOUT to bank your points</span> — if you quit without cashing out, points don\'t count!',
+  // --- NEWS batch 2 ---
+  '🐋 <span class="hl">20K BTC left exchanges</span> in one week — whales accumulating or what',
+  '🔒 <span class="hl">Hashrate ATH 850 EH/s</span> — miners literally not slowing down, ngmi or wagmi?',
+  '🤖 AI doom posts went viral — Citrini\'s 2028 crisis thread got <span class="hl">8.6M views</span> in 24hrs',
+  '⚡ <span class="up">Solana ships Firedancer</span> + tokenized stocks — QQQ and SPY on-chain now ser',
+  '📊 <span class="hl">CME launched ADA, LINK, XLM futures</span> — TradFi slowly getting degen-pilled',
+  '💸 <span class="hl">$317M in token unlocks</span> last week of Feb — JUP, GRASS, Humanity bags unlocking',
+  '🎯 JUP dropping <span class="hl">200M tokens for Jupuary airdrop</span> — free money or dump incoming?',
+  '💥 MARA pivoting mining rigs to <span class="up">AI data centers</span> — even miners giving up on BTC',
+  '🚀 <span class="up">SOL +6.5% BTC +5.5%</span> bounce on Feb 26 — dead cat or bottom signal?',
+  '💰 <span class="up">Gold +20% YTD</span> while BTC bleeds — boomers winning for now',
+  '🔥 <span class="down">ETH -63% from ATH</span> — if you\'re not buying here you\'re ngmi (or smart)',
+  '🪖 US + Israel launched <span class="down">Operation Epic Fury on Iran</span> — crypto dipped 4% then bounced',
+  // --- CASHOUT NOTICES (end) ---
   '🏆 <span class="hl">CASHOUT or GO BROKE</span> for your points to count on the leaderboard!',
   '⚠️ <span class="hl">LEADERBOARD TIP:</span> Points only lock in when you CASHOUT or go BUST!',
   '💡 Pro tip: <span class="hl">CASHOUT to bank your points</span> — if you quit without cashing out, points don\'t count!'
@@ -1539,7 +1721,8 @@ let frameCount=0;
 function loop(){
   frameCount++;
   getDisplayPrice();
-  if(frameCount%3===0){manageColumns();resolveBets();maybeRecenter();
+  maybeRecenter();
+  if(frameCount%3===0){resolveBets();manageColumns();
     // Check bust in main loop too (backup)
     if(gameActive&&balance<0.01&&!bets.some(b=>b.status==='active')){balance=0;gameActive=false;bustOut();}
     if(balance<100)wasBelow100=true;
@@ -1549,10 +1732,12 @@ function loop(){
   if(frameCount%2===0)updateTimer();
   draw();
   document.getElementById('headerPrice').textContent=displayPrice?fmtPrice(displayPrice):'$---';
+  document.getElementById('headerPriceMobileVal').textContent=displayPrice?fmtPrice(displayPrice):'$---';
   // Show LIVE indicator when WS connected
   const hpEl=document.getElementById('headerPrice');
   hpEl.style.textShadow=wsConnected?'0 0 8px rgba(0,255,136,0.5)':'none';
   document.getElementById('liveBadge').style.display=wsConnected?'inline':'none';
+  document.getElementById('liveBadgeMobile').style.display=wsConnected?'inline':'none';
   requestAnimationFrame(loop);
 }
 
@@ -1578,12 +1763,62 @@ function setMode(mobile){
     closeMobileSheet();
   }
   // Re-resize canvas after mode switch
-  setTimeout(()=>{resize();recalcGridRanges();},50);
-  setTimeout(()=>{resize();recalcGridRanges();},200);
+  setTimeout(()=>{resize();recalcGridRanges();remapBetRows();},50);
+  setTimeout(()=>{resize();recalcGridRanges();remapBetRows();},200);
 }
 document.getElementById('modeToggle').addEventListener('click',function(){
   setMode(!isMobileMode);
 });
+
+// ===== GAME MODE SYSTEM (NORMAL / EXTREME / MAX PAIN) =====
+// currentMode: 'normal' | 'extreme' | 'maxpain'
+let currentMode='normal';
+
+function setGameMode(mode){
+  // Block if active bets
+  if(bets.some(b=>b.status==='active')){
+    showToast('⚠️ Wait for open positions to close!','#ff8800');
+    return;
+  }
+  // If clicking the already-active mode, do nothing
+  if(mode===currentMode) return;
+
+  currentMode=mode;
+  // Clear all toggle states
+  document.getElementById('normToggle').classList.remove('norm-active');
+  document.getElementById('volToggle').classList.remove('vol-active');
+  document.getElementById('painToggle').classList.remove('pain-active');
+  isExtremeMode=false;
+  isMaxPainMode=false;
+
+  if(mode==='normal'){
+    document.getElementById('normToggle').classList.add('norm-active');
+    ROW_H_USD=20; recenterThreshold=125;
+    showToast('📊 NORMAL — $20 rows, casual','#00f0ff');
+  } else if(mode==='extreme'){
+    document.getElementById('volToggle').classList.add('vol-active');
+    isExtremeMode=true;
+    ROW_H_USD=10; recenterThreshold=65;
+    showToast('⚡ EXTREME — $10 rows, tighter grid!','#ff3355');
+  } else if(mode==='maxpain'){
+    document.getElementById('painToggle').classList.add('pain-active');
+    isMaxPainMode=true;
+    ROW_H_USD=5; recenterThreshold=30;
+    showToast('🔥 MAX PAIN — $5 rows, ultra-tight!','#ff8800');
+  }
+  // Apply grid changes
+  recenterTimer=0;
+  if(displayPrice){
+    gridCenter=Math.round(displayPrice/ROW_H_USD)*ROW_H_USD;
+  }
+  recalcGridRanges();
+  remapBetRows();
+  columns.forEach(col=>refreshColumnMults(col));
+}
+
+document.getElementById('normToggle').addEventListener('click',function(){ setGameMode('normal'); });
+document.getElementById('volToggle').addEventListener('click',function(){ setGameMode('extreme'); });
+document.getElementById('painToggle').addEventListener('click',function(){ setGameMode('maxpain'); });
 
 // ===== MOBILE BOTTOM SHEET =====
 function openMobileSheet(panel){
@@ -1665,6 +1900,9 @@ document.getElementById('mobFabInfo').addEventListener('click',function(){
   const arrow=document.getElementById('fabArrow');
   if(arrow)arrow.style.display='none';
 },{once:true});
+
+// Inline lightning bolt button (mobile) — same action as floating FAB
+document.getElementById('mobFabInline').addEventListener('click',function(){openMobileSheet('positions');});
 
 // INIT
 async function init(){
