@@ -74,6 +74,19 @@ body{display:flex;flex-direction:column}
 .badge.lost{background:rgba(255,51,85,0.12);color:var(--red);border:1px solid rgba(255,51,85,0.3)}
 .no-pos{color:rgba(255,255,255,0.2);font-size:10.5px;text-align:center;padding:20px 8px;line-height:1.6}
 
+/* CLOCK BAR */
+#clockBar{display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:24px;background:rgba(8,8,16,0.95);border-bottom:1px solid rgba(255,215,0,0.08);flex-shrink:0;font-family:var(--font-mono);font-size:10px}
+#clockBar .clock-left{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.5)}
+#clockBar .clock-left .clock-time{color:var(--white);font-weight:600;font-family:var(--font-head);letter-spacing:1px;font-size:10px}
+#clockBar .clock-left .clock-label{font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.3)}
+#clockBar .clock-right{display:flex;align-items:center;gap:6px}
+#clockBar .clock-right .tourney-label{font-size:8px;letter-spacing:1px;color:rgba(255,215,0,0.5);font-weight:600}
+#clockBar .clock-right .tourney-countdown{font-family:var(--font-head);font-size:10px;font-weight:700;color:#ffd700;letter-spacing:1px}
+#clockBar .clock-right .tourney-icon{font-size:10px}
+body.mobile-mode #clockBar{height:22px;padding:0 8px}
+body.mobile-mode #clockBar .clock-time{font-size:9px}
+body.mobile-mode #clockBar .tourney-countdown{font-size:9px}
+
 /* FOOTER */
 #footer{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-top:1px solid var(--border);flex-shrink:0;background:linear-gradient(0deg,rgba(8,8,14,0.98),var(--bg));font-size:11.5px}
 .footer-stats{display:flex;gap:14px;align-items:center}
@@ -89,6 +102,8 @@ body{display:flex;flex-direction:column}
 .btn-save{background:rgba(240,255,0,0.1);border-color:rgba(240,255,0,0.3);color:var(--yellow)}
 .btn-vote{background:rgba(255,0,255,0.1);border-color:rgba(255,0,255,0.3);color:var(--magenta)}
 .btn-vote:hover{background:rgba(255,0,255,0.2);border-color:rgba(255,0,255,0.5);box-shadow:0 0 12px rgba(255,0,255,0.3)}
+.btn-leaderboard{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:#ffd700}
+.btn-leaderboard:hover{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.5);box-shadow:0 0 12px rgba(255,215,0,0.3)}
 
 /* Overlays */
 .toast{position:fixed;bottom:55px;left:14px;background:rgba(8,8,16,0.96);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 14px;font-size:11px;z-index:100;animation:toastIn .35s ease-out;box-shadow:0 4px 24px rgba(0,0,0,0.6);max-width:320px}
@@ -127,8 +142,79 @@ body.mobile-mode .session-notice{font-size:14px;padding:20px 22px;max-width:88vw
 .ach-item.locked .ach-name{color:rgba(255,255,255,0.4)}
 .ach-desc{font-size:9.5px;color:rgba(255,255,255,0.3)}
 .ach-check{font-size:12px;color:var(--green);flex-shrink:0}
+.ach-rare-badge{display:inline-block;font-family:var(--font-head);font-size:7px;letter-spacing:1.5px;color:#ff3355;background:rgba(255,51,85,0.12);border:1px solid rgba(255,51,85,0.35);border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;text-shadow:0 0 6px rgba(255,51,85,0.5);animation:rarePulse 2s ease-in-out infinite}
+.ach-item.rare-item.unlocked{background:linear-gradient(135deg,rgba(255,51,85,0.06),rgba(255,136,0,0.04));border-color:rgba(255,51,85,0.2)}
+.ach-item.rare-item.locked{border-color:rgba(255,51,85,0.08)}
+@keyframes rarePulse{0%,100%{opacity:1;text-shadow:0 0 6px rgba(255,51,85,0.5)}50%{opacity:0.7;text-shadow:0 0 12px rgba(255,51,85,0.9)}}
+/* Rare: Crosshair overlay (Sniper) */
+.rare-crosshair-overlay{position:fixed;inset:0;z-index:180;pointer-events:none;animation:crosshairFade 2.5s ease-out forwards}
+.rare-crosshair-overlay::before,.rare-crosshair-overlay::after{content:'';position:absolute;background:rgba(255,51,85,0.6);box-shadow:0 0 20px rgba(255,51,85,0.8)}
+.rare-crosshair-overlay::before{top:50%;left:0;right:0;height:2px;transform:translateY(-50%)}
+.rare-crosshair-overlay::after{left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%)}
+.rare-crosshair-circle{position:absolute;top:50%;left:50%;width:80px;height:80px;border:2px solid rgba(255,51,85,0.7);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 30px rgba(255,51,85,0.5),inset 0 0 20px rgba(255,51,85,0.2);animation:crosshairZoom 2.5s ease-out forwards}
+@keyframes crosshairFade{0%{opacity:0}10%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes crosshairZoom{0%{width:200px;height:200px;opacity:0}20%{width:80px;height:80px;opacity:1}80%{opacity:1}100%{width:60px;height:60px;opacity:0}}
+/* Rare: Phoenix fly-across */
+.rare-phoenix-overlay{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;animation:phoenixBgFade 3s ease-out forwards}
+.rare-phoenix-bird{position:absolute;top:50%;font-size:64px;filter:drop-shadow(0 0 30px rgba(255,136,0,0.9)) drop-shadow(0 0 60px rgba(255,51,85,0.6));animation:phoenixFly 2.5s cubic-bezier(0.22,1,0.36,1) forwards}
+.rare-phoenix-trail{position:absolute;top:50%;left:-100px;width:200px;height:4px;background:linear-gradient(90deg,transparent,rgba(255,136,0,0.8),rgba(255,51,85,0.6),transparent);filter:blur(2px);animation:phoenixTrail 2.5s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes phoenixBgFade{0%{background:transparent}15%{background:rgba(255,100,0,0.06)}85%{background:rgba(255,100,0,0.06)}100%{background:transparent;opacity:0}}
+@keyframes phoenixFly{0%{left:-80px;transform:translateY(-50%) scale(0.5) rotate(-10deg);opacity:0}15%{opacity:1;transform:translateY(-50%) scale(1.2) rotate(0deg)}50%{top:40%;transform:translateY(-50%) scale(1) rotate(5deg)}100%{left:110%;top:35%;transform:translateY(-50%) scale(0.8) rotate(10deg);opacity:0}}
+@keyframes phoenixTrail{0%{left:-200px;opacity:0}15%{opacity:1}100%{left:110%;opacity:0}}
+/* Rare: MC Hammer gif overlay (Untouchable / MP Untouchable) */
+.rare-gif-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:185;pointer-events:none;text-align:center;animation:gifPopIn .5s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.rare-gif-overlay img{max-width:220px;max-height:220px;border-radius:12px;box-shadow:0 0 40px rgba(255,215,0,0.4),0 0 80px rgba(255,136,0,0.2);border:2px solid rgba(255,215,0,0.3)}
+.rare-gif-label{font-family:var(--font-head);font-size:14px;color:#ffd700;letter-spacing:3px;margin-top:8px;text-shadow:0 0 15px rgba(255,215,0,0.6);animation:gifLabelPulse 1s ease-in-out infinite}
+@keyframes gifPopIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes gifLabelPulse{0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.8;transform:translate(-50%,-50%) scale(1.03)}}
 #gameOver{position:fixed;inset:0;background:rgba(4,4,8,0.96);z-index:500;display:none;align-items:center;justify-content:center}
 #gameOver.show{display:flex}
+
+/* Tournament Leaderboard Screen */
+#tourneyLeaderboard{position:fixed;inset:0;background:rgba(4,4,8,0.97);z-index:510;display:none;align-items:center;justify-content:center;overflow-y:auto;padding:20px 0}
+#tourneyLeaderboard.show{display:flex}
+.tlb-card{background:linear-gradient(180deg,rgba(20,16,8,0.98) 0%,rgba(12,12,22,0.98) 100%);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:28px 24px;text-align:center;max-width:440px;width:92%;position:relative;box-shadow:0 0 60px rgba(255,215,0,0.06)}
+.tlb-header{margin-bottom:16px}
+.tlb-trophy{font-size:40px;line-height:1;margin-bottom:4px}
+.tlb-title{font-family:var(--font-head);font-size:15px;letter-spacing:3px;color:#ffd700;font-weight:800}
+.tlb-tid{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:1px}
+.tlb-your-score{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.tlb-your-label{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.tlb-your-pts{font-family:var(--font-head);font-size:36px;font-weight:900;color:#ffd700;line-height:1.1}
+.tlb-your-rank{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px}
+.tlb-your-rank span{color:#00f0ff;font-weight:700}
+.tlb-countdown-bar{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.04);border-radius:8px;padding:8px 14px;margin-bottom:12px}
+.tlb-countdown-label{font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);font-weight:600}
+.tlb-countdown{font-family:var(--font-head);font-size:18px;font-weight:800;color:#ff8800;letter-spacing:1px}
+.tlb-prize{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;font-size:12px}
+.tlb-prize-label{color:rgba(255,255,255,0.4);letter-spacing:1px;font-weight:600;font-size:10px}
+.tlb-prize-val{color:#ffd700;font-family:var(--font-head);font-weight:800;font-size:14px}
+.tlb-table-wrap{max-height:240px;overflow-y:auto;margin-bottom:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06)}
+.tlb-table{width:100%;border-collapse:collapse;font-size:11px}
+.tlb-table thead{position:sticky;top:0;z-index:2}
+.tlb-table th{background:rgba(255,215,0,0.1);color:rgba(255,255,255,0.5);font-size:9px;letter-spacing:1.5px;padding:6px 8px;text-align:left;font-weight:700;border-bottom:1px solid rgba(255,215,0,0.15)}
+.tlb-table th:first-child,.tlb-table td:first-child{text-align:center;width:32px}
+.tlb-table th:nth-child(3),.tlb-table td:nth-child(3){text-align:right}
+.tlb-table th:last-child,.tlb-table td:last-child{text-align:center;width:48px}
+.tlb-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.8)}
+.tlb-table tr:hover{background:rgba(255,255,255,0.03)}
+.tlb-table tr.tlb-you{background:rgba(0,240,255,0.08);border-left:2px solid #00f0ff}
+.tlb-table tr.tlb-you td{color:#00f0ff;font-weight:700}
+.tlb-rank-1{color:#ffd700 !important;font-weight:800 !important}
+.tlb-rank-2{color:#c0c0c0 !important;font-weight:700 !important}
+.tlb-rank-3{color:#cd7f32 !important;font-weight:700 !important}
+.tlb-empty{padding:24px;color:rgba(255,255,255,0.3);font-size:12px}
+.tlb-payouts{display:flex;justify-content:center;gap:10px;margin-bottom:16px}
+.tlb-payout-item{font-family:var(--font-head);font-size:10px;letter-spacing:0.5px;padding:4px 10px;border-radius:4px;border:1px solid rgba(255,255,255,0.08);display:flex;gap:6px}
+.tlb-payout-item.gold{border-color:rgba(255,215,0,0.3);color:#ffd700}
+.tlb-payout-item.silver{border-color:rgba(192,192,192,0.3);color:#c0c0c0}
+.tlb-payout-item.bronze{border-color:rgba(205,127,50,0.3);color:#cd7f32}
+.tlb-actions{display:flex;justify-content:center;gap:8px;margin-bottom:8px}
+.tlb-refresh-note{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.5px}
+body.mobile-mode .tlb-card{padding:20px 16px;max-width:96%}
+body.mobile-mode .tlb-your-pts{font-size:28px}
+body.mobile-mode .tlb-table-wrap{max-height:180px}
+body.mobile-mode .tlb-countdown{font-size:15px}
 .go-card{background:rgba(12,12,22,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px 40px;text-align:center;max-width:380px;width:90%}
 .go-grade{font-family:var(--font-head);font-size:72px;font-weight:900;margin-bottom:4px;line-height:1}
 .go-grade.S{color:var(--yellow);text-shadow:0 0 30px rgba(240,255,0,0.5)}.go-grade.A{color:var(--cyan)}.go-grade.B{color:var(--green)}.go-grade.C{color:var(--orange)}.go-grade.D{color:var(--gray)}.go-grade.F{color:var(--red)}
@@ -236,8 +322,68 @@ body.mobile-mode .vol-toggle-label{font-size:7.5px}
 .pain-toggle.pain-active .pain-toggle-track{background:rgba(255,136,0,0.2);border-color:rgba(255,136,0,0.5)}
 .pain-toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
 .pain-toggle.pain-active .pain-toggle-thumb{left:19px;background:#ff8800;box-shadow:0 0 8px rgba(255,136,0,0.6)}
+/* TOURNAMENT toggle */
+.tourney-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;-webkit-user-select:none;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.15);border-radius:6px;padding:3px 8px;transition:all .3s}
+.tourney-toggle:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.3)}
+.tourney-toggle.tourney-active{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5);box-shadow:0 0 12px rgba(255,215,0,0.3)}
+.tourney-toggle-label{font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-head);letter-spacing:0.8px;font-weight:700;transition:all .3s}
+.tourney-toggle.tourney-active .tourney-toggle-label{color:#ffd700;text-shadow:0 0 8px rgba(255,215,0,0.5)}
+.tourney-toggle-track{width:36px;height:18px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);position:relative;transition:all .3s}
+.tourney-toggle.tourney-active .tourney-toggle-track{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.5)}
+.tourney-toggle-thumb{width:14px;height:14px;border-radius:50%;background:var(--gray);position:absolute;top:1px;left:1px;transition:all .3s}
+.tourney-toggle.tourney-active .tourney-toggle-thumb{left:19px;background:#ffd700;box-shadow:0 0 8px rgba(255,215,0,0.6)}
+body.mobile-mode .tourney-toggle{padding:2px 6px}
+body.mobile-mode .tourney-toggle-label{font-size:7.5px}
 body.mobile-mode .pain-toggle{padding:2px 6px}
 body.mobile-mode .pain-toggle-label{font-size:7.5px}
+
+/* TOURNAMENT THEME — applied when body has .tournament-mode */
+body.tournament-mode{--bg:#0d0a00;--bg2:#12100a;--border:rgba(255,215,0,0.08)}
+body.tournament-mode #header{background:linear-gradient(180deg,rgba(255,215,0,0.06),transparent);border-color:rgba(255,215,0,0.12)}
+body.tournament-mode #footer{border-color:rgba(255,215,0,0.12)}
+body.tournament-mode #ticker{background:linear-gradient(90deg,#0d0a00,#12100a,#0d0a00);border-color:rgba(255,215,0,0.08)}
+body.tournament-mode .sidebar-title{color:#ffd700}
+body.tournament-mode #sidebarBalance{color:#ffd700;text-shadow:0 0 14px rgba(255,215,0,0.5);background:rgba(255,215,0,0.06);border-color:rgba(255,215,0,0.15)}
+body.tournament-mode .action-btn.btn-cashout{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:#ffd700}
+
+/* Tournament registration modal */
+#tourneyModal{position:fixed;inset:0;background:rgba(4,4,8,0.94);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#tourneyModal.show{display:flex}
+.tourney-card{background:rgba(12,12,22,0.98);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:24px;max-width:380px;width:92%;max-height:85vh;overflow-y:auto;position:relative}
+.tourney-card-title{font-family:var(--font-head);font-size:14px;color:#ffd700;letter-spacing:2px;text-align:center;margin-bottom:4px}
+.tourney-card-sub{font-size:11px;color:var(--gray);text-align:center;margin-bottom:16px}
+.tourney-card .tc-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer}
+.tourney-card .tc-section{margin-bottom:14px}
+.tourney-card .tc-label{font-family:var(--font-head);font-size:11px;color:rgba(255,215,0,0.6);letter-spacing:1.5px;margin-bottom:6px}
+.tourney-card .tc-input{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.15);border-radius:8px;padding:10px 12px;color:var(--white);font-family:var(--font-mono);font-size:11px;outline:none}
+.tourney-card .tc-input:focus{border-color:rgba(255,215,0,0.4)}
+.tourney-card .tc-input::placeholder{color:rgba(119,119,144,0.4)}
+.tourney-card .tc-btn{width:100%;padding:12px;border:none;border-radius:8px;font-family:var(--font-head);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.tourney-card .tc-btn-gold{background:#ffd700;color:#0a0a0f;box-shadow:0 0 15px rgba(255,215,0,0.2)}
+.tourney-card .tc-btn-gold:hover{box-shadow:0 0 25px rgba(255,215,0,0.4);transform:translateY(-1px)}
+.tourney-card .tc-btn-gold:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.tourney-card .tc-status{font-size:10px;padding:8px 10px;border-radius:6px;margin-top:8px;display:none}
+.tourney-card .tc-status.show{display:block}
+.tourney-card .tc-status.error{background:rgba(255,51,85,0.1);color:var(--red);border:1px solid rgba(255,51,85,0.15)}
+.tourney-card .tc-status.success{background:rgba(0,255,136,0.08);color:var(--green);border:1px solid rgba(0,255,136,0.15)}
+.tourney-card .tc-status.info{background:rgba(255,215,0,0.06);color:#ffd700;border:1px solid rgba(255,215,0,0.15)}
+.tourney-card .tc-addr{font-size:9px;color:#ffd700;word-break:break-all;display:block;margin:6px 0;padding:8px;background:rgba(255,215,0,0.04);border-radius:6px;border:1px solid rgba(255,215,0,0.12);cursor:pointer;transition:background .2s}
+.tourney-card .tc-addr:hover{background:rgba(255,215,0,0.08)}
+.tourney-card .tc-addr .copy-hint{font-size:8px;color:var(--gray);display:block;margin-top:3px}
+.tourney-card .tc-info{font-size:12px;color:var(--gray);line-height:1.6;margin-top:10px}
+.tourney-card .tc-info strong{color:var(--white)}
+.tourney-card .tc-prize{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.tourney-card .tc-prize-item{text-align:center;padding:8px 4px;border-radius:6px;background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.1)}
+.tourney-card .tc-prize-item .place{font-family:var(--font-head);font-size:11px;font-weight:800}
+.tourney-card .tc-prize-item .pct{font-size:9px;color:var(--gray)}
+.tourney-card .tc-registered{text-align:center;padding:12px;background:rgba(255,215,0,0.06);border-radius:8px;border:1px solid rgba(255,215,0,0.15)}
+.tourney-card .tc-registered .badge{display:inline-flex;align-items:center;gap:4px;color:#ffd700;font-family:var(--font-head);font-size:11px;font-weight:700;letter-spacing:1px}
+.tourney-card .tc-pool{text-align:center;margin:10px 0;font-family:var(--font-head);font-size:16px;color:#ffd700;font-weight:800}
+.tc-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,215,0,0.2);border-top-color:#ffd700;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tourney-card .tc-desc{font-size:12px;color:rgba(200,200,220,0.75);line-height:1.6;margin:6px 0 10px}
+.tourney-card .tc-desc strong{color:var(--white)}
+.tourney-card .tc-deposit-amount{text-align:center;font-family:var(--font-head);font-size:20px;font-weight:800;color:#ffd700;padding:10px 0;letter-spacing:1px;text-shadow:0 0 12px rgba(255,215,0,0.3)}
 
 /* Mobile bottom sheet for positions / achievements / points */
 body.mobile-mode #mobileBottomSheet{display:block}
@@ -317,10 +463,14 @@ body.mobile-mode #pointsSection{display:none}
 <body>
 <div id="sdkSpacer" style="height:50px;flex-shrink:0;background:var(--bg)"></div>
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+<div id="clockBar">
+  <div class="clock-left"><span class="clock-label">PST</span><span class="clock-time" id="clockTime">--:--:-- --</span></div>
+  <div class="clock-right"><span class="tourney-icon">🏆</span><span class="tourney-label">ENDS</span><span class="tourney-countdown" id="clockTourneyCountdown">--:--:--</span></div>
+</div>
 <div id="header">
 <div class="header-top-row">
   <div class="logo">TAP RUSH</div>
-  <div class="header-tabs"><a href="https://jup.ag/tokens/ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY" target="_blank" rel="noopener" style="text-decoration:none"><button>$RUSH</button></a></div>
+  <div class="header-tabs"><a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY" target="_blank" rel="noopener" style="text-decoration:none"><button>$RUSH</button></a></div>
   <div class="mode-toggle" id="modeToggle" title="Switch between Desktop and Mobile mode">
     <span class="mode-toggle-label active-label" id="lblDesktop">D</span>
     <div class="mode-toggle-track" id="modeTrack"><div class="mode-toggle-thumb"></div></div>
@@ -339,6 +489,10 @@ body.mobile-mode #pointsSection{display:none}
     <div class="pain-toggle" id="painToggle" title="Max Pain Mode — $5 rows, ultra-tight grid">
       <span class="pain-toggle-label">MAX PAIN</span>
       <div class="pain-toggle-track"><div class="pain-toggle-thumb"></div></div>
+    </div>
+    <div class="tourney-toggle" id="tourneyToggle" title="Tournament Mode — 1M RUSH buy-in, one life">
+      <span class="tourney-toggle-label">🏆 TOURNEY</span>
+      <div class="tourney-toggle-track"><div class="tourney-toggle-thumb"></div></div>
     </div>
   </div>
 </div>
@@ -375,7 +529,7 @@ body.mobile-mode #pointsSection{display:none}
   </div>
   <div class="sidebar-section" id="achieveSection" style="cursor:pointer" title="Click to view achievements">
     <div class="sidebar-title" style="display:flex;align-items:center;justify-content:space-between">Achievements <span style="font-size:8px;color:rgba(255,255,255,0.2);font-family:var(--font-mono)">TAP ▸</span></div>
-    <div id="achieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25)">0 / 15 unlocked</div>
+    <div id="achieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25)">0 / 26 unlocked</div>
   </div>
   <div class="sidebar-section" id="pointsSection" style="cursor:pointer" title="Click to view points info">
     <div class="sidebar-title" style="display:flex;align-items:center;justify-content:space-between;color:var(--yellow)">Points <span style="font-size:8px;color:rgba(255,255,255,0.2);font-family:var(--font-mono)">TAP ▸</span></div>
@@ -416,7 +570,7 @@ body.mobile-mode #pointsSection{display:none}
       <div id="mobPosContent"><div class="no-pos">Tap a grid cell to play!</div></div>
     </div>
     <div class="sheet-panel" id="mobAchievements" data-panel="achievements">
-      <div id="mobAchieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25);text-align:center;margin-bottom:8px">0 / 22 unlocked</div>
+      <div id="mobAchieveCount" style="font-size:10.5px;color:rgba(255,255,255,0.25);text-align:center;margin-bottom:8px">0 / 26 unlocked</div>
       <div id="mobAchieveList"></div>
     </div>
     <div class="sheet-panel" id="mobPoints" data-panel="points">
@@ -456,6 +610,7 @@ body.mobile-mode #pointsSection{display:none}
   <div class="stat-item" id="footerBalanceItem"><span class="stat-label">💰</span><span class="stat-value balance" id="balanceDisplay">$1,000.00</span></div><button class="mob-fab-inline" id="mobFabInline" title="Positions & Info">📋</button>
 </div>
 <div class="footer-actions">
+  <button class="action-btn btn-leaderboard" id="leaderboardBtn" onclick="tlbShowCasual()">🏆 LEADERBOARD</button>
   <button class="action-btn btn-share" id="shareBtn">📤 SHARE</button>
   <button class="action-btn btn-vote" id="voteBtn" onclick="window.open('https://vote.taprush.fun','_blank')">🗳️ VOTE</button>
   <button class="action-btn btn-save" id="saveBtn">⭐ SAVE & END</button>
@@ -467,7 +622,7 @@ body.mobile-mode #pointsSection{display:none}
 <div class="achieve-card">
   <button class="achieve-close" id="achieveClose">&times;</button>
   <div class="achieve-card-title">ACHIEVEMENTS</div>
-  <div class="achieve-card-sub" id="achieveModalCount">0 / 15 unlocked</div>
+  <div class="achieve-card-sub" id="achieveModalCount">0 / 26 unlocked</div>
   <div id="achieveList"></div>
 </div>
 </div>
@@ -493,6 +648,96 @@ body.mobile-mode #pointsSection{display:none}
   </div>
 </div>
 </div>
+<!-- TOURNAMENT MODAL -->
+<div id="tourneyModal">
+<div class="tourney-card">
+  <button class="tc-close" id="tcClose">&times;</button>
+  <div class="tourney-card-title">🏆 DAILY TOURNAMENT</div>
+  <div class="tourney-card-sub" id="tcTourneyId">Loading...</div>
+
+  <!-- Prize info -->
+  <div class="tc-section">
+    <div class="tc-label">PRIZE POOL</div>
+    <div class="tc-pool" id="tcPool">0 RUSH</div>
+    <div style="font-size:10px;color:var(--gray);text-align:center" id="tcEntries">0 players</div>
+    <div class="tc-prize">
+      <div class="tc-prize-item"><div class="place" style="color:#ffd700">1ST</div><div class="pct" id="tcPay1">70%</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#c0c0c0">2ND</div><div class="pct" id="tcPay2">20%</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#cd7f32">3RD</div><div class="pct" id="tcPay3">10%</div></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Deposit Required -->
+  <div class="tc-section" id="tcStepWallet">
+    <div class="tc-label">STEP 1 OF 2 — DEPOSIT TO ENTER</div>
+    <p class="tc-desc" style="font-size:13px;line-height:1.7">To play in <strong>Tournament Mode</strong> you must deposit <strong style="color:#ffd700">1,000,000 $RUSH</strong> to the game developer wallet. This is your buy-in — it goes into the prize pool.</p>
+    <div class="tc-deposit-amount">1,000,000 $RUSH BUY-IN</div>
+
+    <div id="tcWalletSendWrap" style="margin:12px 0 8px">
+      <!-- Phase 1: Connect -->
+      <div id="tcConnectPhase">
+        <button class="tc-btn tc-btn-gold" id="tcConnectBtn" onclick="tcConnectWallet()" style="display:block;width:100%;text-align:center;font-size:15px;padding:14px 12px;letter-spacing:0.5px">🔗 CONNECT WALLET</button>
+        <p class="tc-desc" style="text-align:center;margin-top:6px;font-size:10px;color:var(--gray)">Phantom, Solflare, Backpack &amp; more. Read-only — just checks your address &amp; balance.</p>
+      </div>
+      <!-- Phase 2: Connected — show address + balance + send -->
+      <div id="tcConnectedPhase" style="display:none">
+        <div id="tcWalletInfo" style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:var(--gray);letter-spacing:1px;font-family:var(--font-head)">CONNECTED</span>
+            <span id="tcWalletName" style="font-size:10px;color:#ffd700;font-weight:700"></span>
+          </div>
+          <div id="tcWalletAddr" style="font-size:11px;color:var(--white);margin-top:4px;word-break:break-all;font-family:monospace"></div>
+          <div id="tcWalletBal" style="font-size:13px;color:#ffd700;font-weight:700;margin-top:6px"></div>
+        </div>
+        <button class="tc-btn tc-btn-gold" id="tcSendBtn" onclick="tcWalletSend()" style="display:block;width:100%;text-align:center;font-size:15px;padding:14px 12px;letter-spacing:0.5px">
+          <span id="tcSendBtnIcon">💰</span> <span id="tcSendBtnText">SEND 1,000,000 $RUSH</span>
+        </button>
+        <p class="tc-desc" style="text-align:center;margin-top:6px;font-size:10px;color:var(--gray)">Your wallet will ask you to approve the transaction. We never touch your keys.</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px"><div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div><span style="font-size:9px;color:var(--gray);letter-spacing:1.5px;font-family:var(--font-head)">OR SEND MANUALLY</span><div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div></div>
+
+    <p class="tc-desc" style="margin-top:6px;margin-bottom:2px">Send <strong style="color:#ffd700">1,000,000 $RUSH</strong> to this game dev wallet <span style="color:var(--gray)">(tap to copy)</span>:</p>
+    <span class="tc-addr" onclick="tcCopyAddr()">7rH4WYQ9Y7UjmizQxvHmpgLyvsBZfArweE48DWrcyoXu<span class="copy-hint">📋 tap to copy address</span></span>
+    <p class="tc-desc" style="margin-top:12px;margin-bottom:4px"><strong>Your wallet address:</strong></p>
+    <input type="text" class="tc-input" id="tcWalletInput" placeholder="Paste your Solana wallet address" autocomplete="off" spellcheck="false">
+    <button class="tc-btn tc-btn-gold" id="tcWalletBtn" style="margin-top:10px" onclick="tcCheckWallet()">VERIFY MY DEPOSIT</button>
+    <div class="tc-status" id="tcWalletStatus"></div>
+  </div>
+
+  <!-- Step 2 (hidden): Deposit verification -->
+  <div class="tc-section" id="tcStepDeposit" style="display:none">
+    <div class="tc-label">CHECKING DEPOSIT...</div>
+    <p class="tc-desc">Verifying your <strong style="color:#ffd700">1,000,000 $RUSH</strong> deposit on-chain. This may take a moment.</p>
+    <button class="tc-btn tc-btn-gold" id="tcDepositBtn" onclick="tcCheckDeposit()">CHECK AGAIN</button>
+    <div class="tc-status" id="tcDepositStatus"></div>
+  </div>
+
+  <!-- Step 3: Confirm -->
+  <div class="tc-section" id="tcStepConfirm" style="display:none">
+    <div class="tc-label">STEP 2 OF 2 — CONFIRM YOUR ENTRY</div>
+    <p class="tc-desc" style="font-size:13px">Deposit confirmed! Enter a display name for the leaderboard (optional) and lock in your tournament entry.</p>
+    <input type="text" class="tc-input" id="tcNameInput" placeholder="Display name (optional)" maxlength="20" style="margin-bottom:10px">
+    <button class="tc-btn tc-btn-gold" id="tcConfirmBtn" onclick="tcConfirmEntry()">ENTER TOURNAMENT</button>
+    <div class="tc-status" id="tcConfirmStatus"></div>
+  </div>
+
+  <!-- Registered state -->
+  <div class="tc-section" id="tcStepReady" style="display:none">
+    <div class="tc-registered">
+      <div class="badge">✓ YOU'RE IN</div>
+      <p style="font-size:12px;color:var(--white);margin-top:8px;line-height:1.6;font-weight:600">ONE LIFE. ONE GAME. MAKE IT COUNT.</p>
+      <p style="font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5">Hit the button below to start. You get <strong style="color:#ffd700">one game</strong> — your final score (bust or cashout) is your tournament entry. Top 3 split the prize pool.</p>
+      <button class="tc-btn tc-btn-gold" style="margin-top:12px" onclick="closeTourneyModal();startTournamentGame();">🏆 START TOURNAMENT GAME</button>
+      <button class="tc-btn" style="margin-top:8px;background:rgba(255,255,255,0.05);border-color:rgba(255,215,0,0.3);color:#ffd700" onclick="closeTourneyModal();tlbShowCasual();">📊 VIEW LEADERBOARD</button>
+    </div>
+  </div>
+
+  <div class="tc-info">
+    <strong>How it works:</strong> Buy-in is <strong>1,000,000 $RUSH</strong> per entry. You get one life — bust or cashout = your final score. Top 3 split the pool. Payouts adjust if fewer than 3 enter. <strong>Deposits are manual. Winnings are paid out manually by the game creator.</strong> Resets daily at 00:00 UTC.
+  </div>
+</div>
+</div>
 <div id="gameOver">
 <div class="go-card">
   <div class="go-grade" id="goGrade">B</div><div class="go-title" id="goTitle">ROUND OVER</div>
@@ -504,7 +749,50 @@ body.mobile-mode #pointsSection{display:none}
 </div>
 </div>
 
+<!-- Tournament Leaderboard End Screen -->
+<div id="tourneyLeaderboard">
+<div class="tlb-card">
+  <div class="tlb-header">
+    <div class="tlb-trophy">🏆</div>
+    <div class="tlb-title">TOURNAMENT LEADERBOARD</div>
+    <div class="tlb-tid" id="tlbTournamentId"></div>
+  </div>
+  <div class="tlb-your-score">
+    <div class="tlb-your-label">YOUR SCORE</div>
+    <div class="tlb-your-pts" id="tlbYourScore">0</div>
+    <div class="tlb-your-rank" id="tlbYourRank"></div>
+  </div>
+  <div class="tlb-countdown-bar">
+    <div class="tlb-countdown-label">TOURNAMENT ENDS IN</div>
+    <div class="tlb-countdown" id="tlbCountdown">--:--:--</div>
+  </div>
+  <div class="tlb-prize">
+    <span class="tlb-prize-label">PRIZE POOL</span>
+    <span class="tlb-prize-val" id="tlbPrizePool">0 RUSH</span>
+  </div>
+  <div class="tlb-table-wrap">
+    <table class="tlb-table">
+      <thead><tr><th>#</th><th>PLAYER</th><th>SCORE</th><th>GRADE</th></tr></thead>
+      <tbody id="tlbBody"></tbody>
+    </table>
+    <div class="tlb-empty" id="tlbEmpty" style="display:none">No scores submitted yet. Be the first!</div>
+  </div>
+  <div class="tlb-payouts">
+    <div class="tlb-payout-item gold"><span>1ST</span><span id="tlbPay1">70%</span></div>
+    <div class="tlb-payout-item silver"><span>2ND</span><span id="tlbPay2">20%</span></div>
+    <div class="tlb-payout-item bronze"><span>3RD</span><span id="tlbPay3">10%</span></div>
+  </div>
+  <div class="tlb-actions">
+    <button class="go-btn primary" id="tlbPlayAgain" onclick="tlbClose()">⚡ CLOSE</button>
+    <button class="go-btn secondary" id="tlbShare" onclick="shareGradeCard()">📢 SHARE</button>
+  </div>
+  <div class="tlb-refresh-note">Auto-refreshes every 15s</div>
+</div>
+</div>
+
 <script src="https://sdk.play.fun"></script>
+<script src="https://unpkg.com/@solana/web3.js@1/lib/index.iife.min.js"></script>
+
 <script>
 (function(){
 'use strict';
@@ -513,6 +801,628 @@ body.mobile-mode #pointsSection{display:none}
 let ogp=null;
 let ogpReady=false;
 let ogpSentTotal=0; // track cumulative integer points sent to SDK
+
+// ── Tournament Integration ──
+const TOURNAMENT_API='https://sites.pplx.app/sites/proxy/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmaXgiOiJ3ZWIvZGlyZWN0LWZpbGVzL2NvbXB1dGVyLzY2MDc0OTNjLTgyNTEtNDM0NS1hYmNmLTUyNGRjM2YyYWRmYi9ydXNoLXRvdXJuYW1lbnQvIiwic2lkIjoiNjYwNzQ5M2MtODI1MS00MzQ1LWFiY2YtNTI0ZGMzZjJhZGZiIiwiZXhwIjoxNzcyODQ2NDE1fQ.vaFHDTXs2IvsP754A2yXKZHxLk8sMbull2jl0R96DBc/web/direct-files/computer/6607493c-8251-4345-abcf-524dc3f2adfb/rush-tournament/cgi-bin/api.py';
+let tournamentPlayerAddr='';
+let isTournamentMode=false;
+let tournamentRegistered=false;
+let tournamentGameActive=false; // true while a tournament game is in progress
+let tournamentGameUsed=false;   // true after all games used (no deposits remaining)
+let tournamentGamesRemaining=0; // server-tracked: deposits - games_played
+let tournamentDeposits=0;
+let tournamentTxSig='';
+let tournamentData=null;
+
+// ── Tournament Modal ──
+function openTourneyModal(){
+  document.getElementById('tourneyModal').classList.add('show');
+  fetchTournamentInfo();
+  // If already registered, jump to ready state
+  if(tournamentRegistered && tournamentPlayerAddr){
+    tcShowStep('tcStepReady');
+    checkTournamentPlayerStatus();
+  }
+}
+function closeTourneyModal(){
+  document.getElementById('tourneyModal').classList.remove('show');
+}
+document.getElementById('tcClose').addEventListener('click',closeTourneyModal);
+document.getElementById('tourneyModal').addEventListener('click',function(e){if(e.target===this)closeTourneyModal();});
+
+async function fetchTournamentInfo(){
+  try{
+    const res=await fetch(TOURNAMENT_API+'/tournament');
+    const d=await res.json();
+    tournamentData=d;
+    document.getElementById('tcTourneyId').textContent=d.tournament_id||'';
+    document.getElementById('tcPool').textContent=d.prize_pool_display||'0 RUSH';
+    document.getElementById('tcEntries').textContent=(d.entries||0)+' player'+(d.entries!==1?'s':'');
+    // Compute adjusted payouts based on entry count
+    const pool=d.prize_pool||0;
+    const n=d.entries||0;
+    const payouts=getAdjustedPayouts(n,pool);
+    document.getElementById('tcPay1').textContent=payouts.labels[0];
+    document.getElementById('tcPay2').textContent=payouts.labels[1];
+    document.getElementById('tcPay3').textContent=payouts.labels[2];
+  }catch(e){console.warn('[Tournament] fetch failed',e);}
+}
+
+function getAdjustedPayouts(numEntries, pool){
+  // Adjust payout split based on number of entrants
+  if(numEntries<=1) return {splits:[1,0,0],labels:['100%','--','--']};
+  if(numEntries===2) return {splits:[0.75,0.25,0],labels:['75%','25%','--']};
+  return {splits:[0.70,0.20,0.10],labels:['70%','20%','10%']};
+}
+
+function tcShowStep(stepId){
+  ['tcStepWallet','tcStepDeposit','tcStepConfirm','tcStepReady'].forEach(id=>{
+    document.getElementById(id).style.display=id===stepId?'block':'none';
+  });
+}
+function tcShowStatus(id,type,msg){
+  const el=document.getElementById(id);
+  el.className='tc-status show '+type;
+  el.textContent=msg;
+}
+function tcHideStatus(id){
+  document.getElementById(id).className='tc-status';
+}
+
+async function tcCheckWallet(){
+  const addr=document.getElementById('tcWalletInput').value.trim();
+  if(!addr||addr.length<32){tcShowStatus('tcWalletStatus','error','Enter a valid Solana wallet address');return;}
+  const btn=document.getElementById('tcWalletBtn');
+  btn.disabled=true;btn.innerHTML='<span class="tc-spinner"></span> VERIFYING...';
+  tcHideStatus('tcWalletStatus');
+  try{
+    tournamentPlayerAddr=addr;
+    // Check if already registered
+    const res=await fetch(TOURNAMENT_API+'/player-status?address='+encodeURIComponent(addr));
+    const status=await res.json();
+    if(status.registered){
+      tournamentRegistered=true;
+      tournamentDeposits=status.deposits||1;
+      tournamentGamesRemaining=status.games_remaining;
+      if(tournamentGamesRemaining<=0){
+        tournamentGameUsed=true;
+        tcShowStep('tcStepReady');
+        showToast('No games left — deposit 1M RUSH for another play','#ff8800');
+        return;
+      }
+      tcShowStep('tcStepReady');
+      return;
+    }
+    // Try to verify deposit immediately
+    tcShowStatus('tcWalletStatus','info','Wallet valid. Checking for your 1M $RUSH deposit...');
+    const dRes=await fetch(TOURNAMENT_API+'/check-deposit',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:tournamentPlayerAddr})
+    });
+    const dData=await dRes.json();
+    if(dData.deposit_confirmed){
+      tournamentTxSig=dData.tx_signature;
+      tcShowStatus('tcWalletStatus','success','Deposit found! Proceeding...');
+      setTimeout(()=>tcShowStep('tcStepConfirm'),800);
+    } else {
+      tcShowStatus('tcWalletStatus','info','No deposit found yet. Send 1,000,000 $RUSH to the address above, wait a few seconds, then tap verify again.');
+    }
+  }catch(e){tcShowStatus('tcWalletStatus','error','Error verifying — check your connection and try again');}
+  finally{btn.disabled=false;btn.textContent='VERIFY MY DEPOSIT';}
+}
+
+async function tcCheckDeposit(){
+  const btn=document.getElementById('tcDepositBtn');
+  btn.disabled=true;btn.innerHTML='<span class="tc-spinner"></span> CHECKING...';
+  tcHideStatus('tcDepositStatus');
+  try{
+    const res=await fetch(TOURNAMENT_API+'/check-deposit',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:tournamentPlayerAddr})
+    });
+    const data=await res.json();
+    if(data.deposit_confirmed){
+      tournamentTxSig=data.tx_signature;
+      tcShowStatus('tcDepositStatus','success','Deposit found!');
+      setTimeout(()=>tcShowStep('tcStepConfirm'),600);
+    } else {
+      tcShowStatus('tcDepositStatus','info',data.reason||'No deposit found. Send 1M RUSH and try again.');
+    }
+  }catch(e){tcShowStatus('tcDepositStatus','error','Error checking deposit');}
+  finally{btn.disabled=false;btn.textContent='CHECK DEPOSIT';}
+}
+
+async function tcConfirmEntry(){
+  const btn=document.getElementById('tcConfirmBtn');
+  btn.disabled=true;btn.innerHTML='<span class="tc-spinner"></span>';
+  tcHideStatus('tcConfirmStatus');
+  const name=document.getElementById('tcNameInput').value.trim();
+  try{
+    const res=await fetch(TOURNAMENT_API+'/register',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:tournamentPlayerAddr,display_name:name,tx_signature:tournamentTxSig})
+    });
+    const data=await res.json();
+    if(data.success){
+      tournamentRegistered=true;
+      tournamentDeposits=data.deposits||1;
+      tournamentGamesRemaining=data.games_remaining;
+      tournamentGameUsed=tournamentGamesRemaining<=0;
+      tcShowStep('tcStepReady');
+      fetchTournamentInfo();
+      showToast('🏆 Tournament entry confirmed!','#ffd700');
+    } else {
+      tcShowStatus('tcConfirmStatus','error',data.error||'Registration failed');
+    }
+  }catch(e){tcShowStatus('tcConfirmStatus','error','Error registering');}
+  finally{btn.disabled=false;btn.textContent='ENTER TOURNAMENT';}
+}
+
+
+
+// ═══════════════════════════════════════════════════════════════════
+// WALLET SEND — Universal: Phantom, Solflare, Backpack, any Solana wallet
+// Works on: Chrome, Brave, Firefox, Edge / Windows, Mac, Linux / Mobile
+// ═══════════════════════════════════════════════════════════════════
+var TC_DEPOSIT_ADDR = '7rH4WYQ9Y7UjmizQxvHmpgLyvsBZfArweE48DWrcyoXu';
+var TC_RUSH_MINT = 'ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY';
+var TC_RUSH_DECIMALS = 9;
+var TC_RUSH_AMOUNT = 1000000; // 1M RUSH
+var TC_RPC = 'https://solana-rpc.publicnode.com';
+var TC_TOKEN_PROGRAM = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+var TC_ATA_PROGRAM = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL';
+var TC_JUP_URL = 'https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=' + TC_RUSH_MINT;
+
+// Persistent state after connect
+var tcProvider = null;
+var tcWalletPubkey = null;
+var tcWalletLabel = '';
+
+// Detect any injected Solana wallet provider
+function tcGetWalletProvider() {
+  if (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
+    return { provider: window.phantom.solana, name: 'Phantom' };
+  }
+  if (window.solflare && window.solflare.isSolflare) {
+    return { provider: window.solflare, name: 'Solflare' };
+  }
+  if (window.backpack && window.backpack.isBackpack) {
+    return { provider: window.backpack, name: 'Backpack' };
+  }
+  if (window.solana && window.solana.isPhantom) {
+    return { provider: window.solana, name: 'Phantom' };
+  }
+  if (window.solana) {
+    return { provider: window.solana, name: 'Wallet' };
+  }
+  return null;
+}
+
+function tcSetSendBtn(icon, text, disabled) {
+  var iconEl = document.getElementById('tcSendBtnIcon');
+  var textEl = document.getElementById('tcSendBtnText');
+  var btn = document.getElementById('tcSendBtn');
+  if (iconEl) iconEl.textContent = icon;
+  if (textEl) textEl.textContent = text;
+  if (btn) btn.disabled = !!disabled;
+}
+
+// ---- PHASE 1: Read-only connect ----
+async function tcConnectWallet() {
+  var connectBtn = document.getElementById('tcConnectBtn');
+
+  // Detect wallet provider — try multiple paths
+  var provider = null;
+  var walletName = 'Wallet';
+
+  // Log everything for debugging
+  console.log('[RUSH] window.phantom:', typeof window.phantom, window.phantom);
+  console.log('[RUSH] window.phantom?.solana:', window.phantom && window.phantom.solana);
+  console.log('[RUSH] window.phantom?.solana?.isPhantom:', window.phantom && window.phantom.solana && window.phantom.solana.isPhantom);
+  console.log('[RUSH] window.solana:', typeof window.solana, window.solana);
+  console.log('[RUSH] window.solana?.isPhantom:', window.solana && window.solana.isPhantom);
+  console.log('[RUSH] window.solflare:', typeof window.solflare);
+  console.log('[RUSH] window.backpack:', typeof window.backpack);
+  console.log('[RUSH] window.braveSolana:', typeof window.braveSolana);
+
+  // Priority: Phantom extension > Solflare > Backpack > generic solana
+  if (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) {
+    provider = window.phantom.solana;
+    walletName = 'Phantom';
+  } else if (window.solflare && window.solflare.isSolflare) {
+    provider = window.solflare;
+    walletName = 'Solflare';
+  } else if (window.backpack && window.backpack.isBackpack) {
+    provider = window.backpack;
+    walletName = 'Backpack';
+  } else if (window.solana && window.solana.isPhantom) {
+    provider = window.solana;
+    walletName = 'Phantom (legacy)';
+  } else if (window.solana) {
+    provider = window.solana;
+    walletName = 'Solana Wallet';
+  }
+
+  if (!provider) {
+    showToast('No Solana wallet found! Install Phantom, Solflare, or Backpack extension', '#ff3355');
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      setTimeout(function() {
+        window.open('https://phantom.app/ul/browse/' + encodeURIComponent(window.location.href), '_blank');
+      }, 1500);
+    }
+    return;
+  }
+
+  connectBtn.disabled = true;
+  connectBtn.textContent = '\u23f3 CONNECTING ' + walletName.toUpperCase() + '...';
+  console.log('[RUSH] Using provider:', walletName, 'isConnected:', provider.isConnected);
+  console.log('[RUSH] Provider methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(provider)));
+
+  try {
+    // If already connected, use the existing public key
+    if (provider.isConnected && provider.publicKey) {
+      console.log('[RUSH] Already connected, reusing key:', provider.publicKey.toString());
+      tcProvider = provider;
+      tcWalletPubkey = provider.publicKey;
+      tcWalletLabel = walletName;
+    } else {
+      // Try disconnect first in case of stale state
+      try { await provider.disconnect(); } catch(e) { console.log('[RUSH] Disconnect cleanup:', e.message); }
+
+      // Connect with timeout
+      var connectDone = false;
+      var resp = await new Promise(function(resolve, reject) {
+        // Listen for connect event as backup
+        var onConnect = function(pubKey) {
+          console.log('[RUSH] Got connect event:', pubKey && pubKey.toString());
+          if (!connectDone) {
+            connectDone = true;
+            resolve({ publicKey: pubKey || provider.publicKey });
+          }
+        };
+        provider.on('connect', onConnect);
+
+        // Call connect()
+        console.log('[RUSH] Calling provider.connect()...');
+        provider.connect().then(function(r) {
+          console.log('[RUSH] connect() resolved:', r);
+          if (!connectDone) {
+            connectDone = true;
+            resolve(r);
+          }
+        }).catch(function(err) {
+          console.log('[RUSH] connect() rejected:', err);
+          if (!connectDone) {
+            connectDone = true;
+            reject(err);
+          }
+        });
+
+        // 20s timeout
+        setTimeout(function() {
+          if (!connectDone) {
+            connectDone = true;
+            // Check if connected despite no promise resolution (Brave quirk)
+            if (provider.publicKey) {
+              console.log('[RUSH] Timeout but publicKey found:', provider.publicKey.toString());
+              resolve({ publicKey: provider.publicKey });
+            } else {
+              reject(new Error('TIMEOUT'));
+            }
+          }
+        }, 20000);
+      });
+
+      console.log('[RUSH] Final resp:', resp);
+      tcProvider = provider;
+      tcWalletPubkey = resp.publicKey;
+      tcWalletLabel = walletName;
+    }
+
+    if (!tcWalletPubkey) {
+      throw new Error('Connected but no public key returned');
+    }
+    // Auto-fill wallet input for manual verify too
+    var walletInput = document.getElementById('tcWalletInput');
+    if (walletInput) walletInput.value = tcWalletPubkey.toString();
+
+    // Show connected info
+    document.getElementById('tcWalletName').textContent = walletName;
+    var addrStr = tcWalletPubkey.toString();
+    document.getElementById('tcWalletAddr').textContent = addrStr.slice(0, 6) + '...' + addrStr.slice(-4);
+
+    // Fetch RUSH balance (read-only RPC call)
+    document.getElementById('tcWalletBal').textContent = 'Checking $RUSH balance...';
+    var rushBal = await tcFetchRushBalance(tcWalletPubkey);
+    if (rushBal === null) {
+      document.getElementById('tcWalletBal').innerHTML = '<span style="color:#ff3355">0 $RUSH</span> \u2014 <a href="' + TC_JUP_URL + '" target="_blank" rel="noopener" style="color:#00d18c;text-decoration:underline">Buy on Jupiter</a>';
+    } else {
+      var dispBal = (rushBal / Math.pow(10, TC_RUSH_DECIMALS)).toLocaleString();
+      var hasEnough = rushBal >= TC_RUSH_AMOUNT * Math.pow(10, TC_RUSH_DECIMALS);
+      if (hasEnough) {
+        document.getElementById('tcWalletBal').innerHTML = dispBal + ' $RUSH \u2705';
+      } else {
+        document.getElementById('tcWalletBal').innerHTML = '<span style="color:#ff9900">' + dispBal + ' $RUSH</span> \u2014 need 1M. <a href="' + TC_JUP_URL + '" target="_blank" rel="noopener" style="color:#00d18c;text-decoration:underline">Buy more</a>';
+      }
+    }
+
+    // Flip to connected phase
+    document.getElementById('tcConnectPhase').style.display = 'none';
+    document.getElementById('tcConnectedPhase').style.display = 'block';
+    showToast('\u2705 ' + walletName + ' connected: ' + addrStr.slice(0, 8) + '...', '#00ff88');
+
+  } catch (err) {
+    console.error('[RUSH Wallet] Connect error:', err);
+    var msg = (err && err.message) || 'Unknown error';
+    if (err && (err.code === 4001 || (msg.includes('User rejected')))) {
+      showToast('Connection cancelled \u2014 try again when ready', '#ff3355');
+    } else if (msg === 'TIMEOUT') {
+      showToast('\u26a0\ufe0f Wallet popup never appeared. In Brave: go to brave://settings/wallet and set Default Solana Wallet to "Phantom" or "Extensions (no fallback)"', '#ff9900', 10000);
+    } else {
+      showToast('Connect failed: ' + msg, '#ff3355', 6000);
+    }
+    connectBtn.disabled = false;
+    connectBtn.textContent = '\ud83d\udd17 CONNECT WALLET';
+  }
+}
+
+// Fetch RUSH token balance via RPC (read-only, no signing)
+async function tcFetchRushBalance(pubkey) {
+  try {
+    var Connection = solanaWeb3.Connection;
+    var PublicKey = solanaWeb3.PublicKey;
+    var connection = new Connection(TC_RPC, 'confirmed');
+    var mintPubkey = new PublicKey(TC_RUSH_MINT);
+    var tokenProgramId = new PublicKey(TC_TOKEN_PROGRAM);
+    var ataProgramId = new PublicKey(TC_ATA_PROGRAM);
+    var ata = PublicKey.findProgramAddressSync(
+      [pubkey.toBuffer(), tokenProgramId.toBuffer(), mintPubkey.toBuffer()],
+      ataProgramId
+    )[0];
+    var info = await connection.getAccountInfo(ata);
+    if (!info || !info.data || info.data.length < 72) return null;
+    // SPL Token account layout: bytes 64-72 = amount (uint64 LE)
+    var data = info.data;
+    var amount = BigInt(0);
+    for (var i = 7; i >= 0; i--) {
+      amount = (amount << BigInt(8)) + BigInt(data[64 + i]);
+    }
+    return Number(amount);
+  } catch (e) {
+    console.error('Balance check error:', e);
+    return null;
+  }
+}
+
+// ---- PHASE 2: Send transaction (wallet already connected) ----
+async function tcWalletSend() {
+  if (!tcProvider || !tcWalletPubkey) {
+    showToast('Wallet not connected \u2014 click CONNECT WALLET first', '#ff3355');
+    return;
+  }
+
+  tcSetSendBtn('\u23f3', 'BUILDING TRANSACTION...', true);
+  console.log('[RUSH Send] Starting send flow...');
+  console.log('[RUSH Send] Provider:', tcWalletLabel, 'Key:', tcWalletPubkey.toString());
+
+  try {
+    var Connection = solanaWeb3.Connection;
+    var PublicKey = solanaWeb3.PublicKey;
+    var Transaction = solanaWeb3.Transaction;
+    var TransactionInstruction = solanaWeb3.TransactionInstruction;
+
+    var connection = new Connection(TC_RPC, 'confirmed');
+    var fromPubkey = tcWalletPubkey;
+    var mintPubkey = new PublicKey(TC_RUSH_MINT);
+    var destPubkey = new PublicKey(TC_DEPOSIT_ADDR);
+    var tokenProgramId = new PublicKey(TC_TOKEN_PROGRAM);
+    var ataProgramId = new PublicKey(TC_ATA_PROGRAM);
+
+    // Derive ATAs
+    console.log('[RUSH Send] Deriving ATAs...');
+    var fromAta = PublicKey.findProgramAddressSync(
+      [fromPubkey.toBuffer(), tokenProgramId.toBuffer(), mintPubkey.toBuffer()],
+      ataProgramId
+    )[0];
+    var toAta = PublicKey.findProgramAddressSync(
+      [destPubkey.toBuffer(), tokenProgramId.toBuffer(), mintPubkey.toBuffer()],
+      ataProgramId
+    )[0];
+    console.log('[RUSH Send] From ATA:', fromAta.toString());
+    console.log('[RUSH Send] To ATA:', toAta.toString());
+
+    var instructions = [];
+
+    // Check if destination ATA exists — if not, add create-ATA instruction
+    console.log('[RUSH Send] Checking dest ATA...');
+    var toAtaInfo = await connection.getAccountInfo(toAta);
+    console.log('[RUSH Send] Dest ATA exists:', !!toAtaInfo);
+    if (!toAtaInfo) {
+      instructions.push(
+        new TransactionInstruction({
+          keys: [
+            { pubkey: fromPubkey, isSigner: true, isWritable: true },
+            { pubkey: toAta, isSigner: false, isWritable: true },
+            { pubkey: destPubkey, isSigner: false, isWritable: false },
+            { pubkey: mintPubkey, isSigner: false, isWritable: false },
+            { pubkey: solanaWeb3.SystemProgram.programId, isSigner: false, isWritable: false },
+            { pubkey: tokenProgramId, isSigner: false, isWritable: false }
+          ],
+          programId: ataProgramId,
+          data: new Uint8Array([1]) // CreateIdempotent
+        })
+      );
+    }
+
+    // SPL Token Transfer instruction (opcode 3)
+    var rawAmount = BigInt(TC_RUSH_AMOUNT) * BigInt(10 ** TC_RUSH_DECIMALS);
+    console.log('[RUSH Send] Raw amount:', rawAmount.toString());
+    var transferData = new Uint8Array(9);
+    transferData[0] = 3;
+    new DataView(transferData.buffer).setBigUint64(1, rawAmount, true);
+
+    instructions.push(
+      new TransactionInstruction({
+        keys: [
+          { pubkey: fromAta, isSigner: false, isWritable: true },
+          { pubkey: toAta, isSigner: false, isWritable: true },
+          { pubkey: fromPubkey, isSigner: true, isWritable: false }
+        ],
+        programId: tokenProgramId,
+        data: transferData
+      })
+    );
+
+    // Build transaction
+    console.log('[RUSH Send] Fetching blockhash...');
+    var tx = new Transaction();
+    tx.add.apply(tx, instructions);
+    tx.feePayer = fromPubkey;
+    var bh = await connection.getLatestBlockhash('confirmed');
+    tx.recentBlockhash = bh.blockhash;
+    console.log('[RUSH Send] Blockhash:', bh.blockhash);
+    console.log('[RUSH Send] TX built with', instructions.length, 'instructions. Requesting wallet approval...');
+
+    tcSetSendBtn('\u23f3', 'APPROVE IN ' + tcWalletLabel.toUpperCase() + '...', true);
+
+    // Sign and send
+    var result;
+    console.log('[RUSH Send] signAndSendTransaction:', typeof tcProvider.signAndSendTransaction);
+    console.log('[RUSH Send] signTransaction:', typeof tcProvider.signTransaction);
+    if (typeof tcProvider.signAndSendTransaction === 'function') {
+      console.log('[RUSH Send] Calling signAndSendTransaction...');
+      result = await tcProvider.signAndSendTransaction(tx);
+    } else if (typeof tcProvider.signTransaction === 'function') {
+      console.log('[RUSH Send] Calling signTransaction...');
+      var signed = await tcProvider.signTransaction(tx);
+      var sig = await connection.sendRawTransaction(signed.serialize());
+      result = { signature: sig };
+    } else {
+      throw new Error('Wallet does not support transaction signing');
+    }
+    console.log('[RUSH Send] Result:', result);
+
+    var txSig = result.signature || '';
+    showToast('\u2705 Transaction sent! ' + (txSig ? txSig.toString().slice(0, 16) + '...' : ''), '#00ff88');
+    tcSetSendBtn('\u2705', 'SENT! NOW CLICK VERIFY BELOW', true);
+
+    var verifyBtn = document.getElementById('tcWalletBtn');
+    if (verifyBtn) setTimeout(function() { verifyBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 600);
+
+  } catch (err) {
+    console.error('[RUSH Send] Error:', err);
+    console.error('[RUSH Send] Error message:', err && err.message);
+    console.error('[RUSH Send] Error code:', err && err.code);
+    var msg = (err && err.message) || 'Unknown error';
+    if (msg.includes('User rejected') || msg.includes('cancelled') || (err && err.code === 4001)) {
+      showToast('Transaction cancelled by user', '#ff3355');
+    } else if (msg.includes('Blockhash not found') || msg.includes('block height exceeded')) {
+      showToast('Network timeout \u2014 please try again', '#ff3355');
+    } else if (msg.includes('insufficient')) {
+      showToast('Insufficient RUSH balance or SOL for fees', '#ff3355');
+    } else {
+      showToast('Error: ' + msg.slice(0, 80) + ' \u2014 try manual deposit below', '#ff3355');
+    }
+    tcSetSendBtn('\ud83d\udcb0', 'SEND 1,000,000 $RUSH', false);
+  }
+}
+
+function tcCopyAddr(){
+  const addr='7rH4WYQ9Y7UjmizQxvHmpgLyvsBZfArweE48DWrcyoXu';
+  function fallbackCopy(){
+    const ta=document.createElement('textarea');ta.value=addr;ta.style.position='fixed';ta.style.left='-9999px';ta.style.top='-9999px';document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');showToast('📋 Address copied!','#ffd700');}catch(e){showToast('Copy failed — long-press address to copy','#ff3355');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(addr).then(()=>{showToast('📋 Address copied!','#ffd700');}).catch(()=>{fallbackCopy();});
+  }else{fallbackCopy();}
+}
+
+async function checkTournamentPlayerStatus(){
+  if(!tournamentPlayerAddr)return;
+  try{
+    const res=await fetch(TOURNAMENT_API+'/player-status?address='+encodeURIComponent(tournamentPlayerAddr));
+    const s=await res.json();
+    if(s.registered){
+      tournamentRegistered=true;
+      tournamentDeposits=s.deposits||1;
+      tournamentGamesRemaining=s.games_remaining;
+      if(tournamentGamesRemaining<=0) tournamentGameUsed=true;
+    }
+  }catch(e){}
+}
+
+// ── Tournament Game Logic ──
+function startTournamentGame(){
+  if(!tournamentRegistered){showToast('⚠️ Register first!','#ff3355');return;}
+  if(tournamentGameUsed||tournamentGamesRemaining<=0){showToast('⚠️ No games left — deposit 1M $RUSH for another play!','#ff8800');return;}
+  isTournamentMode=true;
+  tournamentGameActive=true;
+  // Apply gold theme
+  document.body.classList.add('tournament-mode');
+  // Activate the toggle visually
+  document.getElementById('tourneyToggle').classList.add('tourney-active');
+  // Reset game for a fresh tournament round
+  resetGame();
+  const gLeft=tournamentGamesRemaining;
+  showToast(`🏆 TOURNAMENT MODE — ${gLeft} game${gLeft>1?'s':''} remaining. Make it count!`,'#ffd700');
+}
+
+function exitTournamentMode(){
+  isTournamentMode=false;
+  tournamentGameActive=false;
+  // Don't reset tournamentGameUsed here — player already used their one life for this tournament
+  document.body.classList.remove('tournament-mode');
+  document.getElementById('tourneyToggle').classList.remove('tourney-active');
+  showToast('🏆 Tournament game submitted. Good luck!','#ffd700');
+}
+
+async function submitTournamentScore(score, grade, gameMode, sessionTime, deviceType, isBust){
+  if(!tournamentPlayerAddr||!TOURNAMENT_API)return;
+  try{
+    const res=await fetch(TOURNAMENT_API+'/submit-score',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:tournamentPlayerAddr,score:score,grade:grade,game_mode:gameMode||'normal',session_time:sessionTime||0,device_type:deviceType||'desktop',is_bust:!!isBust})
+    });
+    const data=await res.json();
+    if(data.code==='NO_GAMES_LEFT'){
+      tournamentGameUsed=true;
+      tournamentGamesRemaining=0;
+      showToast('⚠️ No games left — deposit 1M $RUSH for another play!','#ff8800');
+      return;
+    }
+    if(data.success){
+      tournamentGamesRemaining=data.games_remaining;
+      tournamentDeposits=data.deposits||tournamentDeposits;
+      if(tournamentGamesRemaining<=0) tournamentGameUsed=true;
+      const msg=data.new_best
+        ? `🏆 TOURNAMENT RESULT: Rank #${data.current_rank} of ${data.total_entries} (${tournamentGamesRemaining} game${tournamentGamesRemaining!==1?'s':''} left)`
+        : `🏆 Tournament rank: #${data.current_rank} of ${data.total_entries} (${tournamentGamesRemaining} game${tournamentGamesRemaining!==1?'s':''} left)`;
+      showToast(msg,'#ffd700');
+    }
+  }catch(e){console.warn('[Tournament] Score submit failed',e);}
+}
+
+// ── Tournament Toggle Handler ──
+document.getElementById('tourneyToggle').addEventListener('click',function(){
+  if(isTournamentMode){
+    // Can't toggle off during active tournament game
+    if(tournamentGameActive){
+      showToast('⚠️ Finish your tournament game first!','#ff8800');
+      return;
+    }
+    exitTournamentMode();
+    return;
+  }
+  // Can't toggle on if active bets
+  if(bets.some(b=>b.status==='active')){
+    showToast('⚠️ Wait for open positions to close!','#ff8800');
+    return;
+  }
+  // Open registration modal
+  openTourneyModal();
+});
 (async function initSDK(){
   try{
     ogp=new OpenGameSDK({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66',ui:{usePointsWidget:true,theme:'dark'}});
@@ -574,6 +1484,11 @@ let gameStart=Date.now(),lastActivityBonus=Date.now(),firstBetTime=0;
 let wonAbove=false,wonBelow=false,gameActive=true;
 let gridCenter=0,gridRanges=[];
 let achievements={},recentBetTimes=[],wasBelow100=false;
+// Rare achievement trackers
+let farWins=0; // wins 10+ cells from price (Sniper)
+let wasBelow10=false; // dropped below $10 (Phoenix)
+let qualWinStreak=0; // consecutive wins on 1.03x+ bets (Untouchable)
+let mpQualWinStreak=0; // consecutive wins on 1.03x+ in max pain (MP Untouchable)
 let betId=0,bets=[];
 
 // Price history: array of {time, price} - these scroll left with the treadmill
@@ -939,6 +1854,25 @@ function resolveBets(){
             checkAch('diamond_hands','Diamond Hands','💎','10 wins in a row',winStreak>=10);
             checkAch('scalper','Scalper','🗡️','Win 20 bets',totalWins>=20);
             checkAch('both_sides','Both Sides','🔀','Win above AND below',wonAbove&&wonBelow);
+            // ── Rare achievement checks ──
+            // Sniper: win 3 bets placed 10+ cells from price at time of win
+            const priceRowNow=getCurrentPriceRow();
+            if(priceRowNow>=0){
+              const cellDist=Math.abs(b.row-priceRowNow);
+              if(cellDist>=10){farWins++;checkAch('sniper','Sniper','🎯','Win 3 bets 10+ cells from price',farWins>=3);}
+            }
+            // Untouchable: 10 consecutive wins on 1.03x+ multiplier bets
+            if(b.mult>=1.03){
+              qualWinStreak++;
+              checkAch('untouchable','Untouchable','🔨','10 wins in a row (1.03x+ only)',qualWinStreak>=10);
+              // Max Pain Untouchable: same but in max pain mode
+              if(isMaxPainMode){
+                mpQualWinStreak++;
+                checkAch('mp_untouchable','Max Pain Untouchable','💀','10 wins in a row in Max Pain (1.03x+)',mpQualWinStreak>=10);
+              } else { mpQualWinStreak=0; }
+            } else {
+              qualWinStreak=0; mpQualWinStreak=0;
+            }
             // Balance milestone achievements with dopamine hits
             if(balance>=10000){checkAch('bal_10k','$10K Club','💰','Reach $10,000 balance',true);if(!achievements['bal_10k_flashed']){achievements['bal_10k_flashed']=1;milestoneHit('$10K!','rgba(0,255,136,0.25)',10);}}
             if(balance>=50000){checkAch('bal_50k','$50K Whale','🐋','Reach $50,000 balance',true);if(!achievements['bal_50k_flashed']){achievements['bal_50k_flashed']=1;milestoneHit('$50K!','rgba(0,240,255,0.3)',15);}}
@@ -949,7 +1883,7 @@ function resolveBets(){
             if(balance>=10000000){checkAch('bal_10m','Mega Rich','👑','Reach $10,000,000 balance',true);if(!achievements['bal_10m_flashed']){achievements['bal_10m_flashed']=1;milestoneHit('$10M MEGA!','rgba(0,255,255,0.4)',50);}}
             if(balance>=100000000){checkAch('bal_100m','Centimillionaire','🌟','Reach $100,000,000 balance',true);if(!achievements['bal_100m_flashed']){achievements['bal_100m_flashed']=1;milestoneHit('$100M GOD!','rgba(255,255,255,0.5)',60);}}
           } else {
-            b.status='lost';totalLosses++;winStreak=0;sndLose();
+            b.status='lost';totalLosses++;winStreak=0;qualWinStreak=0;mpQualWinStreak=0;sndLose();
             screenFlash('rgba(255,51,85,0.08)');
           }
         }
@@ -1478,7 +2412,11 @@ const ALL_ACHIEVEMENTS=[
   {id:'bal_500k',name:'Half Stack',icon:'⭐',desc:'Reach $500,000 balance',pts:50000},
   {id:'bal_1m',name:'Millionaire',icon:'🚀',desc:'Reach $1,000,000 balance',pts:100000},
   {id:'bal_10m',name:'Mega Rich',icon:'👑',desc:'Reach $10,000,000 balance',pts:1000000},
-  {id:'bal_100m',name:'Centimillionaire',icon:'🌟',desc:'Reach $100,000,000 balance',pts:10000000}
+  {id:'bal_100m',name:'Centimillionaire',icon:'🌟',desc:'Reach $100,000,000 balance',pts:10000000},
+  {id:'sniper',name:'Sniper',icon:'🎯',desc:'Win 3 bets 10+ cells from price',pts:30000,rare:true},
+  {id:'phoenix',name:'Phoenix',icon:'🔥',desc:'Drop below $10, recover past $50K',pts:25000,rare:true},
+  {id:'untouchable',name:'Untouchable',icon:'🔨',desc:'10 wins in a row (1.03x+ only)',pts:20000,rare:true},
+  {id:'mp_untouchable',name:'Max Pain Untouchable',icon:'💀',desc:'10 wins in a row in Max Pain (1.03x+)',pts:20000,rare:true}
 ];
 function renderAchieveModal(){
   const count=Object.keys(achievements).length;
@@ -1486,9 +2424,10 @@ function renderAchieveModal(){
   let h='';
   ALL_ACHIEVEMENTS.forEach(a=>{
     const unlocked=!!achievements[a.id];
-    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}">`;
+    const rareClass=a.rare?' rare-item':'';
+    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}${rareClass}">`;
     h+=`<div class="ach-icon">${unlocked?a.icon:'🔒'}</div>`;
-    h+=`<div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc} — <span style="color:var(--yellow)">${a.pts.toLocaleString()} pts</span></div></div>`;
+    h+=`<div class="ach-info"><div class="ach-name">${a.name}${a.rare?'<span class="ach-rare-badge">RARE</span>':''}</div><div class="ach-desc">${a.desc} — <span style="color:${a.rare?'#ff3355':'var(--yellow)'}">${a.pts.toLocaleString()} pts</span></div></div>`;
     if(unlocked)h+=`<div class="ach-check">✓</div>`;
     h+=`</div>`;
   });
@@ -1511,10 +2450,32 @@ function checkAch(id,name,icon,desc,cond){
   if(achievements[id]||!cond)return;achievements[id]=true;sndAchieve();
   const achDef=ALL_ACHIEVEMENTS.find(a=>a.id===id);
   const achPts=achDef?achDef.pts:250;
+  const isRare=achDef&&achDef.rare;
   document.getElementById('achieveCount').textContent=Object.keys(achievements).length+' / '+ALL_ACHIEVEMENTS.length+' unlocked';
   const p=document.createElement('div');p.className='achievement-popup';
-  p.innerHTML=`<div class="a-icon">${icon}</div><div class="a-label">ACHIEVEMENT UNLOCKED</div><div class="a-title">${name}</div><div class="a-desc">${desc}</div><div style="color:#f0ff00;font-family:var(--font-head);font-size:12px;margin-top:6px">+${achPts.toLocaleString()} PTS</div>`;
-  document.body.appendChild(p);setTimeout(()=>p.remove(),2800);awardPts(achPts);
+  if(isRare)p.style.borderColor='#ff3355';if(isRare)p.style.boxShadow='0 0 50px rgba(255,51,85,0.3),0 0 100px rgba(255,51,85,0.1)';
+  p.innerHTML=`<div class="a-icon">${icon}</div>${isRare?'<div style="font-family:var(--font-head);font-size:7px;color:#ff3355;letter-spacing:2px;margin-bottom:2px;text-shadow:0 0 8px rgba(255,51,85,0.6)">\u2605 RARE ACHIEVEMENT \u2605</div>':''}<div class="a-label">ACHIEVEMENT UNLOCKED</div><div class="a-title"${isRare?' style="color:#ff3355"':''}>${name}</div><div class="a-desc">${desc}</div><div style="color:${isRare?'#ff3355':'#f0ff00'};font-family:var(--font-head);font-size:12px;margin-top:6px">+${achPts.toLocaleString()} PTS</div>`;
+  document.body.appendChild(p);setTimeout(()=>p.remove(),isRare?4000:2800);awardPts(achPts);
+  // Trigger rare-specific animations
+  if(id==='sniper')triggerSniperAnimation();
+  if(id==='phoenix')triggerPhoenixAnimation();
+  if(id==='untouchable')triggerGifAnimation('https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjhkMjcwMWdvNGp6NWJxYmhsbmdkcmZxY3NrZGk0aHN0dnpybmtyNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hFIkt5s7MrzI4/giphy.gif',"CAN'T TOUCH THIS");
+  if(id==='mp_untouchable')triggerGifAnimation('https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3aDNxcTB5MnU3ZmZ1MG9yaGk3dW5mYXpiOGljeTFmNmFicHF3bG1xZCZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/qT24jgwHeRlQY/giphy.gif','MAX PAIN KING');
+}
+function triggerSniperAnimation(){
+  const el=document.createElement('div');el.className='rare-crosshair-overlay';
+  el.innerHTML='<div class="rare-crosshair-circle"></div>';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
+}
+function triggerPhoenixAnimation(){
+  const el=document.createElement('div');el.className='rare-phoenix-overlay';
+  el.innerHTML='<div class="rare-phoenix-bird">&#x1F525;</div><div class="rare-phoenix-trail"></div>';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
+}
+function triggerGifAnimation(url,label){
+  const el=document.createElement('div');el.className='rare-gif-overlay';
+  el.innerHTML=`<img src="${url}" alt="${label}"/><div class="rare-gif-label">${label}</div>`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),4500);
 }
 
 // STAKE
@@ -1594,12 +2555,45 @@ function showGameOverScreen(isBust){
   playBtn.disabled=false;
   const existing=document.getElementById('cooldownMsg');
   if(existing)existing.remove();
+  // ── Tournament one-life handling ──
+  if(isTournamentMode && tournamentGameActive){
+    // Submit score to tournament
+    const gm=isMaxPainMode?'maxpain':isExtremeMode?'extreme':'normal';
+    const sessionTime=Math.floor((Date.now()-gameStart)/1000);
+    const deviceType=isMobileMode?'mobile':'desktop';
+    submitTournamentScore(pts, grade, gm, sessionTime, deviceType, isBust);
+    // Decrement local counter (server is source of truth)
+    tournamentGamesRemaining=Math.max(0, tournamentGamesRemaining - 1);
+    if(tournamentGamesRemaining<=0) tournamentGameUsed=true;
+    tournamentGameActive=false;
+    // Override title for tournament
+    document.getElementById('goTitle').textContent=isBust?'🏆 TOURNAMENT — BUSTED!':'🏆 TOURNAMENT — ROUND OVER';
+    // Show VIEW LEADERBOARD button — grade card first, then leaderboard
+    const playBtn2=document.getElementById('goPlayAgain');
+    playBtn2.textContent='🏆 VIEW LEADERBOARD';
+    playBtn2.onclick=function(){
+      // Hide grade card, show live tournament leaderboard
+      document.getElementById('gameOver').classList.remove('show');
+      tlbShow(pts);
+      // Restore normal play again behavior for next time
+      playBtn2.textContent='⚡ PLAY AGAIN';
+      playBtn2.onclick=null;
+    };
+  } else {
+    // Normal mode — submit score if player is registered (non-tournament)
+    if(tournamentPlayerAddr){
+      const gm=isMaxPainMode?'maxpain':isExtremeMode?'extreme':'normal';
+      const sessionTime2=Math.floor((Date.now()-gameStart)/1000);
+      const deviceType2=isMobileMode?'mobile':'desktop';
+      submitTournamentScore(pts, grade, gm, sessionTime2, deviceType2, isBust);
+    }
+  }
   document.getElementById('gameOver').classList.add('show');
 }
 function resetGame(){
   document.getElementById('gameOver').classList.remove('show');
   balance=STARTING_BALANCE;bets=[];betId=0;pts=0;ogpSentTotal=0;winStreak=0;maxStreak=0;totalBets=0;totalWins=0;totalLosses=0;totalWinnings=0;
-  gameStart=Date.now();lastActivityBonus=Date.now();firstBetTime=0;wonAbove=false;wonBelow=false;achievements={};recentBetTimes=[];wasBelow100=false;gameActive=true;priceTrail=[];
+  gameStart=Date.now();lastActivityBonus=Date.now();firstBetTime=0;wonAbove=false;wonBelow=false;achievements={};recentBetTimes=[];wasBelow100=false;wasBelow10=false;farWins=0;qualWinStreak=0;mpQualWinStreak=0;gameActive=true;priceTrail=[];
   document.getElementById('achieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('pointsDisplay').textContent='0';document.getElementById('sessionPtsDisplay').textContent='⭐ 0 PTS';
   document.getElementById('mobAchieveCount').textContent='0 / '+ALL_ACHIEVEMENTS.length+' unlocked';document.getElementById('mobModalPtsLive').textContent='0';
   _gameOverFired=false;
@@ -1609,7 +2603,11 @@ function resetGame(){
   const _ms=document.getElementById('mobStakeSlider');if(_ms)_ms.max=100;
   initColumns();updateUI();connectWebSocket();pollPrice();
 }
-document.getElementById('goPlayAgain').addEventListener('click',resetGame);
+document.getElementById('goPlayAgain').addEventListener('click',function(){
+  // If tournament game was used, the onclick was overridden — fallback here
+  if(tournamentGameUsed && isTournamentMode) return;
+  resetGame();
+});
 document.getElementById('goShare').addEventListener('click',shareGradeCard);
 function shareGradeCard(){
   const gameUrl='https://taprush.fun';
@@ -1726,8 +2724,10 @@ function loop(){
     // Check bust in main loop too (backup)
     if(gameActive&&balance<0.01&&!bets.some(b=>b.status==='active')){balance=0;gameActive=false;bustOut();}
     if(balance<100)wasBelow100=true;
+    if(balance<10)wasBelow10=true;
     if(balance<50)checkAch('rug_survivor','Rug Survivor','💀','Win after dropping below $50',totalWins>0);
     if(wasBelow100&&balance>=5000)checkAch('comeback_kid','Comeback Kid','🔮','Recover to $5K',true);
+    if(wasBelow10&&balance>=50000)checkAch('phoenix','Phoenix','🔥','Drop below $10, recover past $50K',true);
   }
   if(frameCount%2===0)updateTimer();
   draw();
@@ -1775,6 +2775,8 @@ document.getElementById('modeToggle').addEventListener('click',function(){
 let currentMode='normal';
 
 function setGameMode(mode){
+  // In tournament mode, only block mode changes while bets are active (same as normal)
+  // All modes (normal, extreme, max pain) are allowed in tournament
   // Block if active bets
   if(bets.some(b=>b.status==='active')){
     showToast('⚠️ Wait for open positions to close!','#ff8800');
@@ -1871,9 +2873,10 @@ function syncMobileAchievements(){
   let h='';
   ALL_ACHIEVEMENTS.forEach(a=>{
     const unlocked=!!achievements[a.id];
-    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}">`;
+    const rareClass=a.rare?' rare-item':'';
+    h+=`<div class="ach-item ${unlocked?'unlocked':'locked'}${rareClass}">`;
     h+=`<div class="ach-icon">${unlocked?a.icon:'🔒'}</div>`;
-    h+=`<div class="ach-info"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc} — <span style="color:var(--yellow)">${a.pts.toLocaleString()} pts</span></div></div>`;
+    h+=`<div class="ach-info"><div class="ach-name">${a.name}${a.rare?'<span class="ach-rare-badge">RARE</span>':''}</div><div class="ach-desc">${a.desc} — <span style="color:${a.rare?'#ff3355':'var(--yellow)'}">${a.pts.toLocaleString()} pts</span></div></div>`;
     if(unlocked)h+=`<div class="ach-check">✓</div>`;
     h+=`</div>`;
   });
@@ -1928,6 +2931,230 @@ async function init(){
   },1000);
 }
 init();
+
+// ═══════════════════════════════════════════════════════════════
+// TOURNAMENT LEADERBOARD END SCREEN
+// ═══════════════════════════════════════════════════════════════
+var _tlbInterval = null;
+var _tlbCountdownInterval = null;
+var _tlbEndTime = null;
+var _tlbPlayerScore = 0;
+
+async function tlbFetchAndRender() {
+  try {
+    var res = await fetch(TOURNAMENT_API + '/tournament');
+    var data = await res.json();
+    
+    // Tournament ID
+    document.getElementById('tlbTournamentId').textContent = data.tournament_id || '';
+    
+    // Prize pool
+    document.getElementById('tlbPrizePool').textContent = data.prize_pool_display || '0 RUSH';
+    
+    // Payouts
+    if (data.payouts) {
+      document.getElementById('tlbPay1').textContent = data.payouts['1st'] || '70%';
+      document.getElementById('tlbPay2').textContent = data.payouts['2nd'] || '20%';
+      document.getElementById('tlbPay3').textContent = data.payouts['3rd'] || '10%';
+    }
+    
+    // Countdown end time
+    if (data.end_time) {
+      // Handle both '+00:00' and 'Z' suffixed ISO strings
+      var etStr = data.end_time;
+      if (!etStr.endsWith('Z') && !etStr.includes('+')) etStr += 'Z';
+      _tlbEndTime = new Date(etStr).getTime();
+    }
+    // Also use time_remaining_seconds as fallback
+    if (!_tlbEndTime && data.time_remaining_seconds) {
+      _tlbEndTime = Date.now() + (data.time_remaining_seconds * 1000);
+    }
+    
+    // Leaderboard
+    var lb = data.leaderboard || [];
+    var tbody = document.getElementById('tlbBody');
+    var emptyEl = document.getElementById('tlbEmpty');
+    
+    if (lb.length === 0) {
+      tbody.innerHTML = '';
+      emptyEl.style.display = 'block';
+    } else {
+      emptyEl.style.display = 'none';
+      var html = '';
+      var playerRank = null;
+      for (var i = 0; i < lb.length; i++) {
+        var p = lb[i];
+        var isYou = tournamentPlayerAddr && p.address === tournamentPlayerAddr;
+        if (isYou) playerRank = p.rank;
+        var rankClass = p.rank === 1 ? 'tlb-rank-1' : p.rank === 2 ? 'tlb-rank-2' : p.rank === 3 ? 'tlb-rank-3' : '';
+        var medal = p.rank === 1 ? '\ud83e\udd47' : p.rank === 2 ? '\ud83e\udd48' : p.rank === 3 ? '\ud83e\udd49' : p.rank;
+        html += '<tr class="' + (isYou ? 'tlb-you' : '') + '">';
+        html += '<td class="' + rankClass + '">' + medal + '</td>';
+        html += '<td>' + (p.display_name || p.short_address) + (isYou ? ' <span style="color:#00f0ff;font-size:9px">(YOU)</span>' : '') + '</td>';
+        html += '<td style="font-weight:700;color:' + (isYou ? '#00f0ff' : '#ffd700') + '">' + (p.best_score || 0).toLocaleString() + '</td>';
+        html += '<td>' + (p.best_grade || '-') + '</td>';
+        html += '</tr>';
+      }
+      tbody.innerHTML = html;
+      
+      // Update your rank display
+      if (playerRank !== null) {
+        document.getElementById('tlbYourRank').innerHTML = 'Rank <span>#' + playerRank + '</span> of ' + data.entries + ' players';
+      } else if (tournamentPlayerAddr) {
+        document.getElementById('tlbYourRank').innerHTML = 'Rank <span>unranked</span> \u2014 play to get on the board!';
+      }
+    }
+  } catch (e) {
+    console.warn('[TLB] Fetch error:', e);
+  }
+}
+
+function tlbUpdateCountdown() {
+  if (!_tlbEndTime) { document.getElementById('tlbCountdown').textContent = '--:--:--'; return; }
+  var now = Date.now();
+  var diff = Math.max(0, Math.floor((_tlbEndTime - now) / 1000));
+  if (diff <= 0) {
+    document.getElementById('tlbCountdown').textContent = 'ENDED';
+    document.getElementById('tlbCountdown').style.color = '#ff3355';
+    return;
+  }
+  var h = Math.floor(diff / 3600);
+  var m = Math.floor((diff % 3600) / 60);
+  var s = diff % 60;
+  var str = (h > 0 ? h + 'h ' : '') + (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+  document.getElementById('tlbCountdown').textContent = str;
+  document.getElementById('tlbCountdown').style.color = diff < 300 ? '#ff3355' : diff < 3600 ? '#ff8800' : '#ff8800';
+}
+
+function tlbShow(playerScore) {
+  _tlbPlayerScore = playerScore || 0;
+  document.getElementById('tlbYourScore').textContent = _tlbPlayerScore.toLocaleString();
+  document.getElementById('tourneyLeaderboard').classList.add('show');
+  
+  // Fetch immediately
+  tlbFetchAndRender();
+  tlbUpdateCountdown();
+  
+  // Auto-refresh every 15s
+  _tlbInterval = setInterval(tlbFetchAndRender, 15000);
+  _tlbCountdownInterval = setInterval(tlbUpdateCountdown, 1000);
+}
+
+// _tlbCasualView: true if leaderboard was opened from bottom bar or tournament modal (not post-game)
+var _tlbCasualView = false;
+
+function tlbClose() {
+  document.getElementById('tourneyLeaderboard').classList.remove('show');
+  if (_tlbInterval) { clearInterval(_tlbInterval); _tlbInterval = null; }
+  if (_tlbCountdownInterval) { clearInterval(_tlbCountdownInterval); _tlbCountdownInterval = null; }
+  // Only exit tournament + reset if this was post-game view (not casual)
+  if (!_tlbCasualView) {
+    exitTournamentMode();
+    resetGame();
+  }
+  _tlbCasualView = false;
+}
+
+function tlbCloseOnly() {
+  document.getElementById('tourneyLeaderboard').classList.remove('show');
+  if (_tlbInterval) { clearInterval(_tlbInterval); _tlbInterval = null; }
+  if (_tlbCountdownInterval) { clearInterval(_tlbCountdownInterval); _tlbCountdownInterval = null; }
+}
+
+// Casual view: opened from bottom bar or tournament modal (no game reset on close)
+function tlbShowCasual() {
+  _tlbCasualView = true;
+  tlbShow(typeof pts !== 'undefined' ? pts : 0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GLOBAL CLOCK BAR — Live PST time + Tournament countdown
+// ═══════════════════════════════════════════════════════════════
+(function initClockBar() {
+  var clockEl = document.getElementById('clockTime');
+  var countdownEl = document.getElementById('clockTourneyCountdown');
+  if (!clockEl || !countdownEl) return;
+
+  function getNextTourneyEnd() {
+    // Tournament ends daily at 3pm PST = 23:00 UTC
+    var now = new Date();
+    var utcH = now.getUTCHours();
+    var target = new Date(now);
+    target.setUTCMinutes(0, 0, 0);
+    target.setUTCHours(23);
+    // If we're past 23:00 UTC today, target tomorrow
+    if (utcH >= 23) {
+      target.setUTCDate(target.getUTCDate() + 1);
+    }
+    return target.getTime();
+  }
+
+  var tourneyEndMs = getNextTourneyEnd();
+
+  function tick() {
+    var now = new Date();
+    // PST time (UTC-8)
+    var pstOffset = -8 * 60;
+    var pstMs = now.getTime() + (now.getTimezoneOffset() + pstOffset) * 60000;
+    var pst = new Date(pstMs);
+    var h = pst.getHours();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var h12 = h % 12 || 12;
+    var timeStr = String(h12).padStart(2, '0') + ':' + String(pst.getMinutes()).padStart(2, '0') + ':' + String(pst.getSeconds()).padStart(2, '0') + ' ' + ampm;
+    clockEl.textContent = timeStr;
+
+    // Tournament countdown
+    var diff = Math.max(0, Math.floor((tourneyEndMs - now.getTime()) / 1000));
+    if (diff <= 0) {
+      // Recalculate for next day
+      tourneyEndMs = getNextTourneyEnd();
+      diff = Math.max(0, Math.floor((tourneyEndMs - now.getTime()) / 1000));
+    }
+    var ch = Math.floor(diff / 3600);
+    var cm = Math.floor((diff % 3600) / 60);
+    var cs = diff % 60;
+    var cdStr = String(ch).padStart(2, '0') + ':' + String(cm).padStart(2, '0') + ':' + String(cs).padStart(2, '0');
+    countdownEl.textContent = cdStr;
+    // Color coding: red < 5min, orange < 1hr, gold otherwise
+    if (diff < 300) { countdownEl.style.color = '#ff3355'; }
+    else if (diff < 3600) { countdownEl.style.color = '#ff8800'; }
+    else { countdownEl.style.color = '#ffd700'; }
+
+    // Force cashout 30 min before tournament ends
+    if (diff <= 1800 && diff > 0) {
+      // Check if player is in an active tournament game with open positions
+      if (typeof isTournamentMode !== 'undefined' && isTournamentMode && typeof tournamentGameActive !== 'undefined' && tournamentGameActive) {
+        if (typeof bets !== 'undefined' && bets.some(function(b){ return b.status === 'active'; })) {
+          // Wait for active bets to settle, don't force mid-bet
+        } else if (typeof gameActive !== 'undefined' && gameActive && typeof _gameOverFired !== 'undefined' && !_gameOverFired) {
+          // No active bets, force cashout
+          if (typeof showToast === 'function') showToast('⏰ TOURNAMENT CLOSING — Auto cashout!', '#ff3355');
+          if (typeof gameOver === 'function') gameOver();
+        }
+      }
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// Expose onclick-referenced functions to global scope
+window.tcConnectWallet = tcConnectWallet;
+window.tcWalletSend = tcWalletSend;
+window.tcCopyAddr = tcCopyAddr;
+window.tcCheckWallet = tcCheckWallet;
+window.tcCheckDeposit = tcCheckDeposit;
+window.tcConfirmEntry = tcConfirmEntry;
+window.closeTourneyModal = closeTourneyModal;
+window.startTournamentGame = startTournamentGame;
+window.openTourneyModal = openTourneyModal;
+window.showToast = showToast;
+window.tlbClose = tlbClose;
+window.tlbCloseOnly = tlbCloseOnly;
+window.tlbShow = tlbShow;
+window.tlbShowCasual = tlbShowCasual;
+window.shareGradeCard = shareGradeCard;
 })();
 </script>
 </body>
