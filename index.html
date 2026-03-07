@@ -33,6 +33,7 @@ body{display:flex;flex-direction:column}
 .header-top-row{display:flex;align-items:center;gap:10px;min-height:42px;flex-shrink:0}
 #gameModes{display:flex;align-items:center;gap:6px}
 .logo{font-family:var(--font-head);font-size:17px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#00f0ff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,240,255,0.4))}
+.rush-label{font-family:var(--font-mono);font-size:10px;font-weight:700;color:#ffd700;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);padding:2px 8px;border-radius:4px;letter-spacing:1px;white-space:nowrap}
 .header-tabs button{background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.3);color:var(--cyan);padding:4px 14px;border-radius:4px;font-family:var(--font-mono);font-size:10.5px;cursor:pointer;font-weight:600}
 .header-right{display:flex;align-items:center;gap:10px;font-size:12px}
 .pair-label{font-weight:600;color:var(--white);font-size:12px;font-family:var(--font-head);letter-spacing:1px}
@@ -249,6 +250,7 @@ body.mobile-mode #sidebar{display:none}
 body.mobile-mode #mobileStake{display:flex !important}
 body.mobile-mode #footerBalanceItem{display:flex}
 body.mobile-mode .logo{font-size:12px;letter-spacing:2px}
+body.mobile-mode .rush-label{font-size:8px;padding:1px 5px}
 body.mobile-mode #header{padding:0 8px}
 body.mobile-mode .header-top-row{min-height:36px;flex-wrap:wrap;flex:1}
 body.mobile-mode .header-right{display:none}
@@ -470,7 +472,8 @@ body.mobile-mode #pointsSection{display:none}
 <div id="header">
 <div class="header-top-row">
   <div class="logo">TAP RUSH</div>
-  <div class="header-tabs"><a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY" target="_blank" rel="noopener" style="text-decoration:none"><button>$RUSH</button></a></div>
+  <span class="rush-label">$RUSH</span>
+  <div class="header-tabs"><a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=ZZdUjmm6stModTGwB7yQk9RphzbV6WYHMD5Wz7oPLAY" target="_blank" rel="noopener" style="text-decoration:none"><button>BUY RUSH</button></a></div>
   <div class="mode-toggle" id="modeToggle" title="Switch between Desktop and Mobile mode">
     <span class="mode-toggle-label active-label" id="lblDesktop">D</span>
     <div class="mode-toggle-track" id="modeTrack"><div class="mode-toggle-thumb"></div></div>
