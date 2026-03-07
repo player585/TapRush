@@ -1593,8 +1593,10 @@ let achievements={},recentBetTimes=[],wasBelow100=false;
 // Rare achievement trackers
 let farWins=0; // wins 10+ cells from price (Sniper)
 let wasBelow10=false; // dropped below $10 (Phoenix)
-let qualWinStreak=0; // consecutive wins on 1.03x+ bets (Untouchable)
-let mpQualWinStreak=0; // consecutive wins on 1.03x+ in max pain (MP Untouchable)
+let qualWinStreak=0; // consecutive wins on 1.03x+ bets from different rows (Untouchable)
+let mpQualWinStreak=0; // consecutive wins on 1.03x+ in max pain from different rows (MP Untouchable)
+let lastQualWinRow=-1; // last row that counted toward Untouchable streak
+let lastMpQualWinRow=-1; // last row that counted toward MP Untouchable streak
 let betId=0,bets=[];
 
 // Price history: array of {time, price} - these scroll left with the treadmill
@@ -1967,17 +1969,23 @@ function resolveBets(){
               const cellDist=Math.abs(b.row-priceRowNow);
               if(cellDist>=10){farWins++;checkAch('sniper','Sniper','🎯','Win 3 bets 10+ cells from price',farWins>=3);}
             }
-            // Untouchable: 10 consecutive wins on 1.03x+ multiplier bets
+            // Untouchable: 10 consecutive wins on 1.03x+ from DIFFERENT rows
             if(b.mult>=1.03){
-              qualWinStreak++;
-              checkAch('untouchable','Untouchable','🔨','10 wins in a row (1.03x+ only)',qualWinStreak>=10);
+              if(b.row!==lastQualWinRow){
+                qualWinStreak++;
+                lastQualWinRow=b.row;
+              }
+              checkAch('untouchable','Untouchable','🔨','10 wins in a row from different cells (1.03x+)',qualWinStreak>=10);
               // Max Pain Untouchable: same but in max pain mode
               if(isMaxPainMode){
-                mpQualWinStreak++;
-                checkAch('mp_untouchable','Max Pain Untouchable','💀','10 wins in a row in Max Pain (1.03x+)',mpQualWinStreak>=10);
-              } else { mpQualWinStreak=0; }
+                if(b.row!==lastMpQualWinRow){
+                  mpQualWinStreak++;
+                  lastMpQualWinRow=b.row;
+                }
+                checkAch('mp_untouchable','Max Pain Untouchable','💀','10 wins in a row from different cells in Max Pain (1.03x+)',mpQualWinStreak>=10);
+              } else { mpQualWinStreak=0; lastMpQualWinRow=-1; }
             } else {
-              qualWinStreak=0; mpQualWinStreak=0;
+              qualWinStreak=0; mpQualWinStreak=0; lastQualWinRow=-1; lastMpQualWinRow=-1;
             }
             // Balance milestone achievements with dopamine hits
             if(balance>=10000){checkAch('bal_10k','$10K Club','💰','Reach $10,000 balance',true);if(!achievements['bal_10k_flashed']){achievements['bal_10k_flashed']=1;milestoneHit('$10K!','rgba(0,255,136,0.25)',10);}}
@@ -2521,8 +2529,8 @@ const ALL_ACHIEVEMENTS=[
   {id:'bal_100m',name:'Centimillionaire',icon:'🌟',desc:'Reach $100,000,000 balance',pts:10000000},
   {id:'sniper',name:'Sniper',icon:'🎯',desc:'Win 3 bets 10+ cells from price',pts:30000,rare:true},
   {id:'phoenix',name:'Phoenix',icon:'🔥',desc:'Drop below $10, recover past $50K',pts:25000,rare:true},
-  {id:'untouchable',name:'Untouchable',icon:'🔨',desc:'10 wins in a row (1.03x+ only)',pts:20000,rare:true},
-  {id:'mp_untouchable',name:'Max Pain Untouchable',icon:'💀',desc:'10 wins in a row in Max Pain (1.03x+)',pts:20000,rare:true}
+  {id:'untouchable',name:'Untouchable',icon:'🔨',desc:'10 wins in a row from different cells (1.03x+)',pts:20000,rare:true},
+  {id:'mp_untouchable',name:'Max Pain Untouchable',icon:'💀',desc:'10 wins in a row from different cells in Max Pain (1.03x+)',pts:20000,rare:true}
 ];
 function renderAchieveModal(){
   const count=Object.keys(achievements).length;
