@@ -803,7 +803,7 @@ let ogpReady=false;
 let ogpSentTotal=0; // track cumulative integer points sent to SDK
 
 // ── Tournament Integration ──
-const TOURNAMENT_API='https://sites.pplx.app/sites/proxy/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcmVmaXgiOiJ3ZWIvZGlyZWN0LWZpbGVzL2NvbXB1dGVyLzY2MDc0OTNjLTgyNTEtNDM0NS1hYmNmLTUyNGRjM2YyYWRmYi9ydXNoLXRvdXJuYW1lbnQvIiwic2lkIjoiNjYwNzQ5M2MtODI1MS00MzQ1LWFiY2YtNTI0ZGMzZjJhZGZiIiwiZXhwIjoxNzcyODQ2NDE1fQ.vaFHDTXs2IvsP754A2yXKZHxLk8sMbull2jl0R96DBc/web/direct-files/computer/6607493c-8251-4345-abcf-524dc3f2adfb/rush-tournament/cgi-bin/api.py';
+const TOURNAMENT_API='https://web-production-0b074.up.railway.app/tournament';
 let tournamentPlayerAddr='';
 let isTournamentMode=false;
 let tournamentRegistered=false;
@@ -813,6 +813,91 @@ let tournamentGamesRemaining=0; // server-tracked: deposits - games_played
 let tournamentDeposits=0;
 let tournamentTxSig='';
 let tournamentData=null;
+
+// ── Multi-tab tournament lock (BroadcastChannel only) ──
+// Prevents the same wallet from running tournament games in multiple tabs
+const tourneyChannel=(typeof BroadcastChannel!=='undefined')?new BroadcastChannel('rush_tourney'):null;
+let _tourneyLockPending=false;
+let _tourneyLockBlocked=false;
+let _sessionHeartbeatInterval=null;
+function broadcastTourneyLock(addr){
+  if(tourneyChannel)tourneyChannel.postMessage({type:'lock',wallet:addr});
+}
+function broadcastTourneyUnlock(){
+  if(tourneyChannel)tourneyChannel.postMessage({type:'unlock'});
+}
+// Challenge: ask other tabs if this wallet is active, wait 300ms for a reply
+function checkTourneyLockAsync(addr){
+  return new Promise(resolve=>{
+    if(!tourneyChannel){resolve(false);return;}
+    let blocked=false;
+    const handler=function(e){
+      if(e.data.type==='ack_lock'&&e.data.wallet===addr){blocked=true;}
+    };
+    tourneyChannel.addEventListener('message',handler);
+    tourneyChannel.postMessage({type:'check_lock',wallet:addr});
+    setTimeout(()=>{
+      tourneyChannel.removeEventListener('message',handler);
+      resolve(blocked);
+    },350);
+  });
+}
+if(tourneyChannel)tourneyChannel.addEventListener('message',function(e){
+  // If another tab asks if we're active, respond if we are
+  if(e.data.type==='check_lock'&&isTournamentMode&&tournamentGameActive&&e.data.wallet===tournamentPlayerAddr){
+    tourneyChannel.postMessage({type:'ack_lock',wallet:tournamentPlayerAddr});
+  }
+  // If another tab started a tournament with same wallet, warn us
+  if(e.data.type==='lock'&&isTournamentMode&&tournamentGameActive&&e.data.wallet===tournamentPlayerAddr){
+    showToast('⚠️ Tournament session opened in another tab!','#ff3355');
+  }
+});
+window.addEventListener('beforeunload',function(){
+  if(isTournamentMode)broadcastTourneyUnlock();
+  // Release server-side session lock on page close
+  if(tournamentPlayerAddr&&isTournamentMode){
+    try{navigator.sendBeacon(TOURNAMENT_API+'/release-session',JSON.stringify({address:tournamentPlayerAddr}));}catch(e){}
+  }
+});
+
+// ── Server-side session lock helpers ──
+async function claimServerSession(addr){
+  try{
+    const res=await fetch(TOURNAMENT_API+'/claim-session',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:addr})
+    });
+    const data=await res.json();
+    if(res.status===409&&data.code==='SESSION_LOCKED'){
+      return {locked:true,message:data.message||'Wallet already in session on another device.'};
+    }
+    return {locked:false};
+  }catch(e){
+    console.warn('[Session] claim failed',e);
+    return {locked:false};
+  }
+}
+function startSessionHeartbeat(addr){
+  stopSessionHeartbeat();
+  _sessionHeartbeatInterval=setInterval(()=>{
+    fetch(TOURNAMENT_API+'/heartbeat-session',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:addr})
+    }).catch(()=>{});
+  },10000);
+}
+function stopSessionHeartbeat(){
+  if(_sessionHeartbeatInterval){clearInterval(_sessionHeartbeatInterval);_sessionHeartbeatInterval=null;}
+}
+async function releaseServerSession(addr){
+  stopSessionHeartbeat();
+  try{
+    await fetch(TOURNAMENT_API+'/release-session',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({address:addr})
+    });
+  }catch(e){}
+}
 
 // ── Tournament Modal ──
 function openTourneyModal(){
@@ -872,6 +957,12 @@ function tcHideStatus(id){
 async function tcCheckWallet(){
   const addr=document.getElementById('tcWalletInput').value.trim();
   if(!addr||addr.length<32){tcShowStatus('tcWalletStatus','error','Enter a valid Solana wallet address');return;}
+  // Multi-tab lock: block if same wallet is already playing in another tab
+  const otherTabActive=await checkTourneyLockAsync(addr);
+  if(otherTabActive){
+    tcShowStatus('tcWalletStatus','error','This wallet is already in a tournament session in another tab. Finish that game first!');
+    return;
+  }
   const btn=document.getElementById('tcWalletBtn');
   btn.disabled=true;btn.innerHTML='<span class="tc-spinner"></span> VERIFYING...';
   tcHideStatus('tcWalletStatus');
@@ -1354,11 +1445,23 @@ async function checkTournamentPlayerStatus(){
 }
 
 // ── Tournament Game Logic ──
-function startTournamentGame(){
+async function startTournamentGame(){
   if(!tournamentRegistered){showToast('⚠️ Register first!','#ff3355');return;}
   if(tournamentGameUsed||tournamentGamesRemaining<=0){showToast('⚠️ No games left — deposit 1M $RUSH for another play!','#ff8800');return;}
+  // Multi-tab lock: ask other tabs if this wallet is already in a tournament
+  const otherTabActive=await checkTourneyLockAsync(tournamentPlayerAddr);
+  if(otherTabActive){
+    showToast('⚠️ Wallet already in tournament session in another tab!','#ff3355');return;
+  }
+  // Server-side session lock: one wallet, one game across ALL devices
+  const sess=await claimServerSession(tournamentPlayerAddr);
+  if(sess.locked){
+    showToast('⚠️ '+sess.message,'#ff3355');return;
+  }
   isTournamentMode=true;
   tournamentGameActive=true;
+  broadcastTourneyLock(tournamentPlayerAddr);
+  startSessionHeartbeat(tournamentPlayerAddr);
   // Apply gold theme
   document.body.classList.add('tournament-mode');
   // Activate the toggle visually
@@ -1372,6 +1475,8 @@ function startTournamentGame(){
 function exitTournamentMode(){
   isTournamentMode=false;
   tournamentGameActive=false;
+  broadcastTourneyUnlock();
+  releaseServerSession(tournamentPlayerAddr);
   // Don't reset tournamentGameUsed here — player already used their one life for this tournament
   document.body.classList.remove('tournament-mode');
   document.getElementById('tourneyToggle').classList.remove('tourney-active');
@@ -2566,6 +2671,8 @@ function showGameOverScreen(isBust){
     tournamentGamesRemaining=Math.max(0, tournamentGamesRemaining - 1);
     if(tournamentGamesRemaining<=0) tournamentGameUsed=true;
     tournamentGameActive=false;
+    broadcastTourneyUnlock();
+    releaseServerSession(tournamentPlayerAddr);
     // Override title for tournament
     document.getElementById('goTitle').textContent=isBust?'🏆 TOURNAMENT — BUSTED!':'🏆 TOURNAMENT — ROUND OVER';
     // Show VIEW LEADERBOARD button — grade card first, then leaderboard
