@@ -1544,14 +1544,39 @@ document.getElementById('tourneyToggle').addEventListener('click',function(){
   try{
     ogp=new OpenGameSDK({ui:{usePointsWidget:true,theme:'dark'}});
     ogp.on('OnReady',()=>{ogpReady=true;console.log('[TapRush] SDK OnReady fired');});
-    ogp.on('SavePointsSuccess',()=>console.log('[TapRush] Points saved to leaderboard'));
-    ogp.on('SavePointsFailed',(e)=>console.warn('[TapRush] Points save failed',e));
-    ogp.on('SavePointsCancelled',()=>console.warn('[TapRush] Points save cancelled'));
-    ogp.on('SessionStarted',()=>console.log('[TapRush] Session started'));
+    ogp.on('SavePointsSuccess',()=>{
+      console.log('[TapRush] Points saved to leaderboard');
+      showToast('✅ Points saved to play.fun leaderboard!','#00ff88',3000);
+    });
+    ogp.on('SavePointsFailed',(e)=>{
+      console.warn('[TapRush] Points save failed',e);
+      showToast('⚠️ Points save failed — try again after the round','#ff3355',4000);
+    });
+    ogp.on('SavePointsCancelled',()=>{
+      console.warn('[TapRush] Points save cancelled');
+      showToast('⚠️ Points save cancelled — log in to play.fun to keep your points!','#ff8800',5000);
+    });
+    ogp.on('SessionStarted',()=>{
+      console.log('[TapRush] Session started');
+      // Player just logged in — flush any buffered points
+      if(pts>0){console.log('[TapRush] Session started, syncing buffered points');syncOGP();}
+    });
     ogp.on('SessionEnded',()=>console.log('[TapRush] Session ended'));
+    ogp.on('LoginSuccess',()=>{
+      console.log('[TapRush] LoginSuccess — syncing buffered points');
+      if(pts>0)syncOGP();
+    });
     await ogp.init({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66'});
     ogpReady=true;
     console.log('[TapRush] SDK init complete, hasSession:',ogp.hasSession);
+    // If no session, show a gentle reminder after a delay
+    if(!ogp.hasSession){
+      setTimeout(()=>{
+        if(ogp&&!ogp.hasSession){
+          showToast('💡 <span class="hl">Log in to play.fun</span> to save your points to the daily leaderboard!','#f0ff00',6000);
+        }
+      },8000);
+    }
   }catch(e){console.warn('[TapRush] SDK init failed',e);}
 })();
 async function syncOGP(){
@@ -1565,14 +1590,20 @@ async function syncOGP(){
 }
 async function endOGP(){
   if(!ogp||!ogpReady)return;
+  // Log session state for diagnostics
+  console.log('[TapRush] endOGP called, hasSession:',ogp.hasSession,'pts:',pts,'ogpSentTotal:',ogpSentTotal);
   // Push any remaining points delta into SDK buffer before committing
   await syncOGP();
+  if(pts<=0&&ogpSentTotal<=0){
+    console.log('[TapRush] No points to save, skipping endGame');
+    return;
+  }
   try{
     await ogp.endGame();
     console.log('[TapRush] endGame ok');
   }catch(e){
     console.warn('[TapRush] endGame error, retrying once...',e);
-    // Retry once after 5.5s if rate-limited (SDK has 5s cooldown on endGame)
+    // Retry once after 5.5s if SDK rate-limited (5s cooldown)
     try{
       await new Promise(r=>setTimeout(r,5500));
       await syncOGP();
