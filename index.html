@@ -805,6 +805,7 @@ let ogpSentTotal=0; // track cumulative integer points sent to SDK
 
 // ── Tournament Integration ──
 const TOURNAMENT_API='https://web-production-0b074.up.railway.app/tournament';
+const PLAYFUN_API='https://web-production-0b074.up.railway.app/playfun';
 let tournamentPlayerAddr='';
 let isTournamentMode=false;
 let tournamentRegistered=false;
@@ -1590,26 +1591,54 @@ async function syncOGP(){
 }
 async function endOGP(){
   if(!ogp||!ogpReady)return;
-  // Log session state for diagnostics
-  console.log('[TapRush] endOGP called, hasSession:',ogp.hasSession,'pts:',pts,'ogpSentTotal:',ogpSentTotal);
-  // Push any remaining points delta into SDK buffer before committing
-  await syncOGP();
-  if(pts<=0&&ogpSentTotal<=0){
-    console.log('[TapRush] No points to save, skipping endGame');
+  const pointsToSave=Math.floor(pts);
+  console.log('[TapRush] endOGP called, hasSession:',ogp.hasSession,'pts:',pts,'ogpSentTotal:',ogpSentTotal,'pointsToSave:',pointsToSave);
+  if(pointsToSave<=0){
+    console.log('[TapRush] No points to save, skipping');
     return;
   }
-  try{
-    await ogp.endGame();
-    console.log('[TapRush] endGame ok');
-  }catch(e){
-    console.warn('[TapRush] endGame error, retrying once...',e);
-    // Retry once after 5.5s if SDK rate-limited (5s cooldown)
+  // ─── Hybrid Integration: save points via server-side API ───
+  // With serverSideValidation:true, the client SDK cannot flush/commit.
+  // Instead we send the session token + points to our Railway backend,
+  // which validates the token and saves via play.fun dev API (HMAC auth).
+  const token=ogp.sessionToken;
+  if(!token){
+    console.warn('[TapRush] No session token — player not logged in. Calling endGame() to trigger login prompt.');
+    // Fall back to SDK endGame which will prompt login, then we retry server-side
     try{
-      await new Promise(r=>setTimeout(r,5500));
-      await syncOGP();
       await ogp.endGame();
-      console.log('[TapRush] endGame retry ok');
-    }catch(e2){console.warn('[TapRush] endGame retry also failed',e2);}
+    }catch(e){
+      console.warn('[TapRush] endGame fallback error:',e);
+    }
+    return;
+  }
+  console.log('[TapRush] Saving',pointsToSave,'points via hybrid server-side integration');
+  try{
+    const resp=await fetch(PLAYFUN_API+'/save-points',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        sessionToken:token,
+        points:pointsToSave,
+        playerId:token // server extracts ogpId from validated token
+      })
+    });
+    const data=await resp.json();
+    if(resp.ok&&data.success){
+      console.log('[TapRush] Server-side save OK:',data);
+      showToast('✅ '+pointsToSave+' points saved to play.fun leaderboard!','#00ff88',3000);
+      // Sync the widget to reflect the server-saved points
+      try{await ogp.refreshPointsAndMultiplier();console.log('[TapRush] Widget refreshed');}catch(e){console.warn('[TapRush] Widget refresh error:',e);}
+    }else{
+      console.warn('[TapRush] Server-side save failed:',data);
+      showToast('⚠️ Points save failed: '+(data.error||'unknown'),'#ff3355',4000);
+      // Fallback: try SDK endGame (may prompt login)
+      try{await ogp.endGame();}catch(e2){console.warn('[TapRush] endGame fallback error:',e2);}
+    }
+  }catch(netErr){
+    console.error('[TapRush] Network error saving points:',netErr);
+    showToast('⚠️ Network error saving points — trying SDK fallback','#ff8800',4000);
+    try{await ogp.endGame();}catch(e2){console.warn('[TapRush] endGame fallback error:',e2);}
   }
 }
 
