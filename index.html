@@ -855,9 +855,20 @@ if(tourneyChannel)tourneyChannel.addEventListener('message',function(e){
 });
 window.addEventListener('beforeunload',function(){
   if(isTournamentMode)broadcastTourneyUnlock();
+  // Flush any buffered points to play.fun SDK on page close
+  // SDK's own _onPageHide handles flush+commit, but we ensure syncOGP is called first
+  if(ogp&&ogpReady&&pts>0){
+    try{syncOGP();}catch(e){}
+  }
   // Release server-side session lock on page close
   if(tournamentPlayerAddr&&isTournamentMode){
     try{navigator.sendBeacon(TOURNAMENT_API+'/release-session',JSON.stringify({address:tournamentPlayerAddr}));}catch(e){}
+  }
+});
+// Flush points to SDK when tab goes hidden (backup for beforeunload)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'&&ogp&&ogpReady&&pts>0){
+    try{syncOGP();}catch(e){}
   }
 });
 
@@ -1556,7 +1567,19 @@ async function endOGP(){
   if(!ogp||!ogpReady)return;
   // Push any remaining points delta into SDK buffer before committing
   await syncOGP();
-  try{await ogp.endGame();console.log('[TapRush] endGame ok');}catch(e){console.warn('[TapRush] endGame error',e);}
+  try{
+    await ogp.endGame();
+    console.log('[TapRush] endGame ok');
+  }catch(e){
+    console.warn('[TapRush] endGame error, retrying once...',e);
+    // Retry once after 5.5s if rate-limited (SDK has 5s cooldown on endGame)
+    try{
+      await new Promise(r=>setTimeout(r,5500));
+      await syncOGP();
+      await ogp.endGame();
+      console.log('[TapRush] endGame retry ok');
+    }catch(e2){console.warn('[TapRush] endGame retry also failed',e2);}
+  }
 }
 
 // CANVAS
@@ -2660,7 +2683,8 @@ function showGameOverScreen(isBust){
   document.getElementById('sessionCountDisplay').textContent=sessionCount+'/'+'5';
   if(sessionCount>5){showSessionNotice('⚠️ Session '+sessionCount+' — leaderboard only counts first 5! Points from here on are just for fun.','#ff8800');}
   else if(sessionCount===5){showSessionNotice('🎯 This was your LAST session that counts for the leaderboard! You can keep playing but only the first 5 sessions count.','#f0ff00');}
-  endOGP();
+  console.log('[TapRush] showGameOverScreen: pts=',pts,'ogpSentTotal=',ogpSentTotal,'hasSession=',ogp?ogp.hasSession:'no-ogp');
+  endOGP(); // async — SDK handles flush+commit+save modal
   const el=Math.floor((Date.now()-gameStart)/1000);const wr=totalBets>0?(totalWins/totalBets*100).toFixed(1):0;
   let grade='F';if(pts>=5000)grade='S';else if(pts>=2000)grade='A';else if(pts>=1000)grade='B';else if(pts>=500)grade='C';else if(pts>=200)grade='D';
   document.getElementById('goGrade').textContent=grade;document.getElementById('goGrade').className='go-grade '+grade;
