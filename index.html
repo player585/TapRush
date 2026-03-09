@@ -662,9 +662,9 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tc-pool" id="tcPool">0 RUSH</div>
     <div style="font-size:10px;color:var(--gray);text-align:center" id="tcEntries">0 players</div>
     <div class="tc-prize">
-      <div class="tc-prize-item"><div class="place" style="color:#ffd700">1ST</div><div class="pct" id="tcPay1">70%</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#ffd700">1ST</div><div class="pct" id="tcPay1">80%</div></div>
       <div class="tc-prize-item"><div class="place" style="color:#c0c0c0">2ND</div><div class="pct" id="tcPay2">20%</div></div>
-      <div class="tc-prize-item"><div class="place" style="color:#cd7f32">3RD</div><div class="pct" id="tcPay3">10%</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#cd7f32">3RD</div><div class="pct" id="tcPay3">--</div></div>
     </div>
   </div>
 
@@ -728,7 +728,7 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tc-registered">
       <div class="badge">✓ YOU'RE IN</div>
       <p style="font-size:12px;color:var(--white);margin-top:8px;line-height:1.6;font-weight:600">ONE LIFE. ONE GAME. MAKE IT COUNT.</p>
-      <p style="font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5">Hit the button below to start. You get <strong style="color:#ffd700">one game</strong> — your final score (bust or cashout) is your tournament entry. Top 3 split the prize pool.</p>
+      <p style="font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5">Hit the button below to start. You get <strong style="color:#ffd700">one game</strong> — your final score (bust or cashout) is your tournament entry. Top 2 split the prize pool (1st 80%, 2nd 20%). Solo player gets a refund.</p>
       <button class="tc-btn tc-btn-gold" style="margin-top:12px" onclick="closeTourneyModal();startTournamentGame();">🏆 START TOURNAMENT GAME</button>
       <button class="tc-btn" style="margin-top:8px;background:rgba(255,255,255,0.05);border-color:rgba(255,215,0,0.3);color:#ffd700" onclick="closeTourneyModal();tlbShowCasual();">📊 VIEW LEADERBOARD</button>
     </div>
@@ -779,9 +779,9 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tlb-empty" id="tlbEmpty" style="display:none">No scores submitted yet. Be the first!</div>
   </div>
   <div class="tlb-payouts">
-    <div class="tlb-payout-item gold"><span>1ST</span><span id="tlbPay1">70%</span></div>
+    <div class="tlb-payout-item gold"><span>1ST</span><span id="tlbPay1">80%</span></div>
     <div class="tlb-payout-item silver"><span>2ND</span><span id="tlbPay2">20%</span></div>
-    <div class="tlb-payout-item bronze"><span>3RD</span><span id="tlbPay3">10%</span></div>
+    <div class="tlb-payout-item bronze"><span>3RD</span><span id="tlbPay3">--</span></div>
   </div>
   <div class="tlb-actions">
     <button class="go-btn primary" id="tlbPlayAgain" onclick="tlbClose()">⚡ CLOSE</button>
@@ -947,10 +947,13 @@ async function fetchTournamentInfo(){
 }
 
 function getAdjustedPayouts(numEntries, pool){
-  // Adjust payout split based on number of entrants
-  if(numEntries<=1) return {splits:[1,0,0],labels:['100%','--','--']};
-  if(numEntries===2) return {splits:[0.75,0.25,0],labels:['75%','25%','--']};
-  return {splits:[0.70,0.20,0.10],labels:['70%','20%','10%']};
+  // Dynamic payout splits:
+  // 1 player  = refund
+  // 2 players = 1st 100%
+  // 3+ players = 1st 80%, 2nd 20%
+  if(numEntries<=1) return {splits:[1,0,0],labels:['REFUND','--','--']};
+  if(numEntries===2) return {splits:[1,0,0],labels:['100%','--','--']};
+  return {splits:[0.80,0.20,0],labels:['80%','20%','--']};
 }
 
 function tcShowStep(stepId){
