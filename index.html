@@ -21,8 +21,7 @@ html,body{height:100%;overflow:hidden;background:#000;color:var(--white);font-fa
 body{display:flex;flex-direction:column}
 
 /* PICTURE FRAME — isolates game from host page chrome */
-#gameFrame{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:2px solid rgba(0,240,255,0.12);border-radius:4px;position:relative;box-shadow:inset 0 0 30px rgba(0,0,0,0.3)}
-#gameFrame::before{content:'';position:absolute;inset:0;border:1px solid rgba(0,240,255,0.04);border-radius:3px;pointer-events:none;z-index:999}
+#gameFrame{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:2px solid rgba(0,240,255,0.15);border-radius:6px;position:relative;box-shadow:0 0 20px rgba(0,240,255,0.05),inset 0 0 30px rgba(0,0,0,0.3)}
 
 /* TICKER */
 #ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
@@ -279,8 +278,7 @@ body.mobile-mode .ticker-track{font-size:9px}
 body.mobile-mode .header-right{gap:5px}
 body.mobile-mode .pair-label{font-size:10px;letter-spacing:0.5px}
 body.mobile-mode #headerPrice{font-size:11px}
-body.mobile-mode #sdkSpacer{height:0px}
-body.mobile-mode #gameFrame{border-width:1px;border-radius:2px}
+body.mobile-mode #gameFrame{border-width:1px;border-radius:3px}
 body.mobile-mode .header-tabs button{padding:3px 8px;font-size:9px}
 
 /* Mobile toggle switch */
@@ -467,7 +465,7 @@ body.mobile-mode #pointsSection{display:none}
 </style>
 </head>
 <body>
-<div id="sdkSpacer" style="height:50px;flex-shrink:0;background:#000"></div>
+<div id="sdkSpacer" style="height:80px;flex-shrink:0;background:#000"></div>
 <div id="sdkSpacerBottom" style="order:999;height:0px;flex-shrink:0;background:#000"></div>
 <div id="gameFrame">
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
@@ -2892,67 +2890,75 @@ function setMode(mobile){
 }
 
 // ===== PICTURE FRAME: Dynamic spacer adjustment =====
-// Automatically detects play.fun's header overlay and sizes the spacer to match.
-// Scans for any element overlapping the top of our game that isn't ours.
+// Detects play.fun host page chrome and adjusts spacers so game content
+// is never hidden behind headers or footers.
+var _lastTopH = -1, _lastBotH = -1;
 function adjustFrameSpacers(){
   var topSpacer = document.getElementById('sdkSpacer');
   var bottomSpacer = document.getElementById('sdkSpacerBottom');
-  var frame = document.getElementById('gameFrame');
-  if(!topSpacer||!frame) return;
-  try {
-    // Strategy: find the tallest non-game element overlapping the top of the viewport
-    // play.fun injects headers with position:fixed or position:sticky at top
-    var maxOverlap = 0;
-    var fixedEls = document.querySelectorAll('body > *');
-    for(var i=0;i<fixedEls.length;i++){
-      var el = fixedEls[i];
-      // Skip our own elements
-      if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
-      var style = window.getComputedStyle(el);
-      if(style.position==='fixed'||style.position==='sticky'||style.position==='absolute'){
-        var rect = el.getBoundingClientRect();
-        if(rect.top < 100 && rect.height > 10){
-          maxOverlap = Math.max(maxOverlap, rect.bottom);
-        }
-      }
+  if(!topSpacer) return;
+
+  var topH = 0, botH = 0;
+
+  // 1) Scan ALL elements outside #gameFrame for overlays
+  var allEls = document.querySelectorAll('body *');
+  var gameFrame = document.getElementById('gameFrame');
+  for(var i = 0; i < allEls.length; i++){
+    var el = allEls[i];
+    // Skip anything inside our game
+    if(gameFrame && gameFrame.contains(el)) continue;
+    if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
+    if(el.tagName==='SCRIPT'||el.tagName==='STYLE'||el.tagName==='LINK'||el.tagName==='META') continue;
+    var st = window.getComputedStyle(el);
+    // Only care about fixed/sticky/absolute positioned overlays
+    if(st.position!=='fixed'&&st.position!=='sticky'&&st.position!=='absolute') continue;
+    if(st.display==='none'||st.visibility==='hidden'||parseFloat(st.opacity)===0) continue;
+    var rect = el.getBoundingClientRect();
+    if(rect.width < 50 || rect.height < 10) continue; // skip tiny elements
+    // Top overlay
+    if(rect.top < window.innerHeight * 0.3 && rect.height > 10){
+      topH = Math.max(topH, rect.bottom);
     }
-    // Also check for play.fun's known class patterns
-    var pfHeader = document.querySelector('[class*="header"], [class*="toolbar"], [class*="topbar"], [class*="nav-bar"]');
-    if(pfHeader && pfHeader.closest('#gameFrame')===null){
-      var r = pfHeader.getBoundingClientRect();
-      if(r.top < 100 && r.height > 10) maxOverlap = Math.max(maxOverlap, r.bottom);
+    // Bottom overlay
+    if(rect.bottom > window.innerHeight * 0.7 && rect.top > window.innerHeight * 0.5){
+      botH = Math.max(botH, window.innerHeight - rect.top);
     }
-    // Apply with a small margin
-    if(maxOverlap > 5){
-      topSpacer.style.height = Math.ceil(maxOverlap + 2) + 'px';
-    } else {
-      // No overlay detected — use safe default based on context
-      topSpacer.style.height = (window.self !== window.top) ? '50px' : '0px';
+  }
+
+  // 2) Fallback: if nothing detected but we know we're embedded
+  //    (play.fun loads our page in a container, not iframe)
+  if(topH < 5){
+    // Check if there's a play.fun SDK loaded (it sets window.OpenGameSDK or similar)
+    if(typeof window.OpenGameSDK !== 'undefined' || document.querySelector('script[src*="sdk.play.fun"]')){
+      // SDK is loaded, play.fun will overlay their header — use safe minimum
+      topH = isMobileMode ? 80 : 56;
     }
-    // Bottom: check for any fixed bottom bars from play.fun
-    var maxBottom = 0;
-    for(var i=0;i<fixedEls.length;i++){
-      var el = fixedEls[i];
-      if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
-      var style = window.getComputedStyle(el);
-      if(style.position==='fixed'){
-        var rect = el.getBoundingClientRect();
-        if(rect.bottom > window.innerHeight - 80 && rect.top > window.innerHeight/2){
-          maxBottom = Math.max(maxBottom, window.innerHeight - rect.top);
-        }
-      }
-    }
-    bottomSpacer.style.height = maxBottom > 5 ? Math.ceil(maxBottom + 2) + 'px' : '0px';
-  } catch(e){
-    topSpacer.style.height = '50px';
+  }
+
+  // 3) Round up and apply (with 4px breathing room)
+  topH = topH > 5 ? Math.ceil(topH + 4) : 0;
+  botH = botH > 5 ? Math.ceil(botH + 4) : 0;
+
+  // Only update DOM if values changed (avoid layout thrash)
+  if(topH !== _lastTopH){
+    topSpacer.style.height = topH + 'px';
+    _lastTopH = topH;
+  }
+  if(bottomSpacer && botH !== _lastBotH){
+    bottomSpacer.style.height = botH + 'px';
+    _lastBotH = botH;
   }
 }
-// Run on load, resize, and periodically (play.fun may inject elements after load)
-window.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 100); });
-setTimeout(adjustFrameSpacers, 300);
-setTimeout(adjustFrameSpacers, 1000);
-setTimeout(adjustFrameSpacers, 3000);
-setTimeout(adjustFrameSpacers, 6000);
+// Run on load, resize, and periodically (play.fun injects elements after our JS runs)
+window.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 50); });
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 50); });
+}
+setTimeout(adjustFrameSpacers, 200);
+setTimeout(adjustFrameSpacers, 800);
+setTimeout(adjustFrameSpacers, 2000);
+setTimeout(adjustFrameSpacers, 5000);
+setTimeout(adjustFrameSpacers, 10000);
 
 document.getElementById('modeToggle').addEventListener('click',function(){
   setMode(!isMobileMode);
