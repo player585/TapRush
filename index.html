@@ -17,8 +17,12 @@
 --red:#ff3355;--orange:#ff8800;--white:#e8e8f0;--gray:#777790;
 --font-head:'Orbitron',sans-serif;--font-mono:'JetBrains Mono',monospace;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--white);font-family:var(--font-mono)}
+html,body{height:100%;overflow:hidden;background:#000;color:var(--white);font-family:var(--font-mono)}
 body{display:flex;flex-direction:column}
+
+/* PICTURE FRAME — isolates game from host page chrome */
+#gameFrame{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:2px solid rgba(0,240,255,0.12);border-radius:4px;position:relative;box-shadow:inset 0 0 30px rgba(0,0,0,0.3)}
+#gameFrame::before{content:'';position:absolute;inset:0;border:1px solid rgba(0,240,255,0.04);border-radius:3px;pointer-events:none;z-index:999}
 
 /* TICKER */
 #ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
@@ -275,7 +279,8 @@ body.mobile-mode .ticker-track{font-size:9px}
 body.mobile-mode .header-right{gap:5px}
 body.mobile-mode .pair-label{font-size:10px;letter-spacing:0.5px}
 body.mobile-mode #headerPrice{font-size:11px}
-body.mobile-mode #sdkSpacer{height:44px}
+body.mobile-mode #sdkSpacer{height:0px}
+body.mobile-mode #gameFrame{border-width:1px;border-radius:2px}
 body.mobile-mode .header-tabs button{padding:3px 8px;font-size:9px}
 
 /* Mobile toggle switch */
@@ -462,7 +467,9 @@ body.mobile-mode #pointsSection{display:none}
 </style>
 </head>
 <body>
-<div id="sdkSpacer" style="height:50px;flex-shrink:0;background:var(--bg)"></div>
+<div id="sdkSpacer" style="height:50px;flex-shrink:0;background:#000"></div>
+<div id="sdkSpacerBottom" style="order:999;height:0px;flex-shrink:0;background:#000"></div>
+<div id="gameFrame">
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
 <div id="clockBar">
   <div class="clock-left"><span class="clock-label">PST</span><span class="clock-time" id="clockTime">--:--:-- --</span></div>
@@ -662,9 +669,9 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tc-pool" id="tcPool">0 RUSH</div>
     <div style="font-size:10px;color:var(--gray);text-align:center" id="tcEntries">0 players</div>
     <div class="tc-prize">
-      <div class="tc-prize-item"><div class="place" style="color:#ffd700">1ST</div><div class="pct" id="tcPay1">80%</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#ffd700">1ST</div><div class="pct" id="tcPay1">70%</div></div>
       <div class="tc-prize-item"><div class="place" style="color:#c0c0c0">2ND</div><div class="pct" id="tcPay2">20%</div></div>
-      <div class="tc-prize-item"><div class="place" style="color:#cd7f32">3RD</div><div class="pct" id="tcPay3">--</div></div>
+      <div class="tc-prize-item"><div class="place" style="color:#cd7f32">3RD</div><div class="pct" id="tcPay3">10%</div></div>
     </div>
   </div>
 
@@ -728,7 +735,7 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tc-registered">
       <div class="badge">✓ YOU'RE IN</div>
       <p style="font-size:12px;color:var(--white);margin-top:8px;line-height:1.6;font-weight:600">ONE LIFE. ONE GAME. MAKE IT COUNT.</p>
-      <p style="font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5">Hit the button below to start. You get <strong style="color:#ffd700">one game</strong> — your final score (bust or cashout) is your tournament entry. Top 2 split the prize pool (1st 80%, 2nd 20%). Solo player gets a refund.</p>
+      <p style="font-size:11px;color:var(--gray);margin-top:4px;line-height:1.5">Hit the button below to start. You get <strong style="color:#ffd700">one game</strong> — your final score (bust or cashout) is your tournament entry. Top 3 split the prize pool.</p>
       <button class="tc-btn tc-btn-gold" style="margin-top:12px" onclick="closeTourneyModal();startTournamentGame();">🏆 START TOURNAMENT GAME</button>
       <button class="tc-btn" style="margin-top:8px;background:rgba(255,255,255,0.05);border-color:rgba(255,215,0,0.3);color:#ffd700" onclick="closeTourneyModal();tlbShowCasual();">📊 VIEW LEADERBOARD</button>
     </div>
@@ -779,9 +786,9 @@ body.mobile-mode #pointsSection{display:none}
     <div class="tlb-empty" id="tlbEmpty" style="display:none">No scores submitted yet. Be the first!</div>
   </div>
   <div class="tlb-payouts">
-    <div class="tlb-payout-item gold"><span>1ST</span><span id="tlbPay1">80%</span></div>
+    <div class="tlb-payout-item gold"><span>1ST</span><span id="tlbPay1">70%</span></div>
     <div class="tlb-payout-item silver"><span>2ND</span><span id="tlbPay2">20%</span></div>
-    <div class="tlb-payout-item bronze"><span>3RD</span><span id="tlbPay3">--</span></div>
+    <div class="tlb-payout-item bronze"><span>3RD</span><span id="tlbPay3">10%</span></div>
   </div>
   <div class="tlb-actions">
     <button class="go-btn primary" id="tlbPlayAgain" onclick="tlbClose()">⚡ CLOSE</button>
@@ -790,6 +797,7 @@ body.mobile-mode #pointsSection{display:none}
   <div class="tlb-refresh-note">Auto-refreshes every 15s</div>
 </div>
 </div>
+</div><!-- /gameFrame -->
 
 <script src="https://sdk.play.fun"></script>
 <script src="https://unpkg.com/@solana/web3.js@1/lib/index.iife.min.js"></script>
@@ -805,7 +813,6 @@ let ogpSentTotal=0; // track cumulative integer points sent to SDK
 
 // ── Tournament Integration ──
 const TOURNAMENT_API='https://web-production-0b074.up.railway.app/tournament';
-const PLAYFUN_API='https://web-production-0b074.up.railway.app/playfun';
 let tournamentPlayerAddr='';
 let isTournamentMode=false;
 let tournamentRegistered=false;
@@ -856,20 +863,9 @@ if(tourneyChannel)tourneyChannel.addEventListener('message',function(e){
 });
 window.addEventListener('beforeunload',function(){
   if(isTournamentMode)broadcastTourneyUnlock();
-  // Flush any buffered points to play.fun SDK on page close
-  // SDK's own _onPageHide handles flush+commit, but we ensure syncOGP is called first
-  if(ogp&&ogpReady&&pts>0){
-    try{syncOGP();}catch(e){}
-  }
   // Release server-side session lock on page close
   if(tournamentPlayerAddr&&isTournamentMode){
     try{navigator.sendBeacon(TOURNAMENT_API+'/release-session',JSON.stringify({address:tournamentPlayerAddr}));}catch(e){}
-  }
-});
-// Flush points to SDK when tab goes hidden (backup for beforeunload)
-document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='hidden'&&ogp&&ogpReady&&pts>0){
-    try{syncOGP();}catch(e){}
   }
 });
 
@@ -947,13 +943,10 @@ async function fetchTournamentInfo(){
 }
 
 function getAdjustedPayouts(numEntries, pool){
-  // Dynamic payout splits:
-  // 1 player  = refund
-  // 2 players = 1st 100%
-  // 3+ players = 1st 80%, 2nd 20%
-  if(numEntries<=1) return {splits:[1,0,0],labels:['REFUND','--','--']};
-  if(numEntries===2) return {splits:[1,0,0],labels:['100%','--','--']};
-  return {splits:[0.80,0.20,0],labels:['80%','20%','--']};
+  // Adjust payout split based on number of entrants
+  if(numEntries<=1) return {splits:[1,0,0],labels:['100%','--','--']};
+  if(numEntries===2) return {splits:[0.75,0.25,0],labels:['75%','25%','--']};
+  return {splits:[0.70,0.20,0.10],labels:['70%','20%','10%']};
 }
 
 function tcShowStep(stepId){
@@ -1546,103 +1539,28 @@ document.getElementById('tourneyToggle').addEventListener('click',function(){
 });
 (async function initSDK(){
   try{
-    ogp=new OpenGameSDK({ui:{usePointsWidget:true,theme:'dark'}});
-    ogp.on('OnReady',()=>{ogpReady=true;console.log('[TapRush] SDK OnReady fired');});
-    ogp.on('SavePointsSuccess',()=>{
-      console.log('[TapRush] Points saved to leaderboard');
-      showToast('✅ Points saved to play.fun leaderboard!','#00ff88',3000);
-    });
-    ogp.on('SavePointsFailed',(e)=>{
-      console.warn('[TapRush] Points save failed',e);
-      showToast('⚠️ Points save failed — try again after the round','#ff3355',4000);
-    });
-    ogp.on('SavePointsCancelled',()=>{
-      console.warn('[TapRush] Points save cancelled');
-      showToast('⚠️ Points save cancelled — log in to play.fun to keep your points!','#ff8800',5000);
-    });
-    ogp.on('SessionStarted',()=>{
-      console.log('[TapRush] Session started');
-      // Player just logged in — flush any buffered points
-      if(pts>0){console.log('[TapRush] Session started, syncing buffered points');syncOGP();}
-    });
-    ogp.on('SessionEnded',()=>console.log('[TapRush] Session ended'));
-    ogp.on('LoginSuccess',()=>{
-      console.log('[TapRush] LoginSuccess — syncing buffered points');
-      if(pts>0)syncOGP();
-    });
-    await ogp.init({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66'});
+    ogp=new OpenGameSDK({gameId:'4b568177-ec1b-4976-9cbc-582f35096f66',ui:{usePointsWidget:true,theme:'dark'}});
+    await ogp.init();
     ogpReady=true;
-    console.log('[TapRush] SDK init complete, hasSession:',ogp.hasSession);
-    // If no session, show a gentle reminder after a delay
-    if(!ogp.hasSession){
-      setTimeout(()=>{
-        if(ogp&&!ogp.hasSession){
-          showToast('💡 <span class="hl">Log in to play.fun</span> to save your points to the daily leaderboard!','#f0ff00',6000);
-        }
-      },8000);
-    }
+    console.log('[TapRush] SDK ready');
+    ogp.on('SavePointsSuccess',()=>console.log('[TapRush] Points saved to leaderboard'));
+    ogp.on('SavePointsFailed',(e)=>console.warn('[TapRush] Points save failed',e));
+    ogp.on('SavePointsCancelled',()=>console.warn('[TapRush] Points save cancelled'));
   }catch(e){console.warn('[TapRush] SDK init failed',e);}
 })();
-async function syncOGP(){
+function syncOGP(){
   if(!ogp||!ogpReady)return;
   const target=Math.floor(pts);
   const delta=target-ogpSentTotal;
   if(delta>0){
-    ogpSentTotal=target; // update immediately to prevent duplicate sends from rapid calls
-    try{await ogp.addPoints(delta);console.log('[TapRush] addPoints ok, sent:',delta,'total:',ogpSentTotal);}catch(e){console.warn('[TapRush] addPoints error',e);ogpSentTotal-=delta;} // rollback on failure
+    try{ogp.addPoints(delta);ogpSentTotal=target;}catch(e){console.warn('[TapRush] addPoints error',e);}
   }
 }
 async function endOGP(){
   if(!ogp||!ogpReady)return;
-  const pointsToSave=Math.floor(pts);
-  console.log('[TapRush] endOGP called, hasSession:',ogp.hasSession,'pts:',pts,'ogpSentTotal:',ogpSentTotal,'pointsToSave:',pointsToSave);
-  if(pointsToSave<=0){
-    console.log('[TapRush] No points to save, skipping');
-    return;
-  }
-  // ─── Hybrid Integration: save points via server-side API ───
-  // With serverSideValidation:true, the client SDK cannot flush/commit.
-  // Instead we send the session token + points to our Railway backend,
-  // which validates the token and saves via play.fun dev API (HMAC auth).
-  const token=ogp.sessionToken;
-  if(!token){
-    console.warn('[TapRush] No session token — player not logged in. Calling endGame() to trigger login prompt.');
-    // Fall back to SDK endGame which will prompt login, then we retry server-side
-    try{
-      await ogp.endGame();
-    }catch(e){
-      console.warn('[TapRush] endGame fallback error:',e);
-    }
-    return;
-  }
-  console.log('[TapRush] Saving',pointsToSave,'points via hybrid server-side integration');
-  try{
-    const resp=await fetch(PLAYFUN_API+'/save-points',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        sessionToken:token,
-        points:pointsToSave,
-        playerId:token // server extracts ogpId from validated token
-      })
-    });
-    const data=await resp.json();
-    if(resp.ok&&data.success){
-      console.log('[TapRush] Server-side save OK:',data);
-      showToast('✅ '+pointsToSave+' points saved to play.fun leaderboard!','#00ff88',3000);
-      // Sync the widget to reflect the server-saved points
-      try{await ogp.refreshPointsAndMultiplier();console.log('[TapRush] Widget refreshed');}catch(e){console.warn('[TapRush] Widget refresh error:',e);}
-    }else{
-      console.warn('[TapRush] Server-side save failed:',data);
-      showToast('⚠️ Points save failed: '+(data.error||'unknown'),'#ff3355',4000);
-      // Fallback: try SDK endGame (may prompt login)
-      try{await ogp.endGame();}catch(e2){console.warn('[TapRush] endGame fallback error:',e2);}
-    }
-  }catch(netErr){
-    console.error('[TapRush] Network error saving points:',netErr);
-    showToast('⚠️ Network error saving points — trying SDK fallback','#ff8800',4000);
-    try{await ogp.endGame();}catch(e2){console.warn('[TapRush] endGame fallback error:',e2);}
-  }
+  // Push any remaining points delta into SDK buffer before committing
+  syncOGP();
+  try{await ogp.endGame();}catch(e){console.warn('[TapRush] endGame error',e);}
 }
 
 // CANVAS
@@ -2746,8 +2664,7 @@ function showGameOverScreen(isBust){
   document.getElementById('sessionCountDisplay').textContent=sessionCount+'/'+'5';
   if(sessionCount>5){showSessionNotice('⚠️ Session '+sessionCount+' — leaderboard only counts first 5! Points from here on are just for fun.','#ff8800');}
   else if(sessionCount===5){showSessionNotice('🎯 This was your LAST session that counts for the leaderboard! You can keep playing but only the first 5 sessions count.','#f0ff00');}
-  console.log('[TapRush] showGameOverScreen: pts=',pts,'ogpSentTotal=',ogpSentTotal,'hasSession=',ogp?ogp.hasSession:'no-ogp');
-  endOGP(); // async — SDK handles flush+commit+save modal
+  endOGP();
   const el=Math.floor((Date.now()-gameStart)/1000);const wr=totalBets>0?(totalWins/totalBets*100).toFixed(1):0;
   let grade='F';if(pts>=5000)grade='S';else if(pts>=2000)grade='A';else if(pts>=1000)grade='B';else if(pts>=500)grade='C';else if(pts>=200)grade='D';
   document.getElementById('goGrade').textContent=grade;document.getElementById('goGrade').className='go-grade '+grade;
@@ -2970,9 +2887,73 @@ function setMode(mobile){
     closeMobileSheet();
   }
   // Re-resize canvas after mode switch
-  setTimeout(()=>{resize();recalcGridRanges();remapBetRows();},50);
-  setTimeout(()=>{resize();recalcGridRanges();remapBetRows();},200);
+  setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},50);
+  setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},200);
 }
+
+// ===== PICTURE FRAME: Dynamic spacer adjustment =====
+// Automatically detects play.fun's header overlay and sizes the spacer to match.
+// Scans for any element overlapping the top of our game that isn't ours.
+function adjustFrameSpacers(){
+  var topSpacer = document.getElementById('sdkSpacer');
+  var bottomSpacer = document.getElementById('sdkSpacerBottom');
+  var frame = document.getElementById('gameFrame');
+  if(!topSpacer||!frame) return;
+  try {
+    // Strategy: find the tallest non-game element overlapping the top of the viewport
+    // play.fun injects headers with position:fixed or position:sticky at top
+    var maxOverlap = 0;
+    var fixedEls = document.querySelectorAll('body > *');
+    for(var i=0;i<fixedEls.length;i++){
+      var el = fixedEls[i];
+      // Skip our own elements
+      if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
+      var style = window.getComputedStyle(el);
+      if(style.position==='fixed'||style.position==='sticky'||style.position==='absolute'){
+        var rect = el.getBoundingClientRect();
+        if(rect.top < 100 && rect.height > 10){
+          maxOverlap = Math.max(maxOverlap, rect.bottom);
+        }
+      }
+    }
+    // Also check for play.fun's known class patterns
+    var pfHeader = document.querySelector('[class*="header"], [class*="toolbar"], [class*="topbar"], [class*="nav-bar"]');
+    if(pfHeader && pfHeader.closest('#gameFrame')===null){
+      var r = pfHeader.getBoundingClientRect();
+      if(r.top < 100 && r.height > 10) maxOverlap = Math.max(maxOverlap, r.bottom);
+    }
+    // Apply with a small margin
+    if(maxOverlap > 5){
+      topSpacer.style.height = Math.ceil(maxOverlap + 2) + 'px';
+    } else {
+      // No overlay detected — use safe default based on context
+      topSpacer.style.height = (window.self !== window.top) ? '50px' : '0px';
+    }
+    // Bottom: check for any fixed bottom bars from play.fun
+    var maxBottom = 0;
+    for(var i=0;i<fixedEls.length;i++){
+      var el = fixedEls[i];
+      if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
+      var style = window.getComputedStyle(el);
+      if(style.position==='fixed'){
+        var rect = el.getBoundingClientRect();
+        if(rect.bottom > window.innerHeight - 80 && rect.top > window.innerHeight/2){
+          maxBottom = Math.max(maxBottom, window.innerHeight - rect.top);
+        }
+      }
+    }
+    bottomSpacer.style.height = maxBottom > 5 ? Math.ceil(maxBottom + 2) + 'px' : '0px';
+  } catch(e){
+    topSpacer.style.height = '50px';
+  }
+}
+// Run on load, resize, and periodically (play.fun may inject elements after load)
+window.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 100); });
+setTimeout(adjustFrameSpacers, 300);
+setTimeout(adjustFrameSpacers, 1000);
+setTimeout(adjustFrameSpacers, 3000);
+setTimeout(adjustFrameSpacers, 6000);
+
 document.getElementById('modeToggle').addEventListener('click',function(){
   setMode(!isMobileMode);
 });
