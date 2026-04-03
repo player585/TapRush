@@ -465,8 +465,8 @@ body.mobile-mode #pointsSection{display:none}
 </style>
 </head>
 <body>
-<div id="sdkSpacer" style="height:80px;flex-shrink:0;background:#000"></div>
-<div id="sdkSpacerBottom" style="order:999;height:0px;flex-shrink:0;background:#000"></div>
+<div id="sdkSpacer" style="height:90px;flex-shrink:0;background:#000"></div>
+<div id="sdkSpacerBottom" style="order:999;height:40px;flex-shrink:0;background:#000"></div>
 <div id="gameFrame">
 <div id="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
 <div id="clockBar">
@@ -2889,76 +2889,9 @@ function setMode(mobile){
   setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},200);
 }
 
-// ===== PICTURE FRAME: Dynamic spacer adjustment =====
-// Detects play.fun host page chrome and adjusts spacers so game content
-// is never hidden behind headers or footers.
-var _lastTopH = -1, _lastBotH = -1;
-function adjustFrameSpacers(){
-  var topSpacer = document.getElementById('sdkSpacer');
-  var bottomSpacer = document.getElementById('sdkSpacerBottom');
-  if(!topSpacer) return;
-
-  var topH = 0, botH = 0;
-
-  // 1) Scan ALL elements outside #gameFrame for overlays
-  var allEls = document.querySelectorAll('body *');
-  var gameFrame = document.getElementById('gameFrame');
-  for(var i = 0; i < allEls.length; i++){
-    var el = allEls[i];
-    // Skip anything inside our game
-    if(gameFrame && gameFrame.contains(el)) continue;
-    if(el.id==='sdkSpacer'||el.id==='sdkSpacerBottom'||el.id==='gameFrame') continue;
-    if(el.tagName==='SCRIPT'||el.tagName==='STYLE'||el.tagName==='LINK'||el.tagName==='META') continue;
-    var st = window.getComputedStyle(el);
-    // Only care about fixed/sticky/absolute positioned overlays
-    if(st.position!=='fixed'&&st.position!=='sticky'&&st.position!=='absolute') continue;
-    if(st.display==='none'||st.visibility==='hidden'||parseFloat(st.opacity)===0) continue;
-    var rect = el.getBoundingClientRect();
-    if(rect.width < 50 || rect.height < 10) continue; // skip tiny elements
-    // Top overlay
-    if(rect.top < window.innerHeight * 0.3 && rect.height > 10){
-      topH = Math.max(topH, rect.bottom);
-    }
-    // Bottom overlay
-    if(rect.bottom > window.innerHeight * 0.7 && rect.top > window.innerHeight * 0.5){
-      botH = Math.max(botH, window.innerHeight - rect.top);
-    }
-  }
-
-  // 2) Fallback: if nothing detected but we know we're embedded
-  //    (play.fun loads our page in a container, not iframe)
-  if(topH < 5){
-    // Check if there's a play.fun SDK loaded (it sets window.OpenGameSDK or similar)
-    if(typeof window.OpenGameSDK !== 'undefined' || document.querySelector('script[src*="sdk.play.fun"]')){
-      // SDK is loaded, play.fun will overlay their header — use safe minimum
-      topH = isMobileMode ? 80 : 56;
-    }
-  }
-
-  // 3) Round up and apply (with 4px breathing room)
-  topH = topH > 5 ? Math.ceil(topH + 4) : 0;
-  botH = botH > 5 ? Math.ceil(botH + 4) : 0;
-
-  // Only update DOM if values changed (avoid layout thrash)
-  if(topH !== _lastTopH){
-    topSpacer.style.height = topH + 'px';
-    _lastTopH = topH;
-  }
-  if(bottomSpacer && botH !== _lastBotH){
-    bottomSpacer.style.height = botH + 'px';
-    _lastBotH = botH;
-  }
-}
-// Run on load, resize, and periodically (play.fun injects elements after our JS runs)
-window.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 50); });
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', function(){ setTimeout(adjustFrameSpacers, 50); });
-}
-setTimeout(adjustFrameSpacers, 200);
-setTimeout(adjustFrameSpacers, 800);
-setTimeout(adjustFrameSpacers, 2000);
-setTimeout(adjustFrameSpacers, 5000);
-setTimeout(adjustFrameSpacers, 10000);
+// ===== PICTURE FRAME: Fixed buffer zones =====
+// Simple fixed spacers for play.fun header/footer. No auto-detect.
+function adjustFrameSpacers(){/*no-op — using fixed CSS values*/}
 
 document.getElementById('modeToggle').addEventListener('click',function(){
   setMode(!isMobileMode);
