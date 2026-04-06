@@ -17,8 +17,23 @@
 --red:#ff3355;--orange:#ff8800;--white:#e8e8f0;--gray:#777790;
 --font-head:'Orbitron',sans-serif;--font-mono:'JetBrains Mono',monospace;
 }
-html,body{height:100%;overflow:hidden;background:#000;color:var(--white);font-family:var(--font-mono)}
-body{display:flex;flex-direction:column}
+html{height:100%;height:100dvh;overflow:hidden;background:#000}
+body{
+  /* Pin body to exact viewport — works on all Android/iOS browsers */
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:#000;
+  color:var(--white);
+  font-family:var(--font-mono);
+  /* Use dynamic viewport height so browser chrome changes don't affect layout */
+  height:100vh;
+  height:100dvh;
+  max-height:100vh;
+  max-height:100dvh;
+}
 
 /* PICTURE FRAME — isolates game from host page chrome */
 #gameFrame{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:2px solid rgba(0,240,255,0.15);border-radius:6px;position:relative;box-shadow:0 0 20px rgba(0,240,255,0.05),inset 0 0 30px rgba(0,0,0,0.3);min-height:0}
