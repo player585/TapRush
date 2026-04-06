@@ -2945,26 +2945,7 @@ try{
     .observe(document.body,{childList:true,subtree:false});
 }catch(e){}
 
-// ===== LOCK BODY HEIGHT TO ACTUAL VIEWPORT =====
-// Sets body height to window.innerHeight in pixels.
-// This is the only reliable way to prevent play.fun's footer / browser chrome
-// from pushing our layout off screen on iOS Safari and Android Chrome.
-function lockBodyHeight(){
-  // visualViewport.height = actual visible pixels (accounts for iOS Safari toolbar,
-  // Android nav bar, keyboard, etc). window.innerHeight can be too large on iOS.
-  var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
-  document.body.style.height = h + 'px';
-  document.documentElement.style.height = h + 'px';
-  setTimeout(function(){ resize(); recalcGridRanges(); }, 30);
-}
-lockBodyHeight();
-window.addEventListener('resize', function(){ setTimeout(lockBodyHeight, 50); });
-if(window.visualViewport){
-  window.visualViewport.addEventListener('resize', function(){ setTimeout(lockBodyHeight, 50); });
-  window.visualViewport.addEventListener('scroll', function(){ setTimeout(lockBodyHeight, 50); });
-}
-
-function syncBottomBars(){ lockBodyHeight(); }
+function syncBottomBars(){ setTimeout(function(){ resize(); recalcGridRanges(); }, 50); }
 function adjustFrameSpacers(){/*no-op*/}
 
 document.getElementById('modeToggle').addEventListener('click',function(){
