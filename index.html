@@ -37,22 +37,7 @@ body{
    browser chrome changes, and any other host-page elements.
    They ALWAYS appear at the bottom of the screen on every device. */
 
-/* Bottom bars pinned to viewport — JS sets exact bottom/padding values */
-#footer{
-  position:fixed!important;
-  bottom:0!important;
-  left:0!important;
-  right:0!important;
-  z-index:9999!important;
-  width:100%!important;
-}
-body.mobile-mode #mobileStake{
-  position:fixed!important;
-  left:0!important;
-  right:0!important;
-  z-index:9999!important;
-  width:100%!important;
-}
+/* Bottom bars stay in normal flex flow — body height is locked by JS */
 
 /* TICKER */
 #ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
@@ -2960,35 +2945,24 @@ try{
     .observe(document.body,{childList:true,subtree:false});
 }catch(e){}
 
-// ===== BOTTOM BAR SYNC =====
-// Measures the actual rendered height of footer + stake bar and positions
-// everything correctly. Runs after DOM renders so heights are accurate.
-function syncBottomBars(){
-  var footer = document.getElementById('footer');
-  var stake  = document.getElementById('mobileStake');
-  var frame  = document.getElementById('gameFrame');
-  if(!footer || !frame) return;
-
-  // Measure actual rendered heights
-  var fh = footer.offsetHeight || 0;
-  var sh = (stake && isMobileMode) ? (stake.offsetHeight || 0) : 0;
-
-  // Position stake bar flush above footer
-  if(stake && isMobileMode) stake.style.bottom = fh + 'px';
-
-  // Pad game frame so canvas doesn't go behind fixed bars
-  frame.style.paddingBottom = (fh + sh + 2) + 'px';
-
-  // Resize canvas to fit new dimensions
+// ===== LOCK BODY HEIGHT TO ACTUAL VIEWPORT =====
+// Sets body height to window.innerHeight in pixels.
+// This is the only reliable way to prevent play.fun's footer / browser chrome
+// from pushing our layout off screen on iOS Safari and Android Chrome.
+function lockBodyHeight(){
+  var h = window.innerHeight;
+  document.body.style.height = h + 'px';
+  document.documentElement.style.height = h + 'px';
+  // Trigger canvas resize after layout updates
   setTimeout(function(){ resize(); recalcGridRanges(); }, 30);
 }
-// Run after render, after fonts/layout settle, and on resize
-setTimeout(syncBottomBars, 200);
-setTimeout(syncBottomBars, 700);
-setTimeout(syncBottomBars, 2000);
-window.addEventListener('resize', function(){ setTimeout(syncBottomBars, 100); });
-if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ setTimeout(syncBottomBars, 100); });
+lockBodyHeight();
+window.addEventListener('resize', function(){ setTimeout(lockBodyHeight, 50); });
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', function(){ setTimeout(lockBodyHeight, 50); });
+}
 
+function syncBottomBars(){ lockBodyHeight(); }
 function adjustFrameSpacers(){/*no-op*/}
 
 document.getElementById('modeToggle').addEventListener('click',function(){
