@@ -38,6 +38,26 @@ body{
 /* PICTURE FRAME — isolates game from host page chrome */
 #gameFrame{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);border:2px solid rgba(0,240,255,0.15);border-radius:6px;position:relative;box-shadow:0 0 20px rgba(0,240,255,0.05),inset 0 0 30px rgba(0,0,0,0.3);min-height:0}
 
+/* ===== SUPPRESS PLAY.FUN WEBSITE FOOTER ===== */
+/* Play.fun injects their marketing footer on some devices/proxies. */
+/* These rules force-hide it so it can't push our game buttons off screen. */
+body > footer,
+body > div > footer,
+body > nav,
+[class*="Footer"]:not(#footer),
+[class*="footer-"]:not(#footer),
+[class*="site-footer"]:not(#footer),
+[class*="page-footer"]:not(#footer),
+[class*="Footer_"]:not(#footer){
+  display:none!important;
+  height:0!important;
+  overflow:hidden!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  position:absolute!important;
+  top:-9999px!important;
+}
+
 /* TICKER */
 #ticker{height:26px;background:linear-gradient(90deg,#08080d,#0a0a14,#08080d);border-bottom:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;position:relative}
 #ticker::before{content:'';position:absolute;left:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,#08080d,transparent);z-index:2}
@@ -2903,6 +2923,46 @@ function setMode(mobile){
   setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},50);
   setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},200);
 }
+
+// ===== SUPPRESS PLAY.FUN WEBSITE FOOTER =====
+// Play.fun's website footer appears on proxy domains (taprush.fun).
+// Detect and hide it so it can't push our game buttons off screen.
+function suppressHostPageFooter(){
+  try{
+    var els = document.querySelectorAll('body *');
+    for(var i=0;i<els.length;i++){
+      var el = els[i];
+      // Skip anything inside our own elements
+      if(el.id==='footer'||el.id==='mobileStake'||el.id==='gameFrame'||el.id==='sdkSpacer') continue;
+      if(document.getElementById('footer')&&document.getElementById('footer').contains(el)) continue;
+      if(document.getElementById('mobileStake')&&document.getElementById('mobileStake').contains(el)) continue;
+      if(document.getElementById('gameFrame')&&document.getElementById('gameFrame').contains(el)) continue;
+      // Detect play.fun website footer by text content or class
+      var txt = el.innerText||'';
+      var cls = (el.className||'')+' '+(el.id||'');
+      var isPlayFunFooter = (
+        (txt.indexOf('Play.fun')>-1 && txt.indexOf('FAQ')>-1) ||
+        (txt.indexOf('All Rights Reserved')>-1) ||
+        cls.toLowerCase().indexOf('footer')>-1 ||
+        cls.toLowerCase().indexOf('Footer')>-1
+      );
+      if(isPlayFunFooter && el.tagName!=='BODY' && el.tagName!=='HTML'){
+        el.style.cssText='display:none!important;height:0!important;overflow:hidden!important;position:absolute!important;top:-9999px!important;';
+      }
+    }
+  }catch(e){}
+}
+// Run multiple times — play.fun injects footer asynchronously
+setTimeout(suppressHostPageFooter,100);
+setTimeout(suppressHostPageFooter,500);
+setTimeout(suppressHostPageFooter,1500);
+setTimeout(suppressHostPageFooter,4000);
+
+// Also watch for dynamically added elements
+try{
+  new MutationObserver(function(){ suppressHostPageFooter(); })
+    .observe(document.body,{childList:true,subtree:false});
+}catch(e){}
 
 // ===== PICTURE FRAME: Fixed buffer zones =====
 // Simple fixed spacers for play.fun header/footer. No auto-detect.
