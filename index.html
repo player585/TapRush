@@ -37,6 +37,7 @@ body{
    browser chrome changes, and any other host-page elements.
    They ALWAYS appear at the bottom of the screen on every device. */
 
+/* Bottom bars pinned to viewport — JS sets exact bottom/padding values */
 #footer{
   position:fixed!important;
   bottom:0!important;
@@ -45,23 +46,12 @@ body{
   z-index:9999!important;
   width:100%!important;
 }
-body.mobile-mode #footer{
-  height:78px!important;
-}
 body.mobile-mode #mobileStake{
   position:fixed!important;
-  bottom:78px!important;
   left:0!important;
   right:0!important;
   z-index:9999!important;
   width:100%!important;
-}
-/* Pad the game frame so the canvas never goes BEHIND the fixed bars */
-body.mobile-mode #gameFrame{
-  padding-bottom:150px!important;
-}
-body:not(.mobile-mode) #gameFrame{
-  padding-bottom:40px!important;
 }
 
 /* TICKER */
@@ -2926,8 +2916,8 @@ function setMode(mobile){
     closeMobileSheet();
   }
   // Re-resize canvas after mode switch
-  setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},50);
-  setTimeout(()=>{adjustFrameSpacers();resize();recalcGridRanges();remapBetRows();},200);
+  setTimeout(()=>{syncBottomBars();resize();recalcGridRanges();remapBetRows();},50);
+  setTimeout(()=>{syncBottomBars();resize();recalcGridRanges();remapBetRows();},200);
 }
 
 // ===== SUPPRESS PLAY.FUN WEBSITE FOOTER =====
@@ -2970,9 +2960,36 @@ try{
     .observe(document.body,{childList:true,subtree:false});
 }catch(e){}
 
-// ===== PICTURE FRAME: Fixed buffer zones =====
-// Simple fixed spacers for play.fun header/footer. No auto-detect.
-function adjustFrameSpacers(){/*no-op — using fixed CSS values*/}
+// ===== BOTTOM BAR SYNC =====
+// Measures the actual rendered height of footer + stake bar and positions
+// everything correctly. Runs after DOM renders so heights are accurate.
+function syncBottomBars(){
+  var footer = document.getElementById('footer');
+  var stake  = document.getElementById('mobileStake');
+  var frame  = document.getElementById('gameFrame');
+  if(!footer || !frame) return;
+
+  // Measure actual rendered heights
+  var fh = footer.offsetHeight || 0;
+  var sh = (stake && isMobileMode) ? (stake.offsetHeight || 0) : 0;
+
+  // Position stake bar flush above footer
+  if(stake && isMobileMode) stake.style.bottom = fh + 'px';
+
+  // Pad game frame so canvas doesn't go behind fixed bars
+  frame.style.paddingBottom = (fh + sh + 2) + 'px';
+
+  // Resize canvas to fit new dimensions
+  setTimeout(function(){ resize(); recalcGridRanges(); }, 30);
+}
+// Run after render, after fonts/layout settle, and on resize
+setTimeout(syncBottomBars, 200);
+setTimeout(syncBottomBars, 700);
+setTimeout(syncBottomBars, 2000);
+window.addEventListener('resize', function(){ setTimeout(syncBottomBars, 100); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', function(){ setTimeout(syncBottomBars, 100); });
+
+function adjustFrameSpacers(){/*no-op*/}
 
 document.getElementById('modeToggle').addEventListener('click',function(){
   setMode(!isMobileMode);
